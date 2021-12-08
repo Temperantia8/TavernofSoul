@@ -1,0 +1,26 @@
+
+{% extends 'base/index.html' %}
+{% load humanize %}
+{%load translate%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{item.name}} - Tavern of Soul</title>
+    <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+        <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+
+{%endblock%}
+
+{% block content %}
+    <div class="mt-3 col-sm-4">
+      <ul  class="list-group">
+        <li  class="list-group-item"><a href="{%url "Buffs:index"%}">{{"Buffs" | translate}}</a></li>
+        <li class="list-group-item"><a href="{%url "Other:achieve"%}">{{"Achievements" | translate}}</a></li>
+      </ul>  
+    </div>
+    
+
+{% endblock %}

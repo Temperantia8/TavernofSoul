@@ -1,0 +1,118 @@
+
+{% extends 'base/index.html' %}
+{%load translate%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{"Skills" | translate}} - Tavern of Soul</title>
+    <meta content="{{"Skills" | translate}} - Tavern of Soul" property="og:title" />
+    <meta content="" property="og:description" />
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/images/logo.png" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+            <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+
+{%endblock%}
+
+  {% block content %}
+
+<h1 id="title">{{"Skills" | translate}}</h1>
+<form autocomplete="off" action="" method="GET" >
+  <div class="form-inline">
+    <input type="input" class="form-control" id="inputPassword2" placeholder="Search..."  value="{{query}}" name="q" >
+  </div>
+
+<br>
+<fieldset class="filters row col-sm-5 ml-1 pl-0 pr-0">
+  <div class="form-inline" style="width:100%">  
+    <table class = "col-sm-4" >
+      <tbody>        
+        <tr>
+          <td>
+
+            <div class="pl-0">
+            <select class="form-control form-control-sm" style = "width:100%"  name="job">
+              <option value = ''>{{"Class"|translate}}</option>
+              {% for job in jobs%}
+                <option value="{{job.ids}}" {%if job.ids == jobq %} selected {%endif%}>{{job.name}}</option>
+              {%endfor%}
+            </select>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+       <table class = "col-sm-4 " style="height: 100%;">
+      <tbody>
+        <tr>
+          <td style="vertical-align: center">
+            <input type="submit" class="col-sm-12 btn " value="Filter">
+          </td>
+        </tr>
+      
+      </tbody>
+    </table>
+  </div>
+</fieldset>
+
+  {%if item%}
+  <label class="mt-1 mb-1">{{item_len}} {{"Results"|translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1">
+    <thead>
+      <tr>
+        <th></th>
+        <th>ClassID</th>
+        <th>{{"Name"|translate}}</th>
+        <th>{{"Job"|translate}}</th>
+        <th>{{"Max Level"|translate}}</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in item %}
+      <tr>
+        <td><img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"></td>
+        <td><a href="{%url 'Skills:skills' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.name}}</td>
+        <td>{{i.job.name}}</td>
+        <td>{{i.max_lv}}</td>
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if pages %}
+    <tfoot>
+      <tr>
+        <td class="footer-more" style="text-align: center; font-size: 15px;" colspan="7">
+          <ul class="pagination" style="display: inline;"  >
+              {% if curpage >= 2 %}
+              <li><a href="{{ pageStart }}"><<</a></li>
+              {%endif%}
+              {% if curpage > 1 %}
+              <li><a href="{{ pagebefLink }}"><</a></li>
+              {%endif%}
+            {% for i in pages%}
+              
+              {%if i.page != curpage%}
+              <li><a href="{{i.link}}">{{i.page}}</a></li>
+              {%else%}
+              <li>{{i.page}}</li>
+              {%endif%}
+            {%endfor%}
+              {% if curpage <=  beforeEnd  %}
+              <li><a href="{{ pageNextLink }}">></a></li>
+              {%endif%}
+              {% if curpage < pageLen %}
+                <li><a href="{{ pageEnd }}">>></a></li>
+              {%endif%}
+          </ul>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+
+{%endif%}
+{% endblock %}
+

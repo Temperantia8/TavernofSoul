@@ -1,0 +1,181 @@
+
+{% extends 'base/index.html' %}
+{% load humanize %}
+{% load translate%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{item.name}} - Tavern of Soul</title>
+    <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+     <meta  property="og:description"content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+    <meta name="description" content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+
+{%endblock%}
+
+  {% block content %}
+
+<div class="form-inline mb-2" >
+  {%if item.visual%}
+ <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="max-width: 64px; max-height: 64px;">
+ {%endif%}
+ <h1 id="title">{{item.name}}</h1>
+</div>
+
+{%if desc%}
+  {% for line in desc%}
+    <p class="mb-0">{{line}}</p>
+  {%endfor%}
+{%endif%}
+
+<br>
+
+<div class="form-inline mb-2" >
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>ClassID</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.ids}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>ClassName</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.id_name}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>{{'Duration' |translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.duration}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>{{'Max stack' | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.overbuff}}</td>
+      </tr>
+    </tbody>
+  </table>
+    <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>{{'Self remove' | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.userremove}}</td>
+      </tr>
+    </tbody>
+  </table>
+  {% if item.keyword %}
+   <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>{{'Keyword' | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.readableKeyword}}</td>
+      </tr>
+    </tbody>
+  </table>
+  {%endif%}
+  </div>
+
+
+<br>
+
+<div class="form-inline mb-2" >
+  {%if item.group1%}
+    <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+      <thead>
+        <tr>
+          <th>{{"group1" | translate}}</th>  
+        </tr>
+      </thead>
+      <tbody>
+         <tr>
+          <td>{{item.group1}}</td>
+        </tr>
+      </tbody>
+    </table>
+  {%endif%}
+  {%if item.group2%}
+    <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+      <thead>
+        <tr>
+          <th>{{"group2" | translate}}</th>  
+        </tr>
+      </thead>
+      <tbody>
+         <tr>
+          <td>{{item.group2}}</td>
+        </tr>
+      </tbody>
+    </table>
+  {%endif%}
+  {%if item.group3%}
+    <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+      <thead>
+        <tr>
+          <th>{{"group3" | translate}}</th>  
+        </tr>
+      </thead>
+      <tbody>
+         <tr>
+          <td>{{item.group3}}</td>
+        </tr>
+      </tbody>
+    </table>
+  {%endif%}
+
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>Group Index</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.groupindex}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{%endblock%}

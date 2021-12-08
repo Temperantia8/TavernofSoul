@@ -1,0 +1,193 @@
+
+{% extends 'base/index.html' %}
+{% load translate%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{"Items"|translate}} - Tavern of Soul</title>
+    <meta content="Items - Tavern of Soul" property="og:title" />
+    <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/images/logo.png" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+
+{%endblock%}
+
+  {% block content %}
+
+<h1 id="title">{{"Items" | translate}}</h1>
+<form autocomplete="off" action="" method="GET" >
+  <div class="form-inline">
+    <input type="input" class="form-control" id="inputPassword2" placeholder="Search..."  value="{{query}}" name="q" >
+  </div>
+
+<br>
+
+<fieldset class="filters row col-sm-6 ml-1 pl-0 pr-0">
+  <div class="form-inline">  
+    <table class = "col-sm-4" >
+      <tbody>
+        <tr>
+          <td>
+            <div class=" pl-0">
+            <select class="form-control form-control-sm" style = "width:100%" name="type">
+              <option value="">{{"Type" | translate}}</option>
+              {% for i in types%}
+                <option value="{{i.id}}" {%if i.id == type%} selected {%endif%} >{{i.type| translate}}</option>
+              {%endfor%}
+            </select>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+
+            <div class="pl-0">
+            <select class="form-control form-control-sm" style = "width:100%"  name="class">
+              <option value = ''>{{"Job" | translate}}</option>
+              <option value = 0 {%if class == '0'%} selected {%endif%}>{{"Archer" | translate}}</option>
+              <option value = 1 {%if class == '1'%} selected {%endif%}>{{"Cleric" | translate}}</option>
+              <option value = 2 {%if class == '2'%} selected {%endif%}>{{"Scout" | translate}}</option>
+              <option value = 3 {%if class == '3'%} selected {%endif%}>{{"Swordman" | translate}}</option>
+              <option value = 4 {%if class == '4'%} selected {%endif%}>{{"Wizard" | translate}}</option>
+
+            </select>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class = "col-sm-4" >
+      <tbody>
+        <tr>
+          <td>
+            <div class=" pl-0">
+            <select class="form-control form-control-sm" style = "width:100%"  name="grade">
+              <option value = ''>{{"Grade" | translate}}</option>
+              <option value = 1  {%if class == '1'%} selected {%endif%}>{{"Normal" | translate}}</option>
+              <option value = 2  {%if class == '2'%} selected {%endif%}>{{"Magic" | translate}}</option>
+              <option value = 3 {%if class == '3'%} selected {%endif%}>{{"Rare" | translate}}</option>
+              <option value = 4 {%if class == '4'%} selected {%endif%}>{{"Unique" | translate}}</option>
+              <option value = 5 {%if class == '5'%} selected {%endif%}>{{"Legendary" | translate}}</option>
+              <option value = 6 {%if class == '6'%} selected {%endif%}>{{"Goddess" | translate}}</option>
+            </select>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class=" pl-0 pr-0">
+            <div class="pl-0 form-inline">
+            <label class="col-sm-2">lv:</label>
+            <input class="col-sm-4 form-control-sm" type='text' name="lvmin" value="{{minLV}}">
+            <span class="ml-1 mr-1">-</span>
+            <input class="col-sm-4 form-control-sm" type='text' name="lvmax" value="{{maxLV}}">
+            </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <table class = "col-sm-4 " style="height: 100%;">
+      <tbody>
+        <tr>
+          <td>
+            <select class="form-control form-control-sm" style = "width:100%"  name="order">
+              <option value = ''>order by</option>
+              <option value = 'eq-level-asc' {%if order == 'eq-level-asc'%} selected {%endif%}>{{"level" | translate}} ▲</option>
+              <option value = 'eq-level-dsc' {%if order == 'eq-level-dsc'%} selected {%endif%}>{{"level" | translate}} ▼</option>
+              <option value = 'ids-asc'      {%if order == 'ids-asc'%} selected {%endif%}>{{"ClassID" | translate}} ▲</option>
+              <option value = 'ids-dsc'      {%if order == 'ids-dsc'%} selected {%endif%}>{{"ClassID" | translate}} ▼</option>
+              <option value = 'name-asc'     {%if order == 'name-asc'%} selected {%endif%}>{{"Name" | translate}} ▲</option>
+              <option value = 'name-dsc'     {%if order == 'name-dsc'%} selected {%endif%}>{{"Name" | translate}} ▼</option>
+              <option value = 'id_name-asc'   {%if order == 'id_name-asc'%} selected {%endif%}>{{"ClassName" | translate}} ▲</option>
+              <option value = 'id_name-dsc'   {%if order == 'id_name-dsc'%} selected {%endif%}>{{"ClassName" | translate}} ▼</option>
+            
+            </select>
+          </td>
+         
+        </tr>
+        <tr>
+           <td style="vertical-align: top">
+            <input type="submit" class="col-sm-12 btn " value="Filter">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</fieldset>
+
+
+  {%if item%}
+  <label class="mt-1 mb-1">{{item_len}} {{"Results"|translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1 ">
+    <thead>
+      <tr>
+        <th></th>
+        <th>{{"ClassID" | translate}}</th>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Type" | translate}}</th>
+        <th>{{"Grade" | translate}}</th>
+        <th>{{"Level" | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in item %}
+      <tr>
+        <td><img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"></td>
+        <td><a href="{%url 'Items:item' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.name}}</td>
+        {%if i.equipments %}
+          <td>{{i.equipments.type_equipment}}</td>
+        {%else%}
+          <td>{{i.type}}</td>
+        {% endif %}
+        {%if i.grade%}
+          <td class="cell-center"><span class="item-grade item-grade-{{i.grade}}"></span></td>
+        {%else%}
+          <td></td>
+        {%endif%}
+        <td>{{i.equipments.level}}</td>
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if pages %}
+    <tfoot>
+      <tr>
+        <td class="footer-more" style="text-align: center; font-size: 15px;" colspan="6">
+          <ul class="pagination" style="display: inline;"  >
+              {% if curpage >= 2 %}
+              <li><a href="{{ pageStart }}"><<</a></li>
+              {%endif%}
+              {% if curpage > 1 %}
+              <li><a href="{{ pagebefLink }}"><</a></li>
+              {%endif%}
+            {% for i in pages%}
+              
+              {%if i.page != curpage%}
+              <li><a href="{{i.link}}">{{i.page}}</a></li>
+              {%else%}
+              <li>{{i.page}}</li>
+              {%endif%}
+            {%endfor%}
+              {% if curpage <=  beforeEnd  %}
+              <li><a href="{{ pageNextLink }}">></a></li>
+              {%endif%}
+              {% if curpage < pageLen %}
+                <li><a href="{{ pageEnd }}">>></a></li>
+              {%endif%}
+          </ul>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+
+{%endif%}
+{% endblock %}
+

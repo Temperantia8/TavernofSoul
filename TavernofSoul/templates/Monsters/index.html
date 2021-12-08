@@ -1,0 +1,498 @@
+
+{% extends 'base/index.html' %}
+{% load humanize %}
+{%load translate%}
+<!--Block content goes below-->
+
+{%block head%}
+    <title>{{item.name}} - Tavern of Soul</title>
+    <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
+    <meta content="{{item.descriptions}}" property="og:description" />
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}.png" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+     <meta  property="og:description"content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+    <meta name="description" content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+
+{%endblock%}
+{% block content %}
+
+
+
+<h1 id="title">{{item.name}}</h1>
+{%if desc%}
+  {% for line in desc%}
+    <p class="mb-0">{{line}}</p>
+  {%endfor%}
+{%endif%}
+
+<br>
+
+
+
+
+<div class="row form-inline align-items-start" style="width: 100%;">
+  <div class="col-6 align-top">
+
+    <h2> {{"Stats"|translate}} </h2>
+    <div class="form-inline mb-2" >
+      <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+        <thead>
+          <tr>
+            <th>ClassID</th>  
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.ids}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>ClassName</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.id_name}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="form-inline mb-2" >
+      <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+        <thead>
+          <tr>
+            <th>{{"Level"|translate}}</th>  
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.level}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>{{"Rank"|translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.rank}}</td>
+          </tr>
+        </tbody>
+      </table>
+      {%if item.size %}
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>{{"Size"|translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.size}}</td>
+          </tr>
+        </tbody>
+      </table>
+      {%endif%}
+
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>{{"Race"|translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            {% if item.race%}
+              <td>{{item.race|translate}}</td>
+            {%else%}
+            <td>None</td>
+            {%endif%}
+          </tr>
+        </tbody>
+      </table>
+
+
+      {%if item.element %}
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>{{"elements"|translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.element|translate}}</td>
+          </tr>
+        </tbody>
+      </table>
+      {%endif%}
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>{{"Armor"|translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            {% if item.armor%}
+              <td>{{item.armor}}</td>
+            {%else%}
+            <td>None</td>
+            {%endif%}
+          </tr>
+        </tbody>
+      </table>
+
+      
+
+    </div>
+
+    <div class="form-inline mb-2">
+      <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+        <thead>
+          <tr>
+            <th>HP</th>   
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.hp|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>DEF</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.pdef|intcomma }}</td>
+          </tr>
+        </tbody>
+     
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>MDEF</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.mdef|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>ATK</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.patk_min|intcomma }} ~ {{item.patk_max|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>MATK</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.matk_min|intcomma }} ~ {{item.matk_max|intcomma }} </td>
+          </tr>
+        </tbody>
+      </table>
+      
+    </div>
+
+    <div class="form-inline mb-2">
+      <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+        <thead>
+          <tr>
+            <th>Acc</th>  
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.accuracy|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>Eva</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{item.eva|intcomma }}</td>
+          </tr>
+        </tbody>
+     
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>Crit</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.critrate|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>CDEF</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.critdef|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>CATK</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.critdmg|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>BLK</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.block|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>BLK Pen</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{item.blockpen|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+    </div>
+
+    <br>
+   <h2>{{"Visual"|translate}}</h2>
+
+      <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="width: 250px; height: 250px;">
+  </div>
+  <div class="col-6 align-top">
+      <h2>{{"Stat to cap"|translate}}</h2>
+    <div class="form-inline mb-2">
+      <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+        <thead>
+          <tr>
+            <th>Acc</th>  
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{accuracy|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>Eva</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+            <td>{{eva|intcomma }}</td>
+          </tr>
+        </tbody>
+     
+      </table>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>Crit</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{critrate|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>CDEF</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{critdef|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>BLK</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{iblock|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>BLK Pen</th>
+          </tr>
+        </thead>
+        <tbody>
+           <tr>
+              <td>{{blockpen|intcomma }}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+    </div>
+
+    {%if skills%}
+      <h2>{{"Skills"|translate}}</h2>
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>ClassID</th>
+            <th>{{"Name"|translate}}e</th>
+            <th>{{"Attribute"|translate}}</th>
+            <th>CD.</th>
+            <th>SFR.</th>
+            <th>AAR.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%for i in skills%}
+          <tr>
+            <td>{{i.ids}}</td>
+            <td>{{i.name}}</td>
+            <td>{{i.element}}</td>
+            <td>{{i.cd_in_sec}}</td>
+            <td>{{i.sfr}} {%if i.hit_count != 1%} x i.hit_count {%endif%}</td>
+            <td>{{i.aar}}</td>
+          </tr>
+          {%endfor%}
+        </tbody>
+    </table>
+    {%endif%}
+    {%if spotted%}
+      <h2>Found In</h2>
+
+      <table class="table-bordered border border-white border-responsive mt-1 tabe">
+        <thead>
+          <tr>
+            <th>ClassID</th>
+            <th>{{"Maps"|translate}}</th>
+            <th>{{"Resp."|translate}}</th>
+            <th>{{"Pop."|translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%for i in spotted%}
+          <tr>
+            <td><a href="{%url 'Maps:maps' i.map.ids%}">{{i.map.ids}}</a></td>
+            <td>{{i.map.name}}</td>
+            <td>{{i.time_respawn}}</td>
+            <td>{{i.population}}</td>
+          </tr>
+          {%endfor%}
+        </tbody>
+     
+      </table>
+    {%endif%}
+
+      {%if drop%}
+        <br>
+        <table class="table-bordered border border-white border-responsive mt-1 tabe">
+            <tbody>
+              {%if drop%}
+              <tr>
+                <th style="vertical-align:top">{{"Drop"|translate}}</th>
+                <td>
+                  {%for i in drop%}
+                    <p class="mb-0"> <a href="{% url 'Items:item' i.item.ids%}"> <img loading="lazy" alt="" src="/static/icons/{{i.item.icon}}.png") class="icon-24">{{i.item.name}}</a> ({{i.chance}} %)</p> 
+                    
+                  {%endfor%}
+                </td>
+              </tr>
+              {%endif%}
+            </tbody>
+         
+          </table>
+      {%endif%}
+   
+  </div>
+</div>
+
+ 
+  {% endblock %}

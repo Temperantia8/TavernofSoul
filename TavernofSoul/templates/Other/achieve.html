@@ -1,0 +1,86 @@
+
+{% extends 'base/index.html' %}
+{%load translate%}
+{%load utils%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{"Achievements" | translate }} - Tavern of Soul</title>
+    <meta content="{{"Achievements" | translate}} - Tavern of Soul" property="og:title" />
+        <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/images/logo.png" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+        <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+
+{%endblock%}
+
+  {% block content %}
+
+<h1 id="title">{{"Achievements" | translate}}</h1>
+<form autocomplete="off" action="" method="GET" >
+  <div class="form-inline">
+    <input type="input" class="form-control" id="inputPassword2" placeholder="Search..."  value="{{query}}" name="q" >
+  </div>
+
+<br>
+
+  <table class="table-bordered border border-white border-responsive mt-1" style="max-width:65rem">
+    <thead>
+      <tr>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Title" | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in item %}
+      <tr>
+        <td><p style="font-size: 14px; margin-bottom: 1px; font-weight: 600">{{i.desc_title}}</p>
+          
+            {% for h in i.descriptions %}
+            <p style="font-size: 12px ; margin-bottom: 1px;"> 
+              {{h}}  </p>
+            {%endfor%}
+            </td>
+        <td>{{i.name | imcFormatRemover }}</td>
+        
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if pages %}
+    <tfoot>
+      <tr>
+        <td class="footer-more" style="text-align: center; font-size: 15px;" colspan="8">
+          <ul class="pagination" style="display: inline;"  >
+              {% if curpage >= 2 %}
+              <li><a href="{{ pageStart }}"><<</a></li>
+              {%endif%}
+              {% if curpage > 1 %}
+              <li><a href="{{ pagebefLink }}"><</a></li>
+              {%endif%}
+            {% for i in pages%}
+              
+              {%if i.page != curpage%}
+              <li><a href="{{i.link}}">{{i.page}}</a></li>
+              {%else%}
+              <li>{{i.page}}</li>
+              {%endif%}
+            {%endfor%}
+              {% if curpage <=  beforeEnd  %}
+              <li><a href="{{ pageNextLink }}">></a></li>
+              {%endif%}
+              {% if curpage < pageLen %}
+                <li><a href="{{ pageEnd }}">>></a></li>
+              {%endif%}
+          </ul>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+
+{%endif%}
+{% endblock %}
+

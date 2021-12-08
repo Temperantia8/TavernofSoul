@@ -1,0 +1,150 @@
+{%load static%}
+{%load translate%}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/logo.png' %}"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{%static 'css/style.css'%}">
+    <meta property="og:site_name" content="Tavern of Soul">
+    <meta property="og:type" content="website">
+    {% block head%}
+    {%endblock%}
+    <style type="text/css">
+      .flavor{
+        color: #dbdbdc;
+        background-color: transparent;
+        text-decoration: none;
+      }
+      .disabled-link {
+        pointer-events: none;
+        color: #fff;
+
+      }
+      .ext-logo{
+        margin-left: 8px;
+        margin-right: 8px;
+        max-height: 32px;
+        max-width: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div class="wrapper d-flex align-items-stretch">
+      <nav id="sidebar">
+        <div class="custom-menu">
+          <button type="button" id="sidebarCollapse" class="btn btn-primary" style="z-index:9999">
+          </button>
+        </div>
+        <div class="img bg-wrap text-center py-4">
+          <div class="user-logo">
+            <div class="img" style="background-image: url({%static 'images/logo.png'%});"></div>
+            <h3>Tavern of Soul</h3>
+          </div>
+          <div>
+            {% if 'jtos' in request.get_host %}
+              <b><a href="https://jtos.tavernofsoul.com" class="flavor">jToS</a></b> | 
+            {% else %}
+              <a href="https://jtos.tavernofsoul.com" class="flavor">jToS</a> | 
+            {%endif%}
+            {% if 'itos' in request.get_host %}
+              <b><a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a></b> | 
+            {%else%}
+              <a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a> | 
+            {%endif%}
+            {% if 'ktos' in request.get_host %}
+              <b><a href="https://ktos.tavernofsoul.com"  class="flavor">kToS</a></b> | 
+            {%else%}
+              <a href="https://ktos.tavernofsoul.com"  class="flavor">kToS</a> | 
+            {%endif%}
+            {% if 'ktest' in request.get_host %}
+              <b><a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a></b> | 
+            {%else%}
+              <a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a> |  
+            {%endif%}
+          </div>
+        </div>
+        <ul class="list-unstyled components mb-5">
+          <li class="active">
+            <a href="/"></span> {{"Home" | translate}}</a>
+          </li>
+          <li>
+              <a href='{%url "Items:index"%}'></span> {{"Items" | translate}}</a>
+          </li>
+          <li>
+            <a href='{%url "Monsters:index"%}'></span> {{"NPCs" | translate}}</a>
+          </li>
+          <li>
+            <a href='{%url "Maps:index"%}'></span> {{"Maps" | translate }}</a>
+          </li>
+          <li>
+            <a href='{%url "Jobs:index"%}'></span> {{"Jobs" | translate }}</a>
+          </li>
+          <li>
+            <a href='{%url "Skills:index"%}'></span> {{"Skills" | translate }}</a>
+          </li>
+          <li>
+            <a href='{%url "Attributes:index"%}'></span> {{"Attributes" | translate }}</a>
+          </li>
+<!--           <li>
+            <a href='{%url "Buffs:index"%}'></span> {{"Buffs"|translate}}</a>
+          </li>
+ -->
+          <li class="sidebar-dropdown {%if "buff" in request.path or "other" in request.path%} active {%endif%}">
+            <a style=" cursor: pointer;">
+                <span>{{"Misc"|translate}}</span>
+            </a>
+            <div class="sidebar-submenu "  {%if "buff" in request.path or "other" in request.path%}{%else%} style="display: none;" {%endif%}>
+                <ul  style="list-style-type: none; padding-left: 0; background-color: #3c4249;">
+                    <li >
+                        <a href="{%url "Buffs:index"%}">{{"Buffs"|translate}}</a>
+                    </li>
+                    <li >
+                        <a href="{%url "Other:achieve"%}">{{"Achievements" | translate}}</a>
+                    </li>
+                    
+                </ul>
+            </div>
+          </li>
+
+          <li>
+            <a href='{%url "Planner:index"%}'></span> {{"Planner" | translate }}</a>
+          </li>
+
+          
+          
+          
+        </ul>
+        <div class="mememe mb-2" style="text-align:center;   position: absolute;
+            bottom: 0;width:100%">
+          <!-- <a href="https://github.com/Temperantia8" target="_blank"><img src="{%static 'images/GitHub-Mark-Light-64px.png' %}" class='ext-logo'></a> -->
+          <a href="https://discord.gg/bD33dTbj6z" target="_blank"><img src="{%static 'images/Discord-Logo-White.png' %}" class='ext-logo'></a>
+          <a href="https://twitter.com/Temperantia8" target="_blank"><img src="{%static 'images/Twitter-logo-white.png' %}" class='ext-logo'></a>
+          <a href="https://ko-fi.com/temperantia" target="_blank"><img src="{%static 'images/ko-fi.png' %}" class='ext-logo' style="margin-left:3px"></a>
+        </div>
+      </nav>
+
+        <!-- Page Content  -->
+      <div id="content" class="pt-5 pl-2 pb-5 pr-2">
+        
+        {% block content%}
+        {%endblock%}
+      </div>
+    </div>
+
+    <script src="{% static 'js/jquery.min.js'%}"></script>
+    <script src="{% static 'js/popper.js'%}"></script>
+    <script src="{% static 'js/bootstrap.min.js'%}"></script>
+    <script src="{% static 'js/main.js'%}"></script>
+
+
+    {% block script%}
+    {%endblock%}
+
+  </body>
+</html>

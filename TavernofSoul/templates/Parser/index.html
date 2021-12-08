@@ -1,0 +1,54 @@
+
+{% extends 'base/index.html' %}
+{% load humanize %}
+{% load utils %}
+{%load translate%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{item.name}} - Tavern of Soul</title>
+    <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+            <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+
+{%endblock%}
+
+{% block content %}
+{%for table in json%}
+  <b>{{table.filename}}</b>
+  {%if table.flag%}
+    {{table.status}}
+    <br><br>
+  {%else%}
+    <table class="table-bordered border border-white border-responsive mt-1 " >
+      <thead>
+        <tr>
+          {%for header in table.header%}
+          <th>{{header}}</th>
+          {%endfor%}
+        </tr>
+      </thead>
+      <tbody id = {{table.filename}}>
+        
+      </tbody>
+
+    </table>
+    <br>
+  {%endif%}
+{%endfor%}
+{{ value|json_script:"hello-data" }}
+{% endblock %}
+
+
+{% block script%}
+
+<script type="text/javascript">
+  
+
+
+
+</script>
+
+{%endblock%}

@@ -1,0 +1,206 @@
+
+{% extends 'base/index.html' %}
+{%load translate%}
+{%block head%}
+    <title>{{"NPCs" | translate}} - Tavern of Soul</title>
+    <meta content="Items - Tavern of Soul" property="og:title" />
+    <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/images/logo.png" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+
+{%endblock%}
+<!--Block content goes below-->
+
+
+  {% block content %}
+
+<h1 id="title">{{"NPCs" | translate}}</h1>
+<form autocomplete="off" action="" method="GET" >
+  <div class="form-inline">
+    <input type="input" class="form-control" id="inputPassword2" placeholder="Search..."  value="{{query}}" name="q" >
+    <div class="form-check ml-2">
+      <input class="form-check-input" type="checkbox" value="True" {%if cls%} checked {%endif%} id="flexCheckDefault" name = "byClass">
+      <label class="form-check-label" for="flexCheckDefault">
+        By ClassName
+      </label>
+    </div>
+  </div>
+
+<br>
+
+
+<fieldset class="filters row col-sm-5 ml-1 pl-0 pr-0">
+  <div class="form-inline" style="width:100%">  
+     <table class = "col-sm-4" >
+      <tbody>        
+        <tr>
+          <td>
+
+            <div class="pl-0">
+             <select class="form-control form-control-sm" style = "width:100%"  name="race" id = 'race'>
+                <option value = ''>{{"Race" | translate}}</option>
+                {% for i in Race%}
+                <option value = '{{i}}'   id = {{i}}>{{i|translate}}</option>
+                {%endfor%}
+            
+            </select>
+            </div>
+          </td>
+        </tr>
+         <tr>
+          <td>
+
+            <div class="pl-0">
+             <select class="form-control form-control-sm" style = "width:100%"  name="attribute" id = 'attribute'>
+                <option value = ''>{{"Attribute" | translate}}</option>
+                {% for i in Attribute%}
+                <option value = '{{i}}'   id = {{i}}>{{i|translate}}</option>
+                {%endfor%}
+            
+            </select>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+     <table class = "col-sm-4" >
+      <tbody>        
+        <tr>
+          <td>
+
+            <div class="pl-0">
+             <select class="form-control form-control-sm" style = "width:100%"  name="armor" id = 'armor'>
+                <option value = ''>{{"Armor" | translate}}</option>
+                {% for i in Armor%}
+                <option value = '{{i}}'   id = {{i}}>{{i|translate}}</option>
+                {%endfor%}
+            
+            </select>
+            </div>
+          </td>
+        </tr>
+         <tr>
+          <td>
+
+            <div class="pl-0">
+             <select class="form-control form-control-sm" style = "width:100%"  name="order" id = "order">
+                <option value = ''>{{"order by" | translate}}</option>
+                <option value = 'level-asc' {%if order == 'level-asc'%} selected {%endif%}>{{"level" | translate}} ▲</option>
+                <option value = 'level-dsc' {%if order == 'level-dsc'%} selected {%endif%}>{{"level" | translate}} ▼</option>
+                <option value = 'ids-asc'      {%if order == 'ids-asc'%} selected {%endif%}>{{"ClassID" | translate}} ▲</option>
+                <option value = 'ids-dsc'      {%if order == 'ids-dsc'%} selected {%endif%}>{{"ClassID" | translate}} ▼</option>
+                <option value = 'name-asc'     {%if order == 'name-asc'%} selected {%endif%}>{{"Name" | translate}} ▲</option>
+                <option value = 'name-dsc'     {%if order == 'name-dsc'%} selected {%endif%}>{{"Name" | translate}} ▼</option>
+                <option value = 'id_name-asc'   {%if order == 'id_name-asc'%} selected {%endif%}>{{"ClassName" | translate}} ▲</option>
+                <option value = 'id_name-dsc'   {%if order == 'id_name-dsc'%} selected {%endif%}>{{"ClassName" | translate}} ▼</option>
+            
+            </select>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <table class = "col-sm-4" >
+      <tbody>        
+        
+         <tr>
+          <td style="vertical-align: center">
+            <input type="submit" class="col-sm-12 btn " value="Filter">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            
+          </td>
+        </tr>
+      </tbody>
+    </table>
+   
+       <table class = "col-sm-4 " style="height: 100%;">
+      <tbody>
+       
+      
+      </tbody>
+    </table>
+  </div>
+</fieldset>
+<br>
+
+  {%if item%}
+  <label class="mt-1 mb-1">{{item_len}} {{"Results" | translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1 ">
+    <thead>
+      <tr>
+        <th>ClassID</th>
+        <th>ClassName</th>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Level" | translate}}</th>
+        <th>{{"Race" | translate}}</th>
+        <th>{{"elements" | translate}}</th>
+        <th>{{"Armor" | translate}}</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in item %}
+      <tr>
+        <td><a href="{%url 'Monsters:monster' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.name}}</td>
+        <td>{{i.id_name}}</td>
+        <td>{{i.level}}</td>
+        <td>{{i.race|translate}}</td>
+        <td>{{i.element|translate}}</td>
+        <td>{{i.armor|translate}}</td>
+
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if pages %}
+    <tfoot>
+      <tr>
+        <td class="footer-more" style="text-align: center; font-size: 15px;" colspan="7">
+          <ul class="pagination" style="display: inline;"  >
+              {% if curpage >= 2 %}
+              <li><a href="{{ pageStart }}"><<</a></li>
+              {%endif%}
+              {% if curpage > 1 %}
+              <li><a href="{{ pagebefLink }}"><</a></li>
+              {%endif%}
+            {% for i in pages%}
+              
+              {%if i.page != curpage%}
+              <li><a href="{{i.link}}">{{i.page}}</a></li>
+              {%else%}
+              <li>{{i.page}}</li>
+              {%endif%}
+            {%endfor%}
+              {% if curpage <=  beforeEnd  %}
+              <li><a href="{{ pageNextLink }}">></a></li>
+              {%endif%}
+              {% if curpage < pageLen %}
+                <li><a href="{{ pageEnd }}">>></a></li>
+              {%endif%}
+          </ul>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+
+{%endif%}
+{% endblock %}
+
+{%block script%}
+<script type="text/javascript">
+  $("#race").find("#{{race}}").prop('selected', true)
+  $("#attribute").find("#{{attribute}}").prop('selected', true)
+  $("#armor").find("#{{armor}}").prop('selected', true)
+</script>
+{%endblock%}

@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        csv-diff=csv_diff.cli:cli
+    

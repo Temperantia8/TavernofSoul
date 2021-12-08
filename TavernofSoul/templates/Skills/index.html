@@ -1,0 +1,331 @@
+
+{% extends 'base/index.html' %}
+{% load humanize %}
+{%load translate%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{item.name}} - Tavern of Soul</title>
+    <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}" property="og:image" />
+     <meta  property="og:description"content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+    <meta name="description" content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+
+{%endblock%}
+
+  {% block content %}
+<div class="form-inline mb-2" >
+ <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="max-width: 64px; max-height: 64px;"><h1 id="title">{{item.name}}</h1>
+</div>
+{%if desc%}
+  {% for line in desc%}
+    <p class="mb-0">{{line}}</p>
+  {%endfor%}
+{%endif%}
+
+<br>
+
+<div class="form-inline mb-2" >
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>ClassID</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.ids}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>ClassName</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.id_name}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>OH</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.overheat}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>CD</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td id = 'cd'>{{item.cooldown}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>SP</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.sp}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>{{"elements"|translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.element}}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  </div>
+
+<br>
+
+<div class="form-inline mb-2" >
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>{{"Class"|translate}}</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>
+          {{item.job.name}}
+        </td>
+      </tr>
+    </tbody>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>{{"Class"|translate}}LV</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>
+          {{item.unlock}}
+        </td>
+      </tr>
+    </tbody>
+  <table class="table-bordered border border-white border-responsive mt-1 mr-3 tabe" >
+    <thead>
+      <tr>
+        <th>{{"Max Lv"|translate}}</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>
+          {{item.max_lv}}
+        </td>
+      </tr>
+    </tbody>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>{{"Stance"|translate}}</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>
+        {{item.stance}}
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>{{"Riding"|translate}}</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>
+        {% if item.is_riding%}
+          Yes
+        {%else%}
+          No
+        {%endif%}
+        </td>
+        
+      </tr>
+    </tbody>
+  </table>
+  
+
+  </div>
+  {%if item.effect%}
+  <br>
+  <div class="form-inline">
+  <h2>{{"Effect"|translate}}</h2> - at lv <input class="form-control-sm ml-2"  type='text'
+              id="lv" style="width :40px; text-align: center;">
+  </div>
+  {%if effect%}
+    {% for line in effect%}
+      <p class="mb-1">
+      {% for item in line %}
+        {% if item in specialvar%}
+          <b id = '{{item}}'>{{item}}</b>
+        {%else%}
+          {{item}}
+        {%endif%}
+      {%endfor%}
+      </p>
+    {%endfor%}
+  {%endif%}
+ 
+  {%endif%}
+
+  {% endblock %}
+
+{% block script%}
+<script type="text/javascript">
+
+  {%if item.sfr%}
+    sfr = {{item.sfr}}
+  {%endif%}
+  {%if item.captionratio1%}
+    captionratio1 = {{item.captionratio1}}
+  {%endif%}
+  {%if item.captionratio2%}
+    captionratio2 = {{item.captionratio2}}
+  {%endif%}
+  {%if item.captionratio3%}
+    captionratio3 = {{item.captionratio3}}
+  {%endif%}
+  {%if item.captiontime%}
+    captiontime = {{item.captiontime}}
+  {%endif%}
+  {%if item.spenditemcount%}
+    spenditemcount = {{item.spenditemcount}}
+  {%endif%}
+  {%if item.spendsp%}
+    spendsp = {{item.spendsp}}
+  {%endif%}
+  {%if item.spendpoison%}
+    spendpoison = {{item.spendpoison}}
+  {%endif%}
+  {%if item.skillsr%}
+    skillsr = {{item.skillsr}}
+  {%endif%}
+  {%if item.cooldownlv%}
+    cd = {{item.cooldownlv}}
+  {%endif%}
+  max_lv = {{item.max_lv}}
+  $("#lv").on("input", function(){
+    lv = $(this).val()
+    lv = parseInt(lv)
+    console.log(lv)
+    if (lv>max_lv + 10){
+      $("#lv")[0].value = max_lv
+      lv = max_lv
+    }
+    
+    if (lv<0){
+      $("#lv")[0].value = 0
+      lv = 0
+    }
+    
+    {%if item.sfr%}
+      element  = $("#SkillFactor")
+      for (i in element){
+        element[i].innerHTML = sfr[lv]  
+      }
+    {%endif%}
+    {%if item.captionratio1%}
+       element  = $("#CaptionRatio")
+      for (i in element){
+        element[i].innerHTML = captionratio1[lv]  
+      }
+    {%endif%}
+    {%if item.captionratio2%}
+       element  = $("#CaptionRatio2")
+      for (i in element){
+        element[i].innerHTML = captionratio2[lv]  
+      }
+    {%endif%}
+    {%if item.captionratio3%}
+       element  = $("#CaptionRatio3")
+      for (i in element){
+        element[i].innerHTML = captionratio3[lv]  
+      }
+    {%endif%}
+    {%if item.captiontime%}
+       element  = $("#CaptionTime")
+      for (i in element){
+        element[i].innerHTML = captiontime[lv]  
+      }
+    {%endif%}
+    {%if item.spenditemcount%}
+       element  = $("#SpendItemCount")
+      for (i in element){
+        element[i].innerHTML = spenditemcount[lv]  
+      }
+    {%endif%}
+    {%if item.spendsp%}
+       element  = $("#SpendSP")
+      for (i in element){
+        element[i].innerHTML = spendsp[lv]  
+      }
+    {%endif%}
+    {%if item.spendpoison%}
+       element  = $("#SpendPoison")
+      for (i in element){
+        element[i].innerHTML = spendpoison[lv]  
+      }
+    {%endif%}
+    {%if item.skillsr%}
+       element  = $("#SkillSR")
+      for (i in element){
+        element[i].innerHTML = skillsr[lv]  
+      }
+    {%endif%}
+    {%if item.cooldownlv%}
+       element  = $("#cd")
+      for (i in element){
+        element[i].innerHTML = cooldownlv[lv]  
+      }
+    {%endif%}
+  })
+</script>
+{%endblock%}

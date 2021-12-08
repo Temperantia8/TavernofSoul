@@ -1,0 +1,11 @@
+django
+utils
+lupa==1.09
+pymysql
+mysql-connector-python 
+django_mysql
+numpy
+dj_static
+django-mathfilters
+pillow
+pandas

@@ -1,0 +1,297 @@
+
+{% extends 'base/index.html' %}
+{% load humanize %}
+{%load translate%}
+<!--Block content goes below-->
+{%block head%}
+    <title>{{item.name}} - Tavern of Soul</title>
+    <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}" property="og:image" />
+     <meta  property="og:description"content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+    <meta name="description" content="
+    {%if desc%}
+        {% for line in desc%}
+          {{line}}
+        {%endfor%}
+    {%endif%}">
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+
+{%endblock%}
+
+  {% block content %}
+
+<h1 id="title">{{item.name}}</h1>
+{%if desc%}
+	{% for line in desc%}
+		<p class="mb-0">{{line}}</p>
+	{%endfor%}
+{%endif%}
+
+<br>
+
+<div class="row form-inline align-items-start">
+  <div class="col-6 align-top"><div class="form-inline mb-2" >
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>ClassID</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.ids}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>ClassName</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.id_name}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        <th>{{"Type" | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.type}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
+    <thead>
+      <tr>
+        <th>{{"Level" | translate}}</th>  
+      </tr>
+    </thead>
+    <tbody>
+       <tr>
+        <td>{{item.level}}</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  {%if npc%}
+  <br>
+  <div class="form-inline">
+    <h2>NPCs</h2> <span class=" button ml-2 minimize pl-1 pr-1" onclick="$('#npc')[0].hidden = !$('#npc')[0].hidden"style="background-color: #48505c; border-color: #48505c; color: white;">-</span>
+  </div>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" id = 'npc' hidden="true" >
+    <thead>
+      <tr>
+        <th>ClassID</th>
+        <th>{{"NPCs" | translate}}</th>
+        <th>{{"Population" | translate}}</th>
+        <th>{{"Time Respawn" | translate}}</th>
+        
+        <th></th> 
+        
+      </tr>
+    </thead>
+      <tbody>
+        {%for i in npc%}
+          {% if i.monster.is_npc and i.monster.name%}
+
+            <tr>
+              <td><a href="{%url 'Monsters:monster' i.monster.ids%}">{{i.monster.ids}}</a></td>
+              <td>{{i.monster.name}}</td>
+              <td>{{i.population}}</td>
+              <td>{{i.time_respawn}}</td>
+              
+              <td><input type="radio" name="pos" data-loc = '{{i.positions}}'  onclick="createdot(this.dataset)" class="checkbox"></td>
+            </tr>
+          {%endif%}
+        {%endfor%}
+      </tbody>
+   
+    </table>
+
+
+
+    <div class="form-inline">
+    <h2>Monsters</h2> <span class=" button ml-2 minimize pl-1 pr-1" onclick="$('#monster')[0].hidden = !$('#monster')[0].hidden"style="background-color: #48505c; border-color: #48505c; color: white;">-</span>
+  </div>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" id = 'monster' hidden="true" >
+    <thead>
+      <tr>
+        <th>ClassID</th>
+        <th>{{"NPCs" | translate}}</th>
+        <th>{{"Population" | translate}}</th>
+        <th>{{"Time Respawn" | translate}}</th>
+        
+        <th></th> 
+        
+      </tr>
+    </thead>
+      <tbody>
+        {%for i in npc%}
+          {% if  i.monster.is_mon and i.monster.name%}
+
+            <tr>
+              <td><a href="{%url 'Monsters:monster' i.monster.ids%}">{{i.monster.ids}}</a></td>
+              <td>{{i.monster.name}}</td>
+              <td>{{i.population}}</td>
+              <td>{{i.time_respawn}}</td>
+              
+              <td><input type="radio" name="pos" data-loc = '{{i.positions}}'  onclick="createdot(this.dataset)" class="checkbox"></td>
+            </tr>
+          {%endif%}
+        {%endfor%}
+      </tbody>
+   
+    </table>
+
+    <div class="form-inline">
+    <h2>Misc</h2> <span class=" button ml-2 minimize pl-1 pr-1" onclick="$('#misc')[0].hidden = !$('#misc')[0].hidden"style="background-color: #48505c; border-color: #48505c; color: white;">-</span>
+  </div>
+
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" id = 'misc' hidden="true" >
+    <thead>
+      <tr>
+        <th>ClassID</th>
+        <th>{{"NPCs" | translate}}</th>
+        <th>{{"Population" | translate}}</th>
+        <th>{{"Time Respawn" | translate}}</th>
+        <th>{{"Rank" | translate}}</th>
+        <th></th> 
+        
+      </tr>
+    </thead>
+      <tbody>
+        {%for i in itemSpawn%}
+            <tr>
+              <td><a href="{%url 'Items:item' i.item.ids%}">{{i.item.ids}}</a></td>
+              <td>{{i.item.name}}</td>
+              <td>{{i.population}}</td>
+              <td>{{i.time_respawn}}</td>
+              <td>{{i.item.type}}</td>
+              <td><input type="radio" name="pos" data-loc = '{{i.positions}}'  onclick="createdot(this.dataset)" class="checkbox"></td>
+            </tr>
+        {%endfor%}
+         {%for i in npc%}
+          {% if  i.monster.is_misc and i.monster.name%}
+
+            <tr>
+              <td><a href="{%url 'Monsters:monster' i.monster.ids%}">{{i.monster.ids}}</a></td>
+              <td>{{i.monster.name}}</td>
+              <td>{{i.population}}</td>
+              <td>{{i.time_respawn}}</td>
+              <td>{{i.monster.rank}}</td>
+              <td><input type="radio" name="pos" data-loc = '{{i.positions}}'  onclick="createdot(this.dataset)" class="checkbox"></td>
+            </tr>
+          {%endif%}
+        {%endfor%}
+
+      </tbody>
+   
+    </table>
+  {%endif%}
+
+
+  {%if drop%}
+
+  <div class="form-inline">
+    <h2>Drop</h2>  <span class=" button ml-2 minimize pl-1 pr-1" onclick="$('#drop')[0].hidden = !$('#drop')[0].hidden"style="background-color: #48505c; border-color: #48505c; color: white;">-</span>
+  </div>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" id = 'drop' hidden="true" >
+      <tbody>
+        
+        <tr>
+          <th style="vertical-align:top">{{"Drop"|translate}}
+          </th>
+          <td>
+            {%for i in drop%}
+              <p class="mb-0"> <a href="{% url 'Items:item' i.item.ids%}"> <img loading="lazy" alt="" src="/static/icons/{{i.item.icon}}.png") class="icon-24">{{i.item.name}}</a> ({{i.chance}} %)</p> 
+              
+            {%endfor%}
+          </td>
+        </tr>
+        
+      </tbody>
+   
+    </table>
+  {%endif%}
+
+  </div>
+   <div class="col-6 align-top"> <h2>{{"Visual"|translate}}</h2>
+    <div id = "img_container">
+      <canvas id="img-canvas" style="max-width: 500px; max-height: 500px;  z-index : 100; position : absolute;" data-src = "/static/maps/{{item.icon}}"></canvas>
+      <img loading="lazy" alt="" src="/static/maps/{{item.icon}}" style="max-width: 500px; max-height: 500px;" id = img>  
+    </div>
+    
+  </div>
+</div>
+
+  <br>
+ 
+
+  {% endblock %}
+
+{% block script%}
+<script type="text/javascript">
+  $('document').ready(function(){
+    canvas = document.getElementById('img-canvas'),
+    context = canvas.getContext('2d');
+
+    img     = new Image()
+    img.src = $("#img")[0].src
+
+    
+    $('.checkbox').prop('checked', false);
+
+
+  });
+  function createdot(dataset){
+    width   = img.width
+    height  = img.height
+
+    canvas.width = $("#img")[0].width
+    canvas.height = $("#img")[0].height
+    scale   = height / $("#img")[0].height
+    loc       = dataset['loc']
+    loc       = loc.replaceAll("'", '"')
+    loc       = JSON.parse(loc)
+    var xys       = []  
+    for (var i = 0 ; i<loc.length; i+=2){
+      xy      = [0,0]
+      xy[0]   = parseInt ( parseInt(loc[i])/scale)
+      xy[1]   = parseInt ( parseInt(loc[i+1])/scale)
+      xys.push(xy)
+    }
+    var pointSize = 7
+    var ctx = context
+    context.fillStyle = "#8abbff";
+    for (var i = 0 ; i<xys.length; i++){
+      console.log(xys[i])
+      x = xys[i][0]
+      y = xys[i][1]
+      ctx.beginPath(); //Start path
+      ctx.arc(x, y, pointSize, 0, Math.PI * 2, true); // Draw a point using the arc function of the canvas with a point structure.
+      ctx.fill(); // Close the path and fill.
+    }
+
+    // location = dataset['loc']
+    // location = JSON.parse(location)
+    
+  }
+ 
+</script>
+{%endblock%}

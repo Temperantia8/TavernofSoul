@@ -1,0 +1,296 @@
+
+{% extends 'base/index.html' %}
+{%load translate%}
+{%block head%}
+    <title>Tavern of Soul</title>
+    <meta content="Tavern of Soul" property="og:title" />
+    <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/images/logo.png" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" {{"Name" | translate}}="theme-color" />
+
+{%endblock%}
+<!--Block content goes below-->
+
+
+  {% block content %}
+
+<h1 id="title">{{"Results"|translate}}"</h1>
+<form autocomplete="off" action="/" method="GET" class="form-inline">
+  <input  class="form-control" type="text" required="" {{"Name" | translate}}="q" value="{{query}}">
+</form>
+<br>
+
+{% if item%}
+  <h2>{{"Items" | translate}}</h2>
+  <label class="mt-1 mb-1">{{item_len}} {{"Results"|translate}}</label>
+  <div class="o-wrap">
+  <table class="table-bordered border border-white border-responsive">
+    <thead>
+      <tr>
+        <th></th>
+        <th>ClassID</th>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Type" | translate}}</th>
+        <th>{{"Grade" | translate}}</th>
+        <th>{{"Level" | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in item %}
+      <tr>
+        <td><img loading="lazy" alt="" src="static/icons/{{i.icon}}.png") class="icon-64"></td>
+        <td><a href="{%url 'Items:item' i.ids%}">{{i.ids}}</a></td>
+        <td>{{i.name}}</td>
+        {%if i.equipments %}
+        <td>{{i.equipments.type_equipment}}</td>
+        {%else%}
+        <td>{{i.type}}</td>
+        {% endif %}
+        {%if i.grade%}
+          <td class="cell-center"><span class="item-grade item-grade-{{i.grade}}"></span></td>
+        {%else%}
+          <td></td>
+        {%endif%}
+        <td>{{i.equipments.level}}</td>
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if item_len >= 5%}
+    <tfoot>
+      <tr>
+        <td class="footer-more" colspan="6">
+          <a href="/items?q={{query}}"}>{{item_len}} {{"more" | translate}}</a>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+
+  </div>
+{%endif%}
+
+
+{% if monster%}
+  <h2>{{"NPCs" | translate}}</h2>
+
+  <label class="mt-1 mb-1">{{monster_len}} {{"Results"|translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1 ">
+    <thead>
+      <tr>
+        <th>ClassID</th>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Level" | translate}}</th>
+        <th>{{"Race" | translate}}</th>
+        <th>{{"Elements" | translate}}</th>
+        <th>{{"Armor" | translate}}</th>
+        <th>ClassName</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in monster %}
+      <tr>
+        <td><a href="{%url 'Monsters:monster' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.name}}</td>
+        <td>{{i.level}}</td>
+        <td>{{i.race}}</td>
+        <td>{{i.element}}</td>
+        <td>{{i.armor}}</td>
+        <td>{{i.id_name}}</td>
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if monster_len >= 5%}
+    <tfoot>
+      <tr>
+        <td class="footer-more" colspan="7">
+          <a href="/monsters?q={{query}}"}>{{monster_len}} {{"more" | translate}}</a>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+{%endif%}
+
+
+
+{% if maps%}
+  <h2>{{"Maps" | translate}}</h2>
+
+  <label class="mt-1 mb-1">{{maps_len}} {{"Results"|translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1 ">
+    <thead>
+      <tr>
+        <th>ClassID</th>
+        <th>ClassName</th>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Level" | translate}}</th>
+        <th>{{"Type" | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in maps %}
+      <tr>
+        <td><a href="{%url 'Maps:maps' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.name}}</td>
+        <td>{{i.id_name}}</td>
+        <td>{{i.level}}</td>
+        <td>{{i.type}}</td>
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if maps_len >= 5%}
+    <tfoot>
+      <tr>
+        <td class="footer-more" colspan="7">
+          <a href="/monsters?q={{query}}"}>{{maps_len}} {{"more" | translate}}</a>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+{%endif%}
+
+
+
+
+{% if jobs%}
+  <h2>{{"Jobs" | translate}}</h2>
+
+  <label class="mt-1 mb-1">{{jobs_len}} {{"Results"|translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1 ">
+    <thead>
+      <tr>
+        <th></th>
+        <th>ClassID</th>
+        <th>ClassName</th>
+        <th>{{"Class Tree" | translate}}</th>
+        <th>{{"Name" | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in jobs %}
+      <tr>
+        <td><img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"></td>
+        <td><a href="{%url 'Jobs:jobs' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.id_name}}</td>
+        <td>{{i.job_tree}}</td>
+        <td>{{i.name}}</td>
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if jobs_len >= 5%}
+    <tfoot>
+      <tr>
+        <td class="footer-more" colspan="7">
+          <a href="/monsters?q={{query}}"}>{{jobs_len}} {{"more" | translate}}</a>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+{%endif%}
+
+
+
+{% if skills%}
+  <h2>{{"Skills" | translate}}</h2>
+
+  <label class="mt-1 mb-1">{{skills_len}} {{"Results"|translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1 ">
+    <thead>
+     <tr>
+        <th></th>
+        <th>ClassID</th>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Job" | translate}}</th>
+        <th>{{"Max Level" | translate}}</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in skills %}
+      <tr>
+        <td><img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"></td>
+        <td><a href="{%url 'Skills:skills' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.name}}</td>
+        <td>{{i.job.name}}</td>
+        <td>{{i.max_lv}}</td>
+      </tr>
+       
+      {%endfor%}
+    </tbody>
+    {%if skills_len >= 5%}
+    <tfoot>
+      <tr>
+        <td class="footer-more" colspan="7">
+          <a href="/monsters?q={{query}}"}>{{skills_len}} {{"more" | translate}}</a>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+{%endif%}
+
+
+
+
+{% if attributes%}
+  <h2>{{"Attribute" | translate}}</h2>
+
+  <label class="mt-1 mb-1">{{attributes_len}} {{"Results"|translate}}</label>
+  <table class="table-bordered border border-white border-responsive mt-1 ">
+    <thead>
+      <tr>
+        <th></th>
+        <th>ClassID</th>
+        <th>ClassName</th>
+        <th>{{"Name" | translate}}</th>
+        <th>{{"Description" | translate}}</th>
+        <th>{{"Max Level" | translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in attributes %}
+      <tr>
+        <td><img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"></td>
+        <td><a href="{%url 'Attributes:attributes' i.ids %}">{{i.ids}}</a></td>
+        <td>{{i.id_name}}</td>
+        <td>{{i.name}}</td>
+        <td>
+        {% for lines in i.descriptions %}
+            <p class="mb-1">{{lines}}</p>
+        {%endfor%}
+        </td>
+        <td>{{i.max_lv}}</td>
+      </tr>
+      
+       
+      {%endfor%}
+    </tbody>
+    {%if attributes_len >= 5%}
+    <tfoot>
+      <tr>
+        <td class="footer-more" colspan="7">
+          <a href="/monsters?q={{query}}"}>{{attributes_len}} {{"more" | translate}}</a>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
+  </table>
+{%endif%}
+
+
+
+
+
+  {% endblock %}
