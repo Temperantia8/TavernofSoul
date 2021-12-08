@@ -255,7 +255,7 @@ if __name__ == "__main__":
         )
         version_release, version_release_new = patch_partial(
             output, url_patch + 'partial/release/', '.pak', True,
-            'revision_{}.txt'.format(region), url_patch + 'partial/release.revision.txt',0
+            'release_{}.txt'.format(region), url_patch + 'partial/release.revision.txt',0
         )
 
         move_language(region)
