@@ -179,6 +179,7 @@ def parse(c = None, from_scratch = True):
         parse_items(c,'item_PersonalHousing.ies','13')
         parse_items(c,'item_HiddenAbility.ies','14')
         parse_items(c,'item_event.ies', '15') 
+        parse_items(c,'item_event_Equip.ies', '16') 
     luautil.init(c)
     parse_equipment_grade_ratios(c)
     global equipment_grade_ratios 
@@ -186,6 +187,7 @@ def parse(c = None, from_scratch = True):
     parse_equips(c, 'item_equip.ies')
     parse_equips(c, 'item_Equip_EP12.ies')
     parse_equips(c, 'item_event_equip.ies')
+    parse_equips(c, 'item_event_Equip.ies')
     parse_equipment_sets('setitem.ies', c)
     parse_links_equipment_sets('setitem.ies',c)
 
