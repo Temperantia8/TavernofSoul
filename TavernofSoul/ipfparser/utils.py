@@ -1,16 +1,17 @@
 import math
 
 def makePagination(request, data, pages, page_length):
-    if data['curpage']<math.ceil(page_length/2):
+    if data['curpage']<int(page_length/2):
         page_true = pages[:page_length]
-    elif data['curpage'] > len(pages)- math.floor(page_length/2):
-        page_true = pages[len(pages) - page_length :]
+    elif data['curpage'] > len(pages)- int(page_length/2):
+        key = len(pages) - page_length
+        if key <0:
+            key = 0
+        page_true = pages[key :]
     else:
-        page_true = pages[data['curpage']-6:data['curpage']+5] #there's 0 
+        page_true = pages[math.ceil(data['curpage'] - (page_length/2)):math.floor(data['curpage'] + (page_length/2))] #there's 0 
     pages = page_true
 
-    
-    
     data['pages'] = []
     path = request.get_full_path()
     if 'page' in path:

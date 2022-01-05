@@ -1,0 +1,36 @@
+{% load translate%}
+<br>
+	<h2>{{"Produce" | translate}}</h2>
+	<table class="table-bordered border border-white border-responsive mt-1 tabe">
+		<tbody>
+			{% for i in target%}
+			<tr>
+				<td>
+					<img loading="lazy" alt="" src="/static/icons/{{i.target.icon}}.png") class="icon-32">
+				</td>
+				<td>
+					<a href="{{i.target.ids}}">{{i.target.name}}</a>
+				</td>
+			</tr>
+			{%endfor%}
+		</tbody>
+	</table>
+	<br>
+	<h2>{{"Materials" | translate}}</h2>
+	<table class="table-bordered border border-white border-responsive mt-1 tabe">
+		<tbody>
+			{% for i in materialRecipe%}
+			<tr>
+				<td>
+					<img loading="lazy" alt="" src="/static/icons/{{i.material.icon}}.png") class="icon-32">
+				</td>
+				<td>
+					<a href="{{i.material.ids}}">{{i.material.name}}</a>
+				</td>
+				<td style="text-align:right;">
+					x{{i.qty}}
+				</td>
+			</tr>
+			{%endfor%}
+		</tbody>
+	</table>

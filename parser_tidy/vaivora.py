@@ -8,10 +8,16 @@ Created on Thu Nov  4 15:29:39 2021
 import translation
 import logging
 
-vv_dict={'Reinforced Bowstring' : 'Reinforce Bowstring', 'Lewa Advent': ' Lewa Advent ',
-         'Cluster Bomb' : 'Cluster Shot', 'Triple Steps Single Shot': 'Triple Steps Single Shot',
-         'Mass Heal: Freeze' : 'Mass Heal: Cooling', 'Doble Attaque' : 'Especial', 
-         'クラスターボム' : 'クラスターショット','アドベント・ロア': ' アドベント・ロア', 'レバー - アクション': "レバー・アクション", 'ドブレ・アタケ' : 'エスペシアル'
+vv_dict={'Reinforced Bowstring' : 'Reinforce Bowstring', 
+        'Lewa Advent': ' Lewa Advent ',
+         'Cluster Bomb' : 'Cluster Shot', 
+         'Triple Steps Single Shot': 'Triple Steps Single Shot',
+         'Mass Heal: Freeze' : 'Mass Heal: Cooling', 
+         'Doble Attaque' : 'Especial', 
+         'クラスターボム' : 'クラスターショット',
+         'アドベント・ロア': ' アドベント・ロア', 
+         'レバー - アクション': "レバー・アクション", 
+         'ドブレ・アタケ' : 'エスペシアル'
          }
 
 def translate(name):

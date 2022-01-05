@@ -8505,6 +8505,17 @@ a{
   max-height: 16px;
 }
 
+
+.icon-8{
+  max-width: 8px;
+  max-height: 8px;
+}
+
+.icon-12{
+  max-width: 12px;
+  max-height: 12px;
+}
+
 .skillBar{
   max-width: 700px;
 

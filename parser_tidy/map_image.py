@@ -24,7 +24,7 @@ def parse_maps_images(c):
     """
     logging.debug('Parsing Maps images...')
 
-    #ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
+    #ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
     ies_path = c.file_dict['map.ies']['path']
 
     with open(ies_path, 'rb') as ies_file:

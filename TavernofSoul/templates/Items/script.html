@@ -1,0 +1,253 @@
+		<script type="text/javascript">
+		  {% if item.equipments.anvil_atk %}
+				anvil_atk = {{item.equipments.anvil_atk}}
+			{%endif%}
+
+			{% if item.equipments.anvil_def %}
+				anvil_def = {{item.equipments.anvil_def}}
+			{%endif%}
+
+			{% if item.equipments.anvil_price %}
+				anvil_price = {{item.equipments.anvil_price}}
+			{%endif%}
+
+			{% if item.equipments.transcend_price %}
+				transcend_price = {{item.equipments.transcend_price}}
+			{%endif%}
+
+			{% if item.equipments.patk %}
+				patk = {{item.equipments.patk}}
+				patk_max = {{item.equipments.patk_max}}
+      {%endif%}
+      {% if item.equipments.matk %}
+				matk = {{item.equipments.matk}}
+      {%endif%}
+
+      {% if item.equipments.mdef %}
+				mdef = {{item.equipments.mdef}}
+      {%endif%}
+      {% if item.equipments.pdef %}
+				pdef = {{item.equipments.pdef}}
+      {%endif%}
+
+			anvils = [0,1,2,3,4,5,6,7,8,9,10,
+								10,11,12,13,14,15,16,17,18,19,20,
+								20,21,22,23,24,25,26,27,28,29,30,
+								30,31,32,33,34,35,36,37,38,39,40,41]
+			anv = 0
+			anv_def = 0
+			anv_atk = 0
+			tc = 0
+			tc_bonus = 0
+			{% if item.grade == 6%}
+
+				goddess_anvil     = {{anvil}}
+				goddess_scale     = {{scale}}
+				goddess_gabija    = {{gabija}}
+				goddess_chance 		= {{chance}}
+
+			{% endif%}
+
+			$(document).ready(function(){
+			    $("#anvil").on("input", function(){
+			        // Print entered value in a div box
+			        anv = $(this).val();
+			        {%if item.grade == 6%}
+				        if (anv>30){
+				        	$("#anvil")[0].value = 30
+				        	anv = 30
+				        }
+			        {% else %}
+				        if (anv>40){
+				        	$("#anvil")[0].value = 40
+				        	anv = 40
+				        }
+			        {%endif%}
+			        if (anv<0){
+			        	$("#anvil")[0].value = 0
+			        	anv = 0
+			        }
+
+							{% if item.equipments.is_goddess_armor %}
+								if (anv ==0)
+									anv_atk =0
+								else	
+									{%if item.grade == 6%}
+										anv_atk = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+										{% if item.equipments.type_equipment == 'Trinket'%} 
+											anv_atk = Math.floor(anv_atk * 0.3)
+										{%endif%}
+									{%else%}
+										anv_atk = anvil_atk[anv-1]
+									{%endif%}
+
+								$('#patk-ench')[0].innerHTML =  Math.floor(anv_atk *0.4)
+								$('#matk-ench')[0].innerHTML =  Math.floor(anv_atk  * 0.4)
+								
+							{% endif %}
+
+							{% if item.equipments.patk %}
+								if (anv ==0)
+									anv_atk =0
+								else	
+									{%if item.grade == 6%}
+										anv_atk = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+										{% if item.equipments.type_equipment == 'Trinket'%} 
+											anv_atk = Math.floor(anv_atk * 0.3)
+										{%endif%}
+									{%else%}
+										anv_atk = anvil_atk[anv-1]
+									{%endif%}
+								
+
+
+								$('#patk')[0].innerHTML = patk + anv_atk + (patk * tc_bonus)
+								$('#patk_max')[0].innerHTML = patk_max + anv_atk  + (patk * tc_bonus)
+								$('#anvil_bonus')[0].innerHTML = anv_atk.toLocaleString('en') 
+				      {%endif%}
+
+				      {% if item.equipments.matk %}
+								if (anv ==0)
+									anv_atk =0
+								else	
+									{%if item.grade == 6%}
+										anv_atk = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+										{% if item.equipments.type_equipment == 'Trinket'%} 
+											anv_atk = Math.floor(anv_atk * 0.3)
+										{%endif%}
+									{%else%}
+										anv_atk = anvil_atk[anv-1]
+									{%endif%}
+
+
+								$('#matk')[0].innerHTML = matk + anv_atk + (matk * tc_bonus)
+								
+								$('#anvil_bonus')[0].innerHTML = anv_atk.toLocaleString('en') 
+				      {%endif%}
+
+				      {% if item.equipments.pdef %}
+								if (anv ==0)
+									anv_def =0
+								else	
+								{%if item.grade == 6%}
+										anv_def = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+									{%else%}
+										anv_def = anvil_def[anv-1]
+									{%endif%}
+
+
+								$('#pdef')[0].innerHTML = pdef + anv_def + (pdef * tc_bonus)
+								
+								$('#anvil_bonus')[0].innerHTML = anv_def.toLocaleString('en') 
+				      {%endif%}
+
+				      {% if item.equipments.mdef %}
+								if (anv ==0)
+									anv_def =0
+								else	
+									
+									{%if item.grade == 6%}
+										anv_def = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+									{%else%}
+										anv_def = anvil_def[anv-1]
+									{%endif%}
+
+
+								$('#mdef')[0].innerHTML = mdef + anv_def + (mdef * tc_bonus)
+								
+								$('#anvil_bonus')[0].innerHTML = anv_def.toLocaleString('en') 
+				      {%endif%}
+
+				      {%if item.grade == 6%}
+				      	$('#god_scale')[0].innerHTML = goddess_scale[anv-1]
+				      	$('#god_gabija')[0].innerHTML = goddess_gabija[anv-1]
+				      	$('#god_chance')[0].innerHTML = goddess_chance[anv-1]+'%'
+				      	if (!(anv in anvils)){
+				      		$('#god_scale')[0].innerHTML = ''
+				      	$('#god_gabija')[0].innerHTML = ''
+				      	$('#god_chance')[0].innerHTML = ''
+				      	}
+				      {%endif%}
+
+				      {% if item.equipments.anvil_price %}
+				      	if (anv ==0)
+									pr =''
+								else	
+									pr = anvil_price[anv-1].toLocaleString('en') 
+				      	$('#anvil_price')[0].innerHTML = (pr)
+				      {%endif%}
+
+				      {% if item.equipments.anvil_price %}
+				      if (anv ==0)
+									tot =''
+								else	
+									tot = (anvil_price.slice(0,[anv]).reduce((a, b) => a + b, 0)).toLocaleString('en') 
+								$('#anvil_total')[0].innerHTML =  tot 
+				      	
+				      {%endif%}
+			    });
+
+			    $("#tc").on("input", function(){
+			        // Print entered value in a div box
+			        tc = $(this).val();
+			        if (tc>10){
+			        	$("#tc")[0].value = 10
+			        	tc = 10
+			        }
+			        
+			        if (tc<0){
+			        	$("#tc")[0].value = 0
+			        	tc = 0
+			        }
+							tc_bonus = tc *0.1 {% if item.grade == 6%} *0.3{%endif%}
+
+							{% if item.equipments.patk %}
+
+
+								$('#patk')[0].innerHTML = patk + anv_atk + Math.floor(patk * tc_bonus)
+								$('#patk_max')[0].innerHTML = patk_max + anv_atk  + Math.floor(patk * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.matk %}
+
+
+								$('#matk')[0].innerHTML = matk + anv_atk + Math.floor(matk * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.pdef %}
+
+
+								$('#pdef')[0].innerHTML = pdef + anv_def + Math.floor(pdef * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.mdef %}
+
+
+								$('#mdef')[0].innerHTML = mdef + anv_def + Math.floor(mdef * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.anvil_price %}
+				      	if (tc ==0)
+									pr =''
+								else	
+									pr = transcend_price[tc-1]
+				      	$('#tc_price')[0].innerHTML = (pr)
+				      {%endif%}
+
+				      {% if item.equipments.transcend_price %}
+				      if (tc ==0)
+									tot =''
+								else	
+									tot = (transcend_price.slice(0,[tc-1]).reduce((a, b) => a + b, 0)).toLocaleString('en') 
+								$('#tc_total')[0].innerHTML =  tot 
+				      	
+				      {%endif%}
+			    });
+			});
+
+
+		</script>

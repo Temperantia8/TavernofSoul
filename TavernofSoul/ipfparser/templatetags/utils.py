@@ -21,3 +21,9 @@ def imcFormatRemover(string):
     for i in string:
         s2.append( re.sub(r'\{(.*?)\}', '', i) )
     return s2[0]
+
+@register.filter
+def stringFormat(string):
+    return string.replace('{img green_up_arrow 16 16}','▲' ) \
+                 .replace('{img green_down_arrow 16 16}', '▼')
+                

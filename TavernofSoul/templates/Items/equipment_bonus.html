@@ -1,0 +1,17 @@
+ <br>
+	  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+	    <tbody>
+	    	{%for bonus in equipment_bonus%}
+	    	 <tr>
+	    			<th>{{bonus.bonus_stat}}</th>
+
+	    			<td>
+	    		            {%for b in bonus.bonus_val %}
+                                     {{b}}<br> {%endfor%}
+	    					
+	    			</td>
+	      </tr>
+	      {%endfor%}
+	    </tbody>
+	 
+	  </table>

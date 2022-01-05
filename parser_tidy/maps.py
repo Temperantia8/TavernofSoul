@@ -40,26 +40,30 @@ def parse(c = None):
     if (c==None):
         c = constants()
         c.build(c.iTOS)
+    try:
+        os.mkdir(constants.PATH_BUILD_ASSETS_IMAGES_MAPS)
+    except:
+        pass
     parse_maps(c)
     
 
-def parse_maps(globals):
+def parse_maps(constants):
     logging.debug('Parsing Maps...')
 
-    #ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
-    ies_path = globals.file_dict['map.ies']['path']
+    #ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
+    ies_path = constants.file_dict['map.ies']['path']
     rows = []
     with open(ies_path, 'r', encoding = 'utf-8') as ies_file:
         for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
             rows.append(row)
             obj = {}
-            if str(row['ClassID']) in globals.data['maps']:
+            if str(row['ClassID']) in constants.data['maps']:
                 #continue
-                obj = globals.data['maps'][row['ClassID']]
+                obj = constants.data['maps'][row['ClassID']]
             obj['$ID'] = str(row['ClassID'])
             obj['$ID_NAME'] = row['ClassName']
             obj['Icon'] = None
-            obj['Name'] = globals.translate(row['Name'])
+            obj['Name'] = constants.translate(row['Name'])
 
             obj['HasChallengeMode'] = row['ChallengeMode'] == 'YES'
             obj['HasWarp'] = int(row['WarpCost']) > 0
@@ -79,28 +83,28 @@ def parse_maps(globals):
             obj['Link_NPCs'] = []
             if ("bbox" not in obj):
                 obj['bbox']     = [0,0,0,0]
-            globals.data['maps'][obj['$ID']] = obj
-            globals.data['maps_by_name'][obj['$ID_NAME']] = obj
-            globals.data['maps_by_position']['-'.join(row['WorldMap'].split('/')) if obj['WorldMap'] else ''] = obj
+            constants.data['maps'][obj['$ID']] = obj
+            constants.data['maps_by_name'][obj['$ID_NAME']] = obj
+            constants.data['maps_by_position']['-'.join(row['WorldMap'].split('/')) if obj['WorldMap'] else ''] = obj
 
 
-def parse_maps_images(globals):
+def parse_maps_images(constants):
 
     logging.debug('Parsing Maps images...')
     log = logging.getLogger("parse.items")
     log.setLevel("INFO")
 
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
-    ies_path = globals.file_dict['map.ies']['path']
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
+    ies_path = constants.file_dict['map.ies']['path']
     rows = []
     with open(ies_path, 'r', encoding = 'utf-8') as ies_file:
         for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
             rows.append(row)
-            image_path = os.path.join(globals.PATH_BUILD_ASSETS_IMAGES_MAPS, row['ClassName'].lower() + '.png')
-            map = globals.data['maps_by_name'][row['ClassName']]
+            image_path = os.path.join(constants.PATH_BUILD_ASSETS_IMAGES_MAPS, row['ClassName'].lower() + '.png')
+            map = constants.data['maps_by_name'][row['ClassName']]
             if (exists(image_path) and map['bbox'] != [0,0,0,0]):
                 continue
-            polygons = globals.importJSON(os.path.join('maps_poly',row['ClassName'].lower()+'poly.json'))
+            polygons = constants.importJSON(os.path.join('maps_poly',row['ClassName'].lower()+'poly.json'))
             if polygons == {}:
                 continue
             # Scale map to save some space
@@ -127,12 +131,16 @@ def parse_maps_images(globals):
             bbox,image= trim(image)
             log.info("map : {} bbox : {}".format(row['ClassName'], bbox))
             # Save image to disk
+            try:
+                os.mkdir(constants.PATH_BUILD_ASSETS_IMAGES_MAPS)
+            except:
+                pass
             image.save(image_path, optimize=True)
             image.close()
             image_shadow.close()
             
             map['bbox'] = bbox
-            globals.data['maps'][map['$ID']] = map
+            constants.data['maps'][map['$ID']] = map
 
 
 def parse_links(c = None):
@@ -150,13 +158,14 @@ def parse_links(c = None):
 
 
 
-def parse_links_items(globals):
+def parse_links_items(constants):
     logging.debug('Parsing Maps <> Items...')
 
-    for map in globals.data['maps'].values():
+    for map in constants.data['maps'].values():
         if map == None:
             continue
-        ies_drop =  os.listdir(os.path.join(globals.PATH_INPUT_DATA, 'ies_drop.ipf', 'zonedrop'))
+        ies_drop_p = os.path.join("..", 'itos_unpack', 'ies_drop.ipf')
+        ies_drop =  os.listdir(os.path.join(ies_drop_p,  'zonedrop'))
         path_insensitive= {}
         for item in ies_drop:
             path_insensitive[item.lower()] = item
@@ -169,12 +178,12 @@ def parse_links_items(globals):
             logging.debug("maps not found {}".format(ies_file))
             pass
         
-        ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies_drop.ipf', 'zonedrop', ies_file)
+        ies_path = os.path.join(ies_drop_p, 'zonedrop', ies_file)
         
         # For some reason IMC uses these 2 types of name formats...
         if not os.path.isfile(ies_path):
             ies_file = 'zonedropitemlist_f_' + map['$ID_NAME'] + '.ies'
-            ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies_drop.ipf', 'zonedrop', ies_file)
+            ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies_drop.ipf', 'zonedrop', ies_file)
 
         try:
             drops = []
@@ -196,7 +205,7 @@ def parse_links_items(globals):
                     # Therefore we need to sum the DropRatio of the entire group before calculating the actual one
                     if len(zone_drop['DropGroup']) > 0:
                         ies_file = zone_drop['DropGroup'] + '.ies'
-                        ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies_drop.ipf', 'dropgroup', ies_file)
+                        ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies_drop.ipf', 'dropgroup', ies_file)
 
                         group_drop_ratio = 0
                         group_drops = []
@@ -220,12 +229,12 @@ def parse_links_items(globals):
                     try:
                         map_item = {
                             'Chance': drop['DropRatio'],
-                            'Item': globals.data['items_by_name'][drop['ItemClassName']]['$ID'],
-                            'Map': globals.data['maps_by_name'][map['$ID_NAME']]['$ID'],
+                            'Item': constants.data['items_by_name'][drop['ItemClassName']]['$ID'],
+                            'Map': constants.data['maps_by_name'][map['$ID_NAME']]['$ID'],
                             'Quantity_MAX': drop['Money_Max'],
                             'Quantity_MIN': drop['Money_Min'],
                         }
-                        globals.data['map_item'].append(map_item)                    
+                        constants.data['map_item'].append(map_item)                    
                     except:
                         logging.warn('Map {} or item {} not found'
                                      .format(map['$ID_NAME'], drop['ItemClassName'],))
@@ -234,18 +243,18 @@ def parse_links_items(globals):
             continue
 
 
-def parse_links_items_rewards(globals):
+def parse_links_items_rewards(constants):
     logging.debug('Parsing Maps <> Items (Rewards)...')
 
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
 
     with open(ies_path, 'r', encoding = 'utf-8') as ies_file:
         for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
             if int(row['MapRatingRewardCount1']) == 0 or len(row['MapRatingRewardItem1']) == 0:
                 continue
 
-            item_link = globals.data['items_by_name'][row['MapRatingRewardItem1']]
-            map = globals.data['maps_by_name'][row['ClassName']]
+            item_link = constants.data['items_by_name'][row['MapRatingRewardItem1']]
+            map = constants.data['maps_by_name'][row['ClassName']]
             map_item = map['$ID']
             map_item = {
                 'Chance': 100,
@@ -255,14 +264,14 @@ def parse_links_items_rewards(globals):
                 'Quantity_MIN': int(row['MapRatingRewardCount1']),
             }
 
-            globals.data['map_item'].append(map_item)
+            constants.data['map_item'].append(map_item)
 
 
-def parse_links_maps(globals):
+def parse_links_maps(constants):
     logging.debug('Parsing Maps <> Maps...')
 
-    #ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
-    ies_path = globals.file_dict['map.ies']['path']
+    #ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
+    ies_path = constants.file_dict['map.ies']['path']
     name = ''
     with open(ies_path, 'r', encoding='utf8') as ies_file:
         try:
@@ -270,37 +279,37 @@ def parse_links_maps(globals):
                 if len(row['PhysicalLinkZone']) == 0:
                     continue
     
-                map = globals.data['maps_by_name'][row['ClassName']]
+                map = constants.data['maps_by_name'][row['ClassName']]
                 
-                map['Link_Maps'] = [globals.data['maps_by_name'][name]['$ID'] for name in row['PhysicalLinkZone'].split('/')]
+                map['Link_Maps'] = [constants.data['maps_by_name'][name]['$ID'] for name in row['PhysicalLinkZone'].split('/')]
     
-                map_item = globals.data['maps_by_name'][map['$ID_NAME']]
+                map_item = constants.data['maps_by_name'][map['$ID_NAME']]
     
                 # Floors
                 if map['WorldMap'] is not None and map['WorldMap'][2] > 0:
-                    map_ground_floor = globals.data['maps_by_position']['-'.join([str(i) for i in (map['WorldMap'][0:2] + [1])])]
+                    map_ground_floor = constants.data['maps_by_position']['-'.join([str(i) for i in (map['WorldMap'][0:2] + [1])])]
                     map_ground_floor['Link_Maps_Floors'].append(map_item['$ID'])
-                globals.data['maps'][map['$ID']] = map
+                constants.data['maps'][map['$ID']] = map
         except:
             pass
 
 
-def parse_links_npcs(globals):
+def parse_links_npcs(constants):
     logging.debug('Parsing Maps <> NPCs...')
 
-    #ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
-    ies_path = globals.file_dict['map.ies']['path']
+    #ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'map.ies')
+    ies_path = constants.file_dict['map.ies']['path']
     with open(ies_path, 'r', encoding = 'utf8') as ies_file:
         for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
-            map = globals.data['maps_by_name'][row['ClassName']]
-            map = globals.data['maps'][str(map['$ID'])]
+            map = constants.data['maps_by_name'][row['ClassName']]
+            map = constants.data['maps'][str(map['$ID'])]
             map_offset_x = int(round(int(row['Width']) / 2.0))
             map_offset_y = int(round(int(row['Height']) / 2.0))
 
             anchors = {}
 
             # Spawn Positions (aka Anchors)
-            mongen_dir = os.listdir(os.path.join(globals.PATH_INPUT_DATA, 'ies_mongen.ipf'))
+            mongen_dir = os.listdir(os.path.join(constants.PATH_INPUT_DATA, 'ies_mongen.ipf'))
             path_insensitive= {}
             for item in mongen_dir:
                 path_insensitive[item.lower()] = item
@@ -312,7 +321,7 @@ def parse_links_npcs(globals):
                 logging.warning("maps not found {}".format(ies_file))
                 pass
             
-            ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies_mongen.ipf', ies_file)
+            ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies_mongen.ipf', ies_file)
             
             try:
                 with open(ies_path, 'r', encoding='utf8') as ies_file:
@@ -336,12 +345,12 @@ def parse_links_npcs(globals):
             except:
                 logging.warning("gentype not found {}".format(ies_file))
                 pass
-            ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies_mongen.ipf', ies_file)
+            ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies_mongen.ipf', ies_file)
 
             try:
                 with open(ies_path, 'r', encoding='utf8') as ies_file:
                     for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
-                        if globals.getNPCbyName(row['ClassType']) is None:
+                        if constants.getNPCbyName(row['ClassType']) is None:
                             continue
                         if row['GenType'] not in anchors:
                             continue
@@ -371,8 +380,8 @@ def parse_links_npcs(globals):
             for anchor_name in anchors_by_npc.keys():
                 anchor = anchors_by_npc[anchor_name]
 
-                if anchor_name in globals.data['items_by_name']:
-                    item = globals.data['items_by_name'][anchor_name]
+                if anchor_name in constants.data['items_by_name']:
+                    item = constants.data['items_by_name'][anchor_name]
                     item_link = item['$ID']
                     position = []
                     new_pos = []
@@ -387,11 +396,11 @@ def parse_links_npcs(globals):
                         'Positions': new_pos,
                         'TimeRespawn': int(anchor['GenType']['RespawnTime']) / 1000.0,
                     }
-                    globals.data['map_item_spawn'].append(item_link)
+                    constants.data['map_item_spawn'].append(item_link)
                     
 
-                elif anchor_name in globals.data['npcs_by_name'] or anchor_name in globals.data['monsters_by_name']:
-                    npc, types = globals.getNPCbyName(anchor_name)
+                elif anchor_name in constants.data['npcs_by_name'] or anchor_name in constants.data['monsters_by_name']:
+                    npc, types = constants.getNPCbyName(anchor_name)
                     npc_link = npc['$ID']
                     position = []
                     #logging.warning("loc bef {}".format(anchor['Anchors']))
@@ -409,4 +418,4 @@ def parse_links_npcs(globals):
                         'Positions': new_pos,
                         'TimeRespawn': int(anchor['GenType']['RespawnTime']) / 1000.0,
                     }
-                    globals.data['map_npc'].append(npc_link)
+                    constants.data['map_npc'].append(npc_link)

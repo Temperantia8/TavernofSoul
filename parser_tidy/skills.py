@@ -55,14 +55,14 @@ def parse(c = None):
     
 
 
-def parse_skills(is_rebuild, globals):
+def parse_skills(is_rebuild, constants):
     logging.debug('Parsing skills...')
 
     LUA_RUNTIME = luautil.LUA_RUNTIME
     LUA_SOURCE = luautil.LUA_SOURCE
 
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'skill.ies')
-    ies_path = globals.file_dict['skill.ies']['path']
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'skill.ies')
+    ies_path = constants.file_dict['skill.ies']['path']
     if(not exists(ies_path)):
        return
     rows = []
@@ -75,11 +75,11 @@ def parse_skills(is_rebuild, globals):
             obj = {}
             obj['$ID'] = row['ClassID']
             obj['$ID_NAME'] = row['ClassName']
-            obj['Description'] = globals.translate(row['Caption'])
-            obj['Icon'] = globals.parse_entity_icon(row['Icon'])
-            obj['Name'] = globals.translate(row['Name'])
+            obj['Description'] = constants.translate(row['Caption'])
+            obj['Icon'] = constants.parse_entity_icon(row['Icon'])
+            obj['Name'] = constants.translate(row['Name'])
 
-            obj['Effect'] = globals.translate(row['Caption2'])
+            obj['Effect'] = constants.translate(row['Caption2'])
             obj['Element'] = TOSElement.value_of(row['Attribute'])
             obj['IsShinobi'] = row['CoolDown'] == 'SCR_GET_SKL_COOLDOWN_BUNSIN' or (row['CoolDown'] and 'Bunshin_Debuff' in LUA_SOURCE[row['CoolDown']])
             obj['OverHeat'] = {
@@ -170,21 +170,21 @@ def parse_skills(is_rebuild, globals):
                 #obj['SP'] = parse_skills_lua_source(row['SpendSP'])
                 #obj['SP'] = parse_skills_lua_source_to_javascript(row, obj['SP'])
 
-            globals.data['skills'][obj['$ID']] = obj
-            globals.data['skills_by_name'][obj['$ID_NAME']] = obj
+            constants.data['skills'][obj['$ID']] = obj
+            constants.data['skills_by_name'][obj['$ID_NAME']] = obj
 
     # HotFix: make sure all skills have the same Effect columns (2/2)
-    for skill in globals.data['skills'].values():
+    for skill in constants.data['skills'].values():
         for effect in EFFECTS:
             if effect not in skill:
                 skill[effect] = None
 
 
 
-def parse_skills_overheats( globals):
+def parse_skills_overheats( constants):
     logging.debug('Parsing skills overheats...')
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'cooldown.ies')
-    ies_path = globals.file_dict['cooldown.ies']['path']
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'cooldown.ies')
+    ies_path = constants.file_dict['cooldown.ies']['path']
     if(not exists(ies_path)):
        return
     with io.open(ies_path, 'r', encoding = 'utf-8') as ies_file:
@@ -193,7 +193,7 @@ def parse_skills_overheats( globals):
             if row['IsOverHeat'] != 'YES':
                 continue
             skill = None
-            for obj in globals.data['skills'].values():
+            for obj in constants.data['skills'].values():
                 if isinstance(obj['OverHeat'], (dict,)) and row['ClassName'] == obj['OverHeat']['Group']:
                     skill = obj
                     break
@@ -202,35 +202,35 @@ def parse_skills_overheats( globals):
                 continue
             skill['OverHeat'] = int(row['MaxOverTime']) / skill['OverHeat']['Value'] if skill['OverHeat']['Value'] > 0 else 0
     # Clear skills with no OverHeat information
-    for skill in globals.data['skills'].values():
+    for skill in constants.data['skills'].values():
         if isinstance(skill['OverHeat'], (dict,)):
             skill['OverHeat'] = 0
 
 
-def parse_skills_simony(globals):
+def parse_skills_simony(constants):
     logging.debug('Parsing skills simony...')
 
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'skill_simony.ies')
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'skill_simony.ies')
     if(not exists(ies_path)):
        return
     with io.open(ies_path, 'r', encoding = 'utf-8') as ies_file:
         for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
-            if row['ClassID'] not in globals.data['skills']:
+            if row['ClassID'] not in constants.data['skills']:
                 logging.error('Unknown skill: {}'.format( row['ClassID']))
                 continue
 
-            skill = globals.data['skills'][row['ClassID']]
+            skill = constants.data['skills'][row['ClassID']]
             skill['IsEnchanter'] = True
             skill['IsPardoner'] = True
             skill['IsRunecaster'] = True
 
 
-def parse_skills_stances(globals):
+def parse_skills_stances(constants):
     logging.debug('Parsing skills stances...')
 
     stance_list = []
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'stance.ies')
-    ies_path = globals.file_dict[ 'stance.ies']['path']
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'stance.ies')
+    ies_path = constants.file_dict[ 'stance.ies']['path']
     if(not exists(ies_path)):
        return
     # Parse stances
@@ -240,7 +240,7 @@ def parse_skills_stances(globals):
 
     # Add stances to skills
     # from addon.ipf\skilltree\skilltree.lua :: MAKE_STANCE_ICON
-    for skill in globals.data['skills'].values():
+    for skill in constants.data['skills'].values():
         stances_main_weapon = []
         stances_sub_weapon = []
 
@@ -256,30 +256,30 @@ def parse_skills_stances(globals):
 
                 if stance['UseSubWeapon'] == 'NO':
                     stances_main_weapon.append({
-                        'Icon': globals.parse_entity_icon(stance['Icon']),
+                        'Icon': constants.parse_entity_icon(stance['Icon']),
                         'Name': stance['ClassName']
                     })
                 else:
                     found = False
                     for stance_sub in stances_sub_weapon:
-                        if stance_sub['Icon'] == globals.parse_entity_icon(stance['Icon']):
+                        if stance_sub['Icon'] == constants.parse_entity_icon(stance['Icon']):
                             found = True
                             break
 
                     if not found:
                         stances_sub_weapon.append({
-                            'Icon': globals.parse_entity_icon(stance['Icon']),
+                            'Icon': constants.parse_entity_icon(stance['Icon']),
                             'Name': stance['ClassName']
                         })
         else:
             stances_main_weapon.append({
-                'Icon': globals.parse_entity_icon('weapon_All'),
+                'Icon': constants.parse_entity_icon('weapon_All'),
                 'Name': 'All'
             })
 
         if skill['RequiredStanceCompanion'] in [TOSRequiredStanceCompanion.BOTH, TOSRequiredStanceCompanion.YES]:
             stances_main_weapon.append({
-                'Icon': globals.parse_entity_icon('weapon_companion'),
+                'Icon': constants.parse_entity_icon('weapon_companion'),
                 'Name': 'Companion'
             })
 
@@ -288,7 +288,7 @@ def parse_skills_stances(globals):
             if stance['Icon'] is not None
         ]
 
-def parse_skills_script(globals):
+def parse_skills_script(constants):
     """
     parse skills skill factor caption ratio etc which use lua script
     """
@@ -296,7 +296,7 @@ def parse_skills_script(globals):
     LUA_RUNTIME = luautil.LUA_RUNTIME
     LUA_SOURCE = luautil.LUA_SOURCE
 
-    for g in globals.data['skills'].values():
+    for g in constants.data['skills'].values():
         sfrs = []
         g['other'] = []
         CaptionRatios = []
@@ -412,7 +412,7 @@ def parse_skills_script(globals):
                     cd = 0
                 Cooldown.append(cd)
             g['CoolDown'] = Cooldown
-        globals.data['skills_by_name'][g['$ID']] = g
+        constants.data['skills_by_name'][g['$ID']] = g
             
 
 def parse_links(c = None):
@@ -422,68 +422,68 @@ def parse_links(c = None):
     parse_links_gems(c)
     c = parse_links_jobs(True,c)
 
-def parse_links_gems(globals):
+def parse_links_gems(constants):
     logging.debug('Parsing gems for skills...')
     
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'item_gem.ies')
-    ies_path = globals.file_dict[ 'item_gem.ies']['path']
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'item_gem.ies')
+    ies_path = constants.file_dict[ 'item_gem.ies']['path']
     with io.open(ies_path, 'r', encoding = 'utf-8') as ies_file:
         for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
             skill = row['ClassName'][len('Gem_'):]
 
-            if skill not in globals.data['skills_by_name']:
+            if skill not in constants.data['skills_by_name']:
                 continue
 
-            skill = globals.data['skills_by_name'][skill]
-            skill['Link_Gem'] = globals.get_gem_link(row['ClassName'])
+            skill = constants.data['skills_by_name'][skill]
+            skill['Link_Gem'] = constants.get_gem_link(row['ClassName'])
 
 
-def parse_links_jobs(globals):
+def parse_links_jobs(constants):
     logging.debug('Parsing jobs for skills...')
-    ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', 'skilltree.ies')
-    ies_path = globals.file_dict[ 'skilltree.ies']['path']
+    ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', 'skilltree.ies')
+    ies_path = constants.file_dict[ 'skilltree.ies']['path']
 
     z = []
     with io.open(ies_path, 'r', encoding = 'utf-8') as ies_file:
         for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
             z.append(row)
             # Ignore discarded skills
-            if row['SkillName'] not in globals.data['skills_by_name']:
+            if row['SkillName'] not in constants.data['skills_by_name']:
                 continue
 
-            skill = globals.data['skills_by_name'][row['SkillName']]
+            skill = constants.data['skills_by_name'][row['SkillName']]
             skill['MaxLevel'] = int(row['MaxLevel'])
             skill['LevelPerGrade'] = int(row['LevelPerGrade']) if 'LevelPerGrade' in row else 0
             skill['UnlockClassLevel'] = int(row['UnlockClassLevel']) if 'UnlockClassLevel' in row else 0
             skill['UnlockGrade'] = int(row['UnlockGrade']) if 'UnlockGrade' in row else 0
 
             job = '_'.join(row['ClassName'].split('_')[:2])       
-            skill['Link_Job'] = globals.data['jobs_by_name'][job]['$ID']
-            globals.data['skills_by_name'][row['SkillName']] = skill
-            globals.data['skills'][skill['$ID']] = skill
-    return globals
+            skill['Link_Job'] = constants.data['jobs_by_name'][job]['$ID']
+            constants.data['skills_by_name'][row['SkillName']] = skill
+            constants.data['skills'][skill['$ID']] = skill
+    return constants
 
 
-def parse_clean(globals):
+def parse_clean(constants):
     skills_to_remove = []
     # Find which skills are no longer active
-    for skill in globals.data['skills'].values():
+    for skill in constants.data['skills'].values():
         if skill['Link_Job'] is None:
             skills_to_remove.append(skill)
 
     # Remove all inactive skills
     for skill in skills_to_remove:
-        del globals.data['skills'][str(skill['$ID'])]
-        del globals.data['skills_by_name'][skill['$ID_NAME']]
+        del constants.data['skills'][str(skill['$ID'])]
+        del constants.data['skills_by_name'][skill['$ID_NAME']]
 
         skill_id = skill['$ID']
 
-        for attribute in globals.data['attributes'].values():
-            attr = globals.data['attributes_by_name'][attribute['$ID_NAME']]
+        for attribute in constants.data['attributes'].values():
+            attr = constants.data['attributes_by_name'][attribute['$ID_NAME']]
             attribute['Link_Skills'] = [link for link in attribute['Link_Skills'] if link != skill_id]
             attr['Link_Skills'] = [link for link in attr['Link_Skills'] if link != skill_id]
-        for job in globals.data['jobs'].values():
-            job2= globals.data['jobs_by_name'][job['$ID_NAME']]
+        for job in constants.data['jobs'].values():
+            job2= constants.data['jobs_by_name'][job['$ID_NAME']]
             job['Link_Skills'] = [link for link in job['Link_Skills'] if link != skill_id]
             job2['Link_Skills'] = [link for link in job2['Link_Skills'] if link != skill_id]
     

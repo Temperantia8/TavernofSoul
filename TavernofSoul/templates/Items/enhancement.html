@@ -1,0 +1,65 @@
+{% load translate%}
+{% load static%}
+	  <h2>Enhancement</h2>
+	  <div class="form-inline">
+		  <table class="table-bordered border border-white border-responsive mt-1 mr-2 tabe  text-center">
+		  	<thead>
+		      <tr>
+		      	<th >{{"Anvil" | translate}}</th>
+		      	<th >{{"Bonus" | translate}}</th>
+		      	{%if item.grade == 6%}
+		      		{%for key, values in mat.30.items%}
+  				        	<th ><a href='{{values.mat_ids}}'><img class="icon-24" src="/static/icons/{{ values.mat_icon }}.png" title="{{values.mat_name}}" alt="{{values.mat_name}}"></a></th>
+			        {%endfor%}
+			        <th>{{"Chance" | translate}}</th>
+		      	{%else%}
+			        <!-- <th >{{"Price" | translate}}</th> -->
+			        <th >{{"Cost" | translate}}</th>
+		        	<th >{{"Total" | translate}}</th>
+		        {%endif%}
+		      </tr>
+		    </thead>
+		    <tbody style="text-align:center">
+		    	<tr>
+		      	<td ><input class="form-control-sm " type='text'
+		      		id="anvil" style="width :40px"></td>
+		      	<td id = 'anvil_bonus' ></td>
+		      	{%if item.grade == 6%}
+		      		{%for key, values in mat.30.items%}
+  				        <td id = '{{key}}' ></td>
+			        {%endfor%}
+			        <td id = 'chance_ench'></td>
+		      	{%else%}
+		        <td id = 'anvil_price' ></td>
+	        	<td id = 'anvil_total'></td>
+	        	{%endif%}
+		      </tr>
+		    </tbody>
+		 
+		  </table>
+
+		  <br>
+		  {% if tc_cost%}
+		  <table class="table-bordered border border-white border-responsive mt-1 tabe text-center">
+		  	<thead>
+		      <tr>
+		      	<th >{{"TC" | translate}}</th>
+		      	<th >{{"Bonus" | translate}}</th>
+		        <th >{{"BG" | translate}}</th>
+	        	<th >{{"Total" | translate}}</th>
+		      </tr>
+		    </thead>
+		    <tbody style="text-align:center" >
+		    	<tr>
+		      	<td ><input class="form-control-sm "  type='text'
+		      		id="tc" style="width :40px; text-align: center;"></td>
+		      	<td id = 'tc_bonus' ></td>
+		        <td id = 'tc_price' ></td>
+		        <td id = 'tc_total' ></td>
+		      </tr>
+		    </tbody>
+		 
+		  </table>
+		  {%endif%}
+		</div>
+	 

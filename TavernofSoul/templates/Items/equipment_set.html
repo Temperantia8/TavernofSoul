@@ -1,0 +1,62 @@
+{% load translate%}
+{% load static%}
+{%load utils%}
+<br>
+	  <h2>Equipment Set</h2>
+	  {%for set in item.equipments.equipment_set_set.all %}
+		   <div class="form-inline">
+			    <table class="table-bordered border border-white border-responsive mt-1 mr-2 tabe">
+		    	    <tbody>
+				    	<tr>
+				    		<th>{{"Set Name" | translate}} </th>
+			    			<th>{{set.name}}</th>
+			    		</tr>
+		    			{%if set.bonus2%}
+		    			<tr>
+		    				<th>-</th>
+		    				<td>{{set.bonus2 | stringFormat }}</td>
+		    			</tr>
+		    			{%endif%}
+		    			{%if set.bonus3%}
+		    			<tr>
+		    				<th>-</th>
+		    				<td>{{set.bonus3 | stringFormat }}</td>
+	    				</tr>
+		    			{%endif%}
+		    			{%if set.bonus4%}
+		    			<tr>
+		    				<th>-</th>
+		    				<td>{{set.bonus4 | stringFormat }}</td>
+		    			</tr>
+		    			{%endif%}
+		    			{%if set.bonus5%}
+		    			<tr>
+		    				<th>-</th>
+		    				<td>{{set.bonus5 | stringFormat }}</td>
+		    			</tr>
+		    			{%endif%}
+		    			{%if set.bonus6%}
+		    			<tr>
+		    				<th>-</th>
+		    				<td>{{set.bonus6 | stringFormat }}</td>
+		    			</tr>
+		    			{%endif%}
+		    			{%if set.bonus7%}
+		    			<tr>
+		    				<th>-</th>
+		    				<td>{{set.bonus7 | stringFormat }}</td>
+		    			</tr>
+		    			{%endif%}
+		    			<tr>
+		    				<th>{{"Sets" | translate}}</th>
+		    				<td>
+		    				{%for link in set.equipment.all%}
+		    					<img loading="lazy" alt="" src="/static/icons/{{link.item.icon}}.png") class="icon-24"> 	<a href="{{link.item.ids}}">{{link.item.name}}</a>
+		    						<br>
+		    				{%endfor%}
+		    				</td>
+		    			</tr>
+				    </tbody>
+    			</table>
+			</div>
+		{%endfor%}

@@ -24,7 +24,7 @@ import buff
 import vaivora
 import sys
 import misc
-
+from item_static import add_item_static
 def revision_txt_write(revision_txt, revision):
     revision = str(revision)
     with open(revision_txt, 'w') as file:
@@ -50,14 +50,13 @@ if __name__ == "__main__":
         quit()
     
     c= constants()
-    
     current_version = revision_txt_read('parser_version_{}.txt'.format(region.lower()))
     #version = c.importJSON(join("..", 'unpacker_version_{}.txt'.format(region.lower())))['patched'][-1]
     version = revision_txt_read(join("..", 'downloader', 'revision_{}.txt'.format(region)))
-    if(version == current_version):
+    if(version == current_version) and ('-f' not in sys.argv):
         logging.warning("ipf up to date")
         quit()
-    
+        
     c.build(region)
     
     luautil.init(c)
@@ -77,29 +76,8 @@ if __name__ == "__main__":
     items.parse(c)
     if (region not in no_tl):
         vaivora.parse(c)
-    
-    
-    c.data['items']['00000000'] = c.data['items']['089028'].copy()
-    c.data['items']['00000000'] ['$ID'] =  '00000000'
-    c.data['items']['00000000']['$ID_NAME'] = 'ViboraArcane_Random_Lv1'
-    c.data['items']['00000000']['Name'] = 'Random Vaivora Vision lv 1'
-    c.data['items']['00000000']['Icon'] = 'icon_item_vibora_vision'
-    c.data['items']['00000000']['Link_Materials'] = []
-    c.data['items']['00000000']['Link_Target'] = []
-    c.data['items']['00000000']['Type'] = 'Arcane'
-    c.data['items']['00000000']['Description'] = 'dummy for random vv vision drop'
-    c.data['items_by_name'] ['ViboraArcane_Random_Lv1'] = c.data['items']['00000000']
-    
-    c.data['items']['00000001'] = c.data['items']['00000000'].copy()
-    c.data['items']['00000001'] ['$ID'] =  '00000001'
-    c.data['items']['00000001']['$ID_NAME'] = 'Moneybag1'
-    c.data['items']['00000001']['Name'] = 'Silver'
-    c.data['items']['00000001']['Icon'] = 'icon_item_silver'
-    c.data['items']['00000001']['Link_Materials'] = []
-    c.data['items']['00000001']['Link_Target'] = []
-    c.data['items']['00000001']['Type'] = ''
-    c.data['items']['00000001']['Description'] = 'is a silver coin'
-    c.data['items_by_name'] ['Moneybag1'] = c.data['items']['00000001']
+    add_item_static(c)
+    items.parse_goddess_EQ(c)
     
     monsters.parse(c)
     monsters.parse_links(c)
@@ -114,7 +92,7 @@ if __name__ == "__main__":
     c.export()
 
     revision_txt_write('parser_version_{}.txt'.format(region.lower()), version)
-    v = {'version' : "{}_001001.ipf"version}
+    v = {'version' : "{}_001001.ipf".format(version)}
     with open(join(c.BASE_PATH_OUTPUT, 'version.json'), "w") as f:
         json.dump(v,f)
        

@@ -5,7 +5,7 @@ Created on Tue Sep 28 14:08:20 2021
 @author: Temperantia
 """
 
-
+from itertools import islice
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
@@ -15,9 +15,12 @@ from os.path import join, exists
 from Monsters.models import Monsters, Item_Monster, Skill_Monster
 import os
 import shutil
-from Items.models import Items, Equipments, Equipment_Bonus, Cards, Recipes, Books
-from Items.models import Item_Recipe_Material, Item_Recipe_Target, Item_Type
+from Items.models import Items, Equipments, Equipment_Bonus, Cards, Recipes, Books, Equipment_Set
+from Items.models import Item_Recipe_Material
 from Items.models import Collections, Item_Collection_Material, Item_Collection_Bonus
+from Items.models import Goddess_Reinforce_Mat, Goddess_Reinforce_Chance
+from Items.models import Eq_Reinf, Eq_TC
+
 from Maps.models import Maps, Map_Item, Map_NPC,Map_Item_Spawn
 from Jobs.models import Jobs
 from Buffs.models import Buffs
@@ -25,25 +28,41 @@ from Skills.models import Skills
 from Attributes.models import Attributes
 from Dashboard.models import Version
 from Other.models import Achievements
+
+
+def bulk_op(operation, objs, batch_size, fields = False):
+    count = 0
+    leng = len(objs)
+    while True:
+        logging.warning("---- bulk %s %s / %s" %('update' if fields else 'insert',  batch_size* count, leng))
+
+        batch = list(islice(objs,count* batch_size, (count+1) * batch_size))
+        if not batch:
+            break
+        if fields:
+            operation(batch, fields, batch_size)    
+        else:
+            operation(batch, batch_size)
+        count+=1
 class Command(BaseCommand):
     
     base_path               = settings.JSON_ROOT
     maps_path               = 'maps.json'
     maps_by_name_path       = 'maps_by_name.json'
     maps_by_position_path   = 'maps_by_position.json'
-    map_item_path           = 'map_item_path.json'
-    map_npc_path            = 'map_npc_path.json'
-    map_item_spawn_path     = 'map_item_spawn_path.json'
-    jobs_path               = "job.json"
-    jobs_by_name_path       = "job_by_name.json"
+    map_item_path           = 'map_item.json'
+    map_npc_path            = 'map_npc.json'
+    map_item_spawn_path     = 'map_item_spawn.json'
+    jobs_path               = "jobs.json"
+    jobs_by_name_path       = "jobs_by_name.json"
     attributes_by_name_path = "attributes_by_name.json"
     attributes_path         = "attributes.json"
     skills_path             = "skills.json"
     skills_by_name_path     = "skills_by_name.json"
     item_path               = 'items_by_name.json'
-    monster_path            = 'monster.json'
+    monster_path            = 'monsters.json'
     item_monster_path       = 'item_monster.json'
-    npc_path                = 'npc.json'
+    npc_path                = 'npcs.json'
     item_path               = 'items_by_name.json'
     item_type_path          = 'item_type.json'
     version_path            = 'version.json'
@@ -81,23 +100,6 @@ class Command(BaseCommand):
                                               
                                               }))
         return escaped
-    
-    def deleteMe(self, all_item, json_item, table, name):
-        item_to_delete = []
-        for item in all_item:
-            if item[0] not in json_item:
-                item_to_delete.append(item[0])
-        
-        for ids in item_to_delete:
-            try:
-                logging.warn("deleting from {} where ids ={}".format(name, ids))
-                item = table.objects.get(ids = ids)
-                icon= item.icon
-                item.delete()
-            except:
-                logging.warn(" delete error ids {}".format(ids))
-
-
     def comparer(self,path, ids = ['$ID']):
         base_path = self.base_path
         json_prev = False
@@ -211,69 +213,77 @@ class Command(BaseCommand):
         #get old dir loc
         #to do compare item from old dir, delete same rows
         items           = self.comparer(self.item_path)
-        self.importItem(items,item_type, update)
+        self.importItem(items,item_type)
         
         npc             = self.comparer(self.npc_path)
         monster         = self.comparer(self.monster_path)
-        self.importMonster(monster, npc, update)
+        self.importMonster(monster, npc)
         
         item_monster    = self.comparer(self.item_monster_path, ['Item','Monster'])
-        self.importItemMonster(item_monster,update)
+        self.importItemMonster(item_monster)
         
         map = self.comparer(self.maps_path)
-        self.importMap(map, update)
+        self.importMap(map)
         
         map = self.comparer(self.map_item_path, ['Map', 'Item'])
-        self.importMapItem(map, update)
+        self.importMapItem(map)
         
         map = self.comparer(self.map_npc_path, ['Map', 'NPC'])
-        self.importMapNPC(map, update)
+        self.importMapNPC(map)
         
         map = self.comparer(self.map_item_spawn_path, ['Map', 'Item'] )
-        self.importMapItemSpawn(map, update)
+        self.importMapItemSpawn(map)
         
         jobs           = self.comparer(self.jobs_path)
-        self.importJobs(jobs, update)
+        self.importJobs(jobs)
         
-        skills         = self.importJSON(join(self.base_path,self.skills_path))
-        self.importSkills(skills, update)
+        #skills         = self.importJSON(join(self.base_path,self.skills_path))
+        #self.importSkills(skills)
+        
+        skills         = self.comparer(self.skills_path)
+        self.importSkillsWithComparer(skills)
         
         attrib         = self.comparer(self.attributes_path)
-        self.importAttrib(attrib, update)
+        self.importAttrib(attrib)
         
         skillmon = self.comparer('skill_mon.json')
-        self.importSkillMon(skillmon, update)
+        self.importSkillMon(skillmon)
         #to do copy all item to old dir
         #make note about old dir loc
         buff = self.comparer(self.buff_path)
-        self.importBuff(buff, update)
+        self.importBuff(buff)
 
         achieve = self.comparer(self.achieve_path)
-        self.importAchieve(achieve,update)
-        
+        self.importAchieve(achieve)
+        self.importGoddess()
+        self.importEQSet()
+
         source = os.listdir(self.base_path)
         destination = join(self.base_path,"prev")
         for files in source:
             if files.endswith(".json"):
                 shutil.copy(join(self.base_path,files),join(destination,files))
 
-            
-    
-    def importItem(self,items, item_type, update ):
+        
+    items = {}
+    def importItem(self,items, item_type ):
         for i in items['removed']:
             try:
                 Items.objects.get(ids= i['$ID']).delete()
             except:
                 logging.warning("failed to delete item {} ({})".format(i['Name'], i['$ID']))
         logging.debug("migrating items")
-        item_type_db = list(Item_Type.objects.all())  
         dolater = {'RECIPES': [],'COLLECTION': [], 'EQUIPMENT' : [], 'CARD' : [], 'BOOKS' :[] }
-        for i in items['added']:
+        bulk_insert = []
+        bulk_upd    = []
+        items_all   = {i.ids : i for i in Items.objects.all()}
+
+        for i in items['added'] + items['changed']:
             upd = False
-            try:
-                handler = Items.objects.get(ids = i['$ID'])
+            if i['$ID'] in items_all:
+                handler = items_all[i['$ID']]
                 upd = True
-            except:
+            else:
                 handler = Items()
             handler.ids             = i['$ID']
             handler.id_name         = i['$ID_NAME']
@@ -283,98 +293,88 @@ class Command(BaseCommand):
             handler.weight          = 0 if i['Weight'] == '' else i['Weight']
             handler.tradability     = i['Tradability']
             handler.type            = i['Type']
-            if i['Type'] not in item_type_db:
-                try:
-                    type_handler = Item_Type.objects.get(name = i['Type'])
-                except:
-                    type_handler = Item_Type()
-                type_handler.name = i['Type']
-                type_handler.save()
-                item_type_db.append(i['Type'])
             handler.grade           = i['Grade']
             handler.icon            = i['Icon']
-            handler.save()
+            # handler.save()
             if i['$ID_NAME'] in item_type['EQUIPMENT']:
                 dolater['EQUIPMENT'].append([handler,i.copy(), upd])
-                #self.makeEQ(handler,i,item_type_db, upd)
+                #self.makeEQ(handler,i,  upd)
             elif i['$ID_NAME'] in item_type['CARD']:
                 dolater['CARD'].append([handler,i.copy(), upd])
-                #self.makeCard(handler,i,item_type_db, upd)
+                #self.makeCard(handler,i,  upd)
             elif i['$ID_NAME'] in item_type['RECIPES']:
                 dolater['RECIPES'].append([handler,i.copy(), upd])
             elif i['$ID_NAME'] in item_type['COLLECTION']:
                 dolater['COLLECTION'].append([handler,i.copy(),  upd])
             elif i['$ID_NAME'] in item_type['BOOKS']:
                 dolater['BOOKS'].append([handler,i.copy(), upd])
-                 #self.makeBook(handler,i,item_type_db, upd)
-        
+                 #self.makeBook(handler,i,  upd)
+            if upd:
+                bulk_upd.append(handler)
+            else:
+                bulk_insert.append(handler)
+
+        bulk_op(Items.objects.bulk_create, bulk_insert, 1000)
+        bulk_op(Items.objects.bulk_update, bulk_upd, 1000, Items.fields)
+        self.items = {i.ids : i for i in Items.objects.all()}
+        del(bulk_insert)
+        del(bulk_upd)
+                
+        logging.warning("-- parsing recipes" )
+        mat_bulk = []
         for i in dolater['RECIPES']:
-            self.makeRecipe(i[0], i[1], item_type_db, i[2])
+            self.makeRecipe(i[0], i[1],   i[2])
+        # bulk_op(Item_Recipe_Material, mat_bulk,1000)
         
+        
+        logging.warning("-- parsing collection" )
         for i in dolater['COLLECTION']:
-            self.makeCollection(i[0], i[1], item_type_db,i[2])
+            self.makeCollection(i[0], i[1],  i[2])
 
+
+        logging.warning("-- parsing equipment" )
+        bulks = []
+        anvil_handler_ins   = []
+        anvil_handler_upd   = []
+        tc_handler_ins      = []
+        tc_handler_upd      = []
+        bonus_handler       = []
         for i in dolater['EQUIPMENT']:
-            self.makeEQ(i[0], i[1], item_type_db,i[2])
+            bulks.append(self.makeEQ(i[0], i[1],  i[2]))
+        for i in bulks:
+            anvil_handler_ins   += i[0]
+            anvil_handler_upd   += i[1]
+            tc_handler_ins      += i[2]
+            tc_handler_upd      += i[3]
+            bonus_handler       += i[4]
 
+        logging.warning("-- importing anvils" )
+        bulk_op(Eq_Reinf.objects.bulk_create, anvil_handler_ins, 1000)
+        bulk_op(Eq_Reinf.objects.bulk_update, anvil_handler_upd, 1000,  ['price', 'addatk'])
+        logging.warning("-- importing transcends" )
+        bulk_op(Eq_TC.objects.bulk_update, tc_handler_upd, 1000,  ['price', 'tc'])
+        bulk_op(Eq_TC.objects.bulk_create, tc_handler_ins, 1000,  )
+        logging.warning("-- importing bonus" )
+        bulk_op(Equipment_Bonus.objects.bulk_create, bonus_handler, 1000)
+
+        logging.warning("-- parsing cards" )
         for i in dolater['CARD']:
-            self.makeCard(i[0], i[1], item_type_db,i[2])
+            self.makeCard(i[0], i[1],  i[2])
 
+        logging.warning("-- parsing books" )
         for i in dolater['BOOKS']:
-            self.makeBook(i[0], i[1], item_type_db,i[2])
-        
-        for i in items['changed']:
-            try:
-                handler = Items.objects.get(ids = i['$ID'])
-            except:
-                handler = Items()
-            handler.ids             = i['$ID']
-            handler.id_name         = i['$ID_NAME']
-            handler.cooldown        = i['TimeCoolDown']
-            handler.descriptions    = i['Description']
-            handler.name            = i['Name']
-            handler.weight          = 0 if i['Weight'] == '' else i['Weight']
-            handler.tradability     = i['Tradability']
-            handler.type            = i['Type']
-            if i['Type'] not in item_type_db:
-                try:
-                    type_handler = Item_Type.objects.get(name = i['Type'])
-                except:
-                    type_handler = Item_Type()
-                type_handler.name = i['Type']
-                type_handler.save()
-                item_type_db.append(i['Type'])
-            handler.grade           = i['Grade']
-            if i['Grade']          == "":
-                handler.grade = 1
-            handler.icon            = i['Icon']
-            handler.save()
-            if i['$ID_NAME'] in item_type['EQUIPMENT']:
-                self.makeEQ(handler,i,item_type_db, upd = True)
-            elif i['$ID_NAME'] in item_type['CARD']:
-                self.makeCard(handler,i,item_type_db, upd = True)
-            elif i['$ID_NAME'] in item_type['RECIPES']:
-                self.makeRecipe(handler,i,item_type_db, upd = True)
-            elif i['$ID_NAME'] in item_type['COLLECTION']:
-                self.makeCollection(handler,i,item_type_db, upd = True)
-            elif i['$ID_NAME'] in item_type['BOOKS']:
-                self.makeBook(handler,i,item_type_db, upd = True)
+            self.makeBook(i[0], i[1],  i[2])
                 
         
            
         
-    def makeEQ(self, item, i, item_type_db,upd = False):
+    def makeEQ(self, item, i,  upd = False):
+        item = self.items[item.ids]
         try:
             handler = Equipments.objects.get(item = item)
         except:
             handler = Equipments()
             handler.item = item
-            
-        handler.anvil_atk       = i['AnvilATK'] 
-        handler.anvil_def       = i['AnvilDEF'] 
-        handler.anvil_price     = i['AnvilPrice'] 
-       
-        
         handler.durability      = i['Durability']
         handler.level           = i['Level']
         handler.potential       = i['Potential']
@@ -386,35 +386,87 @@ class Command(BaseCommand):
         handler.patk_max        = i['Stat_ATTACK_PHYSICAL_MAX']
         handler.mdef            = i['Stat_DEFENSE_MAGICAL']
         handler.pdef            = i['Stat_DEFENSE_PHYSICAL']
-        handler.transcend_price = i['TranscendPrice']
         handler.type_attack     = i['TypeAttack']
         handler.type_equipment  = i['TypeEquipment']
-        if i['TypeEquipment'] not in item_type_db:
-            try:
-                type_handler = Item_Type.objects.get(name = i['Type'])
-            except:
-                type_handler = Item_Type()
-            type_handler.name = i['TypeEquipment']
-            type_handler.is_equipment = True
-            type_handler.save()
-            item_type_db.append(i['TypeEquipment'])
         handler.unidentified    = i['Unidentified']
         handler.unidentifiedRandom = i['UnidentifiedRandom']
-        Equipment_Bonus.objects.filter(equipment = handler).delete()
         handler.save()
+
+        anvil_handler_upd = []
+        anvil_handler_ins = []
+        anvil_obj = {i.anvil: i for i in Eq_Reinf.objects.filter(equipment = handler)}
+        if i['AnvilATK']:
+            for h in range(len(i['AnvilATK'])):
+                if h+1 in anvil_obj:
+                    eq_handler = anvil_obj[h+1]
+                    if eq_handler.price == i['AnvilPrice'][h] and eq_handler.addatk == i['AnvilATK'][h]:
+                        continue
+                    eq_handler.price         = i['AnvilPrice'][h]
+                    eq_handler.addatk        = i['AnvilATK'][h]
+                    anvil_handler_upd.append(eq_handler)
+                else:
+                    eq_handler = Eq_Reinf(equipment = handler, anvil = h+1)
+                    eq_handler.price         = i['AnvilPrice'][h]
+                    eq_handler.addatk        = i['AnvilATK'][h]
+                    anvil_handler_ins.append(eq_handler)
+
+        if i['AnvilDEF']:
+            for h in range(len(i['AnvilDEF'])):
+                if h+1 in anvil_obj:
+                    eq_handler = anvil_obj[h+1]
+                    if eq_handler.price == i['AnvilPrice'][h] and eq_handler.addatk == i['AnvilDEF'][h]:
+                        continue
+                    eq_handler.price         = i['AnvilPrice'][h]
+                    eq_handler.addatk        = i['AnvilDEF'][h]
+                    anvil_handler_upd.append(eq_handler)
+                else:
+                    eq_handler           = Eq_Reinf(equipment = handler, anvil = h+1)
+                    eq_handler.price         = i['AnvilPrice'][h]
+                    eq_handler.addatk        = i['AnvilDEF'][h]
+                    anvil_handler_ins.append(eq_handler)
+                # eq_handler.save()
+                # anvil_handler.append(eq_handler)
+
+
+
+        # Eq_Reinf.objects.bulk_update(anvil_handler_upd, ['price', 'addatk'])
+        # Eq_Reinf.objects.bulk_create(anvil_handler_ins)
+
+        tc_handler_upd = []
+        tc_handler_ins = []
+        # Eq_TC.objects.filter(equipment = handler).delete()
+        tc_obj = {i.tc: i for i in Eq_TC.objects.filter(equipment = handler)}
+        if i['TranscendPrice']:
+            for h in range(len(i['TranscendPrice'])):
+                if h+1 in tc_obj:
+                    eq_handler = tc_obj[h+1]
+                    if (eq_handler.price == i['TranscendPrice'][h]):
+                        continue
+                    eq_handler.price = i['TranscendPrice'][h]
+                    tc_handler_upd.append(eq_handler)
+                else:
+                    eq_handler = Eq_TC(equipment = handler, tc = h+1)
+                    eq_handler.price = i['TranscendPrice'][h]
+                    tc_handler_ins.append(eq_handler)
+                # eq_handler.save()
+                
+
+        # Eq_TC.objects.bulk_update(bulk_handler_upd, ['price', 'tc'])
+        # Eq_TC.objects.bulk_create(bulk_handler_ins)
+
+        Equipment_Bonus.objects.filter(equipment = handler).delete()
+        bonus_handler = []
         if (i['Bonus']):
             for b in i['Bonus']:
                 bonus = Equipment_Bonus(equipment = handler)
                 bonus.bonus_stat = b[0]
-                #try:
-                #    bonus.bonus_val  = b[1].replace('{img green_up_arrow 16 16}', '▲')\
-                #                            .replace('{img green_down_arrow 16 16}', '▼')
-                #except:
                 bonus.bonus_val  = b[1]
-                bonus.save()
-        handler.save()
-    
-    def makeCard(self, item, i, item_type_db,upd = False):
+                bonus_handler.append(bonus)
+        return [anvil_handler_ins, anvil_handler_upd, tc_handler_ins, tc_handler_upd, bonus_handler]
+
+
+    def makeCard(self, item, i,  upd = False):
+        item = self.items[item.ids]
         try:
             handler = Cards.objects.get(item = item)
         except:
@@ -425,69 +477,81 @@ class Command(BaseCommand):
         handler.type_card = i['TypeCard']
         handler.save()
     
-    def makeRecipe(self, item, i, item_type_db,upd = False):
-        
+    def makeRecipe(self, item, i,  upd = False):
+        item = self.items[item.ids]
         if ('Link_Materials' not in i):
-            logging.warning("invalid recipe {}".format(i['Name']))
-            logging.warning(i)
             return
         
-        try:
+        if upd:
             handler = Recipes.objects.get(item = item)
-        except:
+        else:
             handler = Recipes()
             handler.item = item
+            handler.target = Items.objects.get(id_name = i['Link_Target'])
             handler.save()
-        Item_Recipe_Material.objects.filter(recipe = handler).delete()
-        
+        # Item_Recipe_Material.objects.filter(recipe = handler).delete()
+
+        materials = {i.material.id_name : i for i in  Item_Recipe_Material.objects.filter(recipe = handler)}
+
         for link in i['Link_Materials']:
             try:
-                mat             = Item_Recipe_Material(recipe = handler)
-                mat.material    = Items.objects.get(id_name = link['Item'])
+                if (link['Item'] in materials):
+                    mat = materials[link['Item']]
+                    if mat.qty == link['Quantity']:
+                        continue
+                else:
+                    mat             = Item_Recipe_Material(recipe = handler)
+                    mat.material    = Items.objects.get(id_name = link['Item'])
                 mat.qty         = link['Quantity']
                 mat.save()
             except:
                 logging.warn("[RCP] {} ({}) material not found ({})".format(i['Name'], i['$ID_NAME'], link['Item']))
+        # return mat
         
-        Item_Recipe_Target.objects.filter(recipe = handler).delete()
-        try:
-            target = Item_Recipe_Target(recipe = handler)
-            target.target = Items.objects.get(id_name = i['Link_Target'])
-            target.save()
-        except:
-            logging.warn("[RCP] {} ({}) didnt have target".format(i['Name'], i['$ID_NAME']))
     
-    def makeCollection(self, item, i, item_type_db,upd = False):
+    def makeCollection(self, item, i,  upd = False):
+        item = self.items[item.ids]
         if ('Link_Items' not in i):
             logging.warning("invalid recipe {}".format(i['Name']))
             return
-        try:
+        if upd:
             handler = Collections.objects.get(item = item)
-        except:
+        else:
             handler = Collections()
             handler.item = item
-        handler.save()
-        Item_Collection_Material.objects.filter(collection = handler).delete()
+            handler.save()
+
+        # Item_Collection_Material.objects.filter(collection = handler).delete()
+        materials = {i.material.id_name : i for i in  Item_Collection_Material.objects.filter(collection = handler)}
+        bulk = []
         for link in i['Link_Items']:
             try:
+                if link in materials:
+                    continue
                 mat             = Item_Collection_Material(collection = handler)
                 mat.material    = Items.objects.get(id_name = link)
-                mat.save()
+                # mat.save()
+                bulk.append(mat)
             except:
                 logging.warn("[RCP] {} ({}) material not found ({})".format(i['Name'], i['$ID_NAME'], link))
+        Item_Collection_Material.objects.bulk_create(bulk)
         
-        Item_Collection_Bonus.objects.filter(collection = handler).delete()
         try:
             if (i['Bonus']):
+                Item_Collection_Bonus.objects.filter(collection = handler).delete()
+                bulk = []
                 for b in i['Bonus']:
                     bonus = Item_Collection_Bonus(collection = handler)
                     bonus.bonus_stat = b[0]
                     bonus.bonus_val  = b[1]
-                    bonus.save()
+                    # bonus.save()
+                    bulk.append(bonus)
+                Item_Collection_Bonus.objects.bulk_create(bulk)
         except:
             logging.warn("[RCP] {} ({}) didnt have target".format(i['Name'], i['$ID_NAME']))
 
-    def makeBook (self, item, i, item_type_db,upd = False):
+    def makeBook (self, item, i,  upd = False):
+        item = self.items[item.ids]
         try:
             handler = Books.objects.get(item = item)
         except:
@@ -499,17 +563,23 @@ class Command(BaseCommand):
             handler.text = None
         handler.save()
      
-    def importMonster(self,monster, npc, update ):
+    def importMonster(self,monster, npc ):
         for i in monster['removed']:
             try:
                 Monsters.objects.get(ids= i['$ID']).delete()
             except:
                 logging.warning("failed to delete monster {} ({})".format(i['Name'], i['$ID']))
+
+        bulk_upd    = []
+        bulk_ins    = []
+        # mons        = {i.ids :i for i in Monsters.objects.all()}
         for i in monster['added'] + monster['changed']:
             try:
-                handler                 = Monsters.objects.get(ids= i['$ID'])
+                handler = Monsters.objects.get(ids= i['$ID'])
+                upd     = True
             except:
                 handler = Monsters()
+                upd     = False
             handler.ids             = i['$ID']
             handler.id_name         = i['$ID_NAME']            
             handler.armor           = i['Armor']
@@ -542,64 +612,73 @@ class Command(BaseCommand):
             handler.stat_spr        = i['Stat_SPR']
             handler.stat_str        = i['Stat_STR']
             handler.stat_con        = i['Stat_CON']
-            handler.save()
-        
-       
-        
+            # handler.save()
+            if upd:
+                bulk_upd.append(handler)
+            else:
+                bulk_ins.append(handler)
+
         for i in npc['removed']:
             try:
                 Monsters.objects.get(ids= i['$ID']).delete()
             except:
                 logging.warning("failed to delete monster {} ({})".format(i['Name'], i['$ID']))
-        for i in npc['added']:
+
+        for i in npc['added'] +  npc['changed']:
             try:
                 handler                 = Monsters.objects.get(ids= i['$ID'])
+                upd     = True
             except:
                 handler = Monsters()
-            
+                upd     = False
             handler.ids             = i['$ID']
             handler.id_name         = i['$ID_NAME']            
             handler.descriptions    = i['Description']
             handler.icon            = i['Icon']
             handler.name            = i['Name']
-            handler.save()
+            # handler.save()
+            if upd:
+                bulk_upd.append(handler)
+            else:
+                bulk_ins.append(handler)
         
-        for i in npc['changed']:
-            handler                 = Monsters.objects.get(ids= i['$ID'])
-            handler.ids             = i['$ID']
-            handler.id_name         = i['$ID_NAME']            
-            handler.descriptions    = i['Description']
-            handler.icon            = i['Icon']
-            handler.name            = i['Name']
-            handler.save()
+        bulk_op(Monsters.objects.bulk_create, bulk_ins,100)
+        bulk_op(Monsters.objects.bulk_update, bulk_upd,100, Monsters.fields)
         
         
            
         
         
-    def importItemMonster(self,item_monster, update ):
+    def importItemMonster(self,item_monster ):
         for i in item_monster['removed']:
             try:
-                Item_Monster(monster__ids = i['Monster'], item__ids = i['Item']).delete().delete()
+                Item_Monster(monster__ids = i['Monster'], item__ids = i['Item']).delete()
             except:
                 logging.warning("failed to delete item_monster {} ({})".format(i['Item'], i['Monster']))
+
+        bulk_upd    = []
+        bulk_ins    = []
         for i in item_monster['added'] + item_monster['changed']:
             try:
-                handler                     = Item_Monster(monster__ids = i['Monster'], item__ids = i['Item'])
+                handler = Item_Monster.objects.get(monster__ids = i['Monster'], item__ids = i['Item'])
+                upd     = True
             except:
                 handler = Item_Monster()
+                upd     = False
             handler.monster             = Monsters.objects.get(ids = i['Monster'])
             handler.item                = Items.objects.get(ids = i['Item'])
             handler.chance              = i['Chance']
             handler.qty_min             = i['Quantity_MIN']
             handler.qty_max             = i['Quantity_MAX']
-            handler.save()
-        
-        
+            if upd:
+                bulk_upd.append(handler)
+            else:
+                bulk_ins.append(handler)
 
-    
-            
-    def importMap (self,map, update ):
+        bulk_op(Item_Monster.objects.bulk_create, bulk_ins,1000)
+        bulk_op(Item_Monster.objects.bulk_update, bulk_upd,1000, ['monster','item','chance','qty_min','qty_max'])
+        
+    def importMap (self,map ):
         for i in map['removed']:
             try:
                 Maps(monster__ids = i['Monster'], item__ids = i['Item']).delete().delete()
@@ -624,10 +703,7 @@ class Command(BaseCommand):
             handler.map_link       = i['Link_Maps']
             handler.save()
         
-        
-
-    
-    def importMapItem (self,map, update ):
+    def importMapItem (self,map ):
         for i in map['removed']:
             try:
                 m = Maps.objects.get(ids = i['Map'])
@@ -655,11 +731,7 @@ class Command(BaseCommand):
             handler.qty_min         = i['Quantity_MIN']
             handler.save()
         
-        
-            
-    
-    
-    def importMapItemSpawn (self,map, update ):
+    def importMapItemSpawn (self,map ):
         for i in map['removed']:
             try:
                 m = Maps.objects.get(ids = i['Map'])
@@ -691,13 +763,7 @@ class Command(BaseCommand):
             handler.positions        = pos
             handler.save()
          
-        
-        
-
-            
-    
-    
-    def importMapNPC (self,map, update ):
+    def importMapNPC (self,map ):
         for i in map['removed']:
             try:
                 m = Maps.objects.get(ids = i['Map'])
@@ -739,7 +805,7 @@ class Command(BaseCommand):
             
             
     
-    def importJobs(self,jobs, update ):
+    def importJobs(self,jobs ):
         for i in jobs['removed']:
             try:
                 Jobs.objects.get(ids= i['$ID']).delete()
@@ -762,36 +828,17 @@ class Command(BaseCommand):
         
         
             
-            
-        
-    
-    def importSkills(self,skills, update ):
-        logging.debug("migrating monsters")
-        count = 0
-        count_all = len(skills)
-        table = Skills
-        all_item = table.objects.values_list('ids')
-        json_item = []
-        for i in skills.values() :
-            flag_u = False
-            try :
+    def importSkillsWithComparer(self, skills):
+        for i in skills['removed']:
+            try:
+                Skills.objects.get(ids= i['$ID']).delete()
+            except:
+                logging.warning("failed to delete Skills {} ({})".format(i['Name'], i['$ID']))
+        for i in skills['added'] + skills['changed']:
+            try:
                 handler = Skills.objects.get(ids= i['$ID'])
-                flag_u = True
-                if update == 0:
-                    logging.info("skipping ({}/{})  {}".format(count,count_all,i['Name']))
-                    
-                else:
-                    logging.info("updating ({}/{})  {}".format(count,count_all,i['Name']))
             except:
                 handler = Skills()
-                logging.info("inserting ({}/{})  {}".format(count,count_all,i['Name']))
-            
-            if flag_u and update == 0:
-                count+=1
-                continue
-            if i['Link_Job'] == None:
-                continue
-            json_item.append(str(i['$ID']))
             handler.ids             = i['$ID']
             handler.id_name         = i['$ID_NAME']            
             handler.name            = i['Name']
@@ -881,11 +928,9 @@ class Command(BaseCommand):
             handler.stance = i['RequiredStance']
             handler.save()
             
-            
-            count+=1
-        self.deleteMe(all_item, json_item, table, 'Skills')
         
-    def importAttrib (self,attrib, update ):
+        
+    def importAttrib (self,attrib ):
         for i in attrib['removed']:
             try:
                 Attributes.objects.get(ids= i['$ID']).delete()
@@ -940,19 +985,22 @@ class Command(BaseCommand):
         
             
             
-    def importSkillMon(self, skillmon, update):
+    def importSkillMon(self, skillmon):
         for i in skillmon['removed']:
             try:
                 Skill_Monster.objects.get(ids= i['$ID']).delete()
             except:
                 logging.warning("failed to delete skillmon {} ({})".format(i['Name'], i['$ID']))
-            
+        
+        bulk_upd = []
+        bulk_ins = []
         for i in skillmon['added'] +skillmon['changed'] :
             try:
                 handler = Skill_Monster.objects.get(ids= i['$ID'])
+                upd = True
             except:
                 handler = Skill_Monster()
-            link_mon = []
+                upd = False
             handler.ids             = i['$ID']
             handler.id_name         = i['$ID_NAME']            
             handler.name            = i['Name']
@@ -963,7 +1011,18 @@ class Command(BaseCommand):
             handler.element         = i['Attribute']
             handler.cooldown        = int(i['CD'])
             handler.aar             = i['AAR']
-            handler.save()
+            # handler.save()
+            if(upd):
+                bulk_upd.append(handler)
+            else:
+                bulk_ins.append(handler)
+        bulk_op(Skill_Monster.objects.bulk_create, bulk_ins, 1000)
+        bulk_op(Skill_Monster.objects.bulk_update, bulk_upd, 1000, ['ids', 'id_name', 'name', 'sfr', 'element', 'cooldown', 'aar'])
+
+        skillmon_obj = {i.ids : i for i in Skill_Monster.objects.all()}
+        for i in skillmon['added'] +skillmon['changed'] :
+            handler = skillmon_obj[i['$ID']]
+            link_mon = []
             for monster in i['Monster']:
                 try:
                     link_mon.append(Monsters.objects.get(ids = monster))
@@ -971,11 +1030,11 @@ class Command(BaseCommand):
                     logging.warning("monster(ids) {} not found (for skill)".format(monster))
             for mon in link_mon:
                 handler.monsters.add(mon)
-            handler.save()
+            # handler.save()
             
         
             
-    def importBuff(self, buff, update):
+    def importBuff(self, buff):
         for i in buff['removed']:
             try:
                 Buffs.objects.get(ids= i['$ID']).delete()
@@ -1005,7 +1064,7 @@ class Command(BaseCommand):
             
 
             
-    def importAchieve(self, achieve, update):
+    def importAchieve(self, achieve):
         for i in achieve['removed']:
             try:
                 Achievements.objects.get(ids= i['$ID']).delete()
@@ -1029,3 +1088,70 @@ class Command(BaseCommand):
             handler.desc_title      = i['DescTitle']
             handler.group           = i['Group']
             handler.save()
+
+    def importGoddess(self):
+        mat_path        = 'goddess_reinf_mat.json'
+        reinf_path      = 'goddess_reinf.json' 
+        item_dic        = {}
+        mats            = self.importJSON(join(self.base_path, mat_path))
+        #with open(reinf_path,'r')as f:
+        #    mats = json.load(f)
+        for lv in mats:
+            for eq in mats[lv]:
+                for anv in mats[lv][eq]:
+                    for mat in mats[lv][eq][anv]:
+                        if mat not in item_dic:
+                            item =  Items.objects.get(id_name = mat)
+                            item_dic[mat] = item 
+                        item = item_dic[mat]
+                        try:
+                            handler = Goddess_Reinforce_Mat.objects.get(lv=lv, anvil=anv, mat = item, eq_type = eq)
+                        except:
+                            handler = Goddess_Reinforce_Mat(lv=lv, anvil=anv, mat = item, eq_type = eq)
+                        handler.mat_count = mats[lv][eq][anv][mat]
+                        handler.save() 
+                    
+        reinf       = self.importJSON(join(self.base_path,reinf_path))
+        for lv in reinf:
+            for anvil in reinf[lv]:
+                cur = reinf[lv][int(anvil['ClassID'])-1]
+                
+                try:
+                    handler = Goddess_Reinforce_Chance.objects.get(lv=lv, anvil=int(anvil['ClassID']))
+                except:
+                    handler = Goddess_Reinforce_Chance(lv=lv, anvil=int(anvil['ClassID']))
+                if 'AddAtk' in cur:
+                    handler.addatk = cur['AddAtk']
+                if 'AddAccAtk' in cur:
+                    handler.addacc = cur['AddAccAtk']
+                
+                handler.chance = int(cur['BasicProp']) / 100000
+                handler.save()
+    
+    def importEQSet(self):
+        file    = 'equipment_sets.json'
+        eq_set  = self.comparer(file)
+        for i in eq_set['removed']:
+            try:
+                Equipment_Set.objects.get(ids= i['$ID']).delete()
+            except:
+                logging.warning("failed to delete achievements {} ({})".format(i['Name'], i['$ID']))
+            
+        for i in eq_set['added'] +eq_set['changed'] :
+            try:
+                handler = Equipment_Set.objects.get(ids = i['$ID'])
+            except:
+                handler = Equipment_Set(ids = i['$ID'])
+
+            handler.bonus2 = i['Bonus2']
+            handler.bonus3 = i['Bonus3']
+            handler.bonus4 = i['Bonus4']
+            handler.bonus5 = i['Bonus5']
+            handler.bonus6 = i['Bonus6']
+            handler.bonus7 = i['Bonus7']
+            handler.name   = i['Name']
+            handler.id_name = i['$ID_NAME']
+            handler.save()
+            for i in i['Link_Items']:
+                eq_handler = Equipments.objects.get(item__id_name = i)
+                handler.equipment.add(eq_handler)

@@ -5,7 +5,7 @@ Created on Mon Sep 20 09:20:20 2021
 @author: Temperantia
 
 everything goes here
-temporary database from parse and make csv database to be inserted to mysql
+temporary database from parse and make json database to be inserted to mysql
 """
 from os.path import join, exists,getmtime
 import os
@@ -30,38 +30,34 @@ class ToS_DB():
     transaltion_path                = None
     region                          = None
     
-    file_dict = {}
-    data_path    = {
-        'assets_icons_path'        : "asset.json",
-        'jobs_path'                : "job.json",
-        'jobs_by_name_path'        : "job_by_name.json",
-        'attributes_by_name_path'  : "attributes_by_name.json",
-        'attributes_path'          : "attributes.json",
-        'skills_path'              : "skills.json",
-        'skills_by_name_path'      : "skills_by_name.json",
-        'dictionary_path'          : "dict.json",
-        'items_path'               : 'items.json',
-        'items_by_name_path'       : 'items_by_name.json',
-        'cubes_by_stringarg_path'  : 'cubes_by_stringarg.json',
-        'equipment_sets_path'      : 'equipment_setss.json',
-        'equipment_sets_by_name_path'   : 'equipment_setss_by_name.json',
-        'item_type_path'           : 'item_type.json',
-        'monsters_path'            : 'monster.json',
-        'monsters_by_name_path'    : 'monster_by_name.json',
-        'npcs_path'                : 'npc.json',
-        'npcs_by_name_path'        : 'npc_by_name.json',
-        'item_monster_path'        : 'item_monster.json',
-        'maps_path'                : 'maps.json',
-        'maps_by_name_path'        : 'maps_by_name.json',
-        'maps_by_position_path'    : 'maps_by_position.json',
-        'map_item_path'            : 'map_item_path.json',
-        'map_npc_path'             : 'map_npc_path.json',
-        'map_item_spawn_path'      : 'map_item_spawn_path.json',
-        'skill_mon_path'           : 'skill_mon.json',
-        'equipment_grade_ratios_path' : 'equipment_grade_ratios.json',
-        'buff_path'                :  "buff.json",
-        'achievements_path'        :  "achievements.json"
+    EQUIPMENT_IES   = ['item_equip.ies',
+                        'item_Equip_EP12.ies',
+                        'item_Equip_EP13.ies',
+                        'item_event_equip.ies',]
+    ITEM_IES = {
+        "item.ies"                  :'01',
+        'item_colorspray.ies'       :'02',
+        'item_gem.ies'              :'03',
+        'item_Equip.ies'            :'04',
+        'item_Equip_EP12.ies'       :'05',
+        'item_premium.ies'          :'06',
+        'item_quest.ies'            :'07',
+        'recipe.ies'                :'08',
+        'item_EP12.ies'             :'09',
+        'item_gem_relic.ies'        :'10',
+        'item_gem_bernice.ies'      :'11',
+        'item_GuildHousing.ies'     :'12',
+        'item_PersonalHousing.ies'  :'13',
+        'item_HiddenAbility.ies'    :'14',
+        'item_event.ies'            :'15', 
+        'item_event_Equip.ies'      :'16', 
+        'item_EP13.ies'             :'17',
+        'item_Equip_EP13.ies'       :'17',
+        'item_Reputation.ies'       :'18',
         }
+    
+    file_dict = {}
+    
     
     data_build = ['assets_icons', 'maps', 'maps_by_name', 'maps_by_position']
         
@@ -95,6 +91,11 @@ class ToS_DB():
        'equipment_grade_ratios' : {},
        'buff'                : {},
        'achievements'        : {},
+       'charxp'              : {},
+       'petxp'               : {},
+       'assisterxp'          : {},
+       'goddess_reinf_mat'   : {},
+       'goddess_reinf'       : {}
        }
     
     
@@ -102,7 +103,8 @@ class ToS_DB():
         region = region.lower()
         self.BASE_PATH_INPUT                 = join("..", "TavernofSoul", "JSON_{}".format(region))
         self.BASE_PATH_OUTPUT                = join( "..", "TavernofSoul", "JSON_{}".format(region))
-        self.STATIC_ROOT                     = join("..", "TavernofSoul", "staticfiles_{}".format(region))
+        #self.STATIC_ROOT                     = '/home/tavp7339/www/itos/static'
+        self.STATIC_ROOT                     = join("..", "TavernofSoul", "staticfiles_itos")
         self.PATH_BUILD_ASSETS_ICONS         = join (self.STATIC_ROOT,"icons")
         self.PATH_BUILD_ASSETS_IMAGES_MAPS   = join (self.STATIC_ROOT,"maps")
         self.PATH_INPUT_DATA                 = join('..','{}_unpack'.format(region))
@@ -116,30 +118,21 @@ class ToS_DB():
             
         self.directoryDictionary(self.PATH_INPUT_DATA)
         
-        try:
-            os.mkdir(self.PATH_BUILD_ASSETS_ICONS)
-        except:
-            pass
-
-        try:
-            os.mkdir(self.PATH_BUILD_ASSETS_MAPS)
-        except:
-            pass
-
+        
         for i in self.data_build:
-            path = self.data_path["{}_path".format(i)]
+            path = "%s.json"%(i)
             path = join(self.BASE_PATH_INPUT, path)
             self.data[i] = self.importJSON(path)
         
     def export(self):
         for i in self.data:
-            path = self.data_path["{}_path".format(i)]
+            path = "{}.json".format(i)
             self.printJSON(self.data[i],path)
     
     
     def export_one(self, file):
         i = file
-        path = self.data_path["{}_path".format(i)]
+        path = "{}.json".format(i)
         self.printJSON(self.data[i],path)
     
     def reverseDict(self, dicts):
@@ -207,7 +200,7 @@ class ToS_DB():
             icon_found = icon + '_m'
     
         if icon_found is not None:
-            #globals.assets_icons_used.append(icon_found)
+            #constants.assets_icons_used.append(icon_found)
             return self.data['assets_icons'][icon_found]
         else:
             # Note: there's nothing we can do about this :'(
@@ -217,11 +210,11 @@ class ToS_DB():
  
 
     def printJSON(self, item, file):
-        # file_input = join (self.BASE_PATH_INPUT, file)
-        file_output = join(self.BASE_PATH_OUTPUT, file)
+        file_input = join (self.BASE_PATH_INPUT, file)
+        #file_output = join(self.BASE_PATH_OUTPUT, file)
         with open(file_input, "w") as f:
             json.dump(item,f)
-        shutil.copy(file_input, file_output)
+        #shutil.copy(file_input, file_output)
         
         
     def importJSON(self,  file):

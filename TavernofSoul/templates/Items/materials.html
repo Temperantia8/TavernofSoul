@@ -1,0 +1,13 @@
+{% load translate%}
+	<br>
+	<h2>{{"Materials" | translate}}</h2>
+	  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+	    <tbody>
+	    	{%for material in collectionMaterial%}
+	    	 <tr>
+	    		<td><img loading="lazy" alt="" src="/static/icons/{{material.material.icon}}.png") class="icon-24"> 	<a href="{{material.material.ids}}">{{material.material.name}}</a></td>
+	      </tr>
+	      {%endfor%}
+	    </tbody>
+	 
+	  </table>

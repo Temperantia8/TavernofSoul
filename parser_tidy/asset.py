@@ -54,7 +54,10 @@ def parse( c = None):
         c = constants()
         c.build()
     logging.basicConfig(level=logging.DEBUG)
-    
+    try:
+        os.mkdir(c.PATH_BUILD_ASSETS_ICONS)
+    except:
+        pass
     logging.info('Parsing assets...')
     parse_icons('baseskinset.xml',c)
     parse_icons('classicon.xml',c)
@@ -69,7 +72,7 @@ def parse_icons(file_name,c):
     
     logging.info('Parsing file {}'.format(file_name))
     
-    #data_path = os.path.join(globals.PATH_INPUT_DATA, 'ui.ipf', 'baseskinset', file_name)
+    #data_path = os.path.join(constants.PATH_INPUT_DATA, 'ui.ipf', 'baseskinset', file_name)
     logging.warning(file_name)
     try:
         data_path = c.file_dict[file_name.lower()]['path']

@@ -38,6 +38,41 @@ class Monsters (models.Model):
     created         = models.DateTimeField(auto_now_add=True)
     updated         = models.DateTimeField(auto_now=True)
 
+    fields          = [
+                        'ids',
+                        'id_name',
+                        'armor',
+                        'descriptions',
+                        'element',
+                        'exp',
+                        'exp_class',
+                        'icon',
+                        'level',
+                        'name',
+                        'race',
+                        'rank',
+                        'size',
+                        'accuracy',
+                        'matk_max',
+                        'matk_min',
+                        'patk_max',
+                        'patk_min',
+                        'blockpen',
+                        'block',
+                        'critdmg',
+                        'critdef',
+                        'critrate',
+                        'mdef',
+                        'pdef',
+                        'eva',
+                        'hp',
+                        'stat_dex',
+                        'stat_int',
+                        'stat_spr',
+                        'stat_str',
+                        'stat_con',
+                    ]
+
 
     def is_npc(self):
         return self.rank == None or self.rank=='NPCNPC'

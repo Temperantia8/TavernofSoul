@@ -1,0 +1,52 @@
+{% load translate%}
+  <h2>{{"Refferences" | translate}}</h2>
+  
+  	<table class="table-bordered border border-white border-responsive mt-1 tabe">
+		    <tbody>
+		    	{%if targetRecipe%}
+		    	<tr>
+		      	<th>{{"Crafted From" | translate}}</th>
+		      	<td>
+		      		{%for i in targetRecipe%}
+		      			<a href="{{i.recipe.item.ids}}"> <p class="mb-0"> <img loading="lazy" alt="" src="/static/icons/{{i.recipe.item.icon}}.png") class="icon-24">{{i.recipe.item.name}}</p></a>
+		      			
+		      		{%endfor%}
+		      	</td>
+		      </tr>
+		      {%endif%}
+
+		      {%if collectionMaterialFor%}
+		      <tr>
+		      	<th>{{"Collections" | translate}}</th>
+		      	<td>
+			      	{%for i in collectionMaterialFor%}
+		      			<a href="{{i.collection.item.ids}}"><p class="mb-0"><img loading="lazy" alt="" src="/static/icons/{{i.collection.item.icon}}.png") class="icon-24"> {{i.collection.item.name}}</p></a>
+			      			
+		      		{%endfor%}
+	      		</td>
+		      </tr>
+		      {% endif %}
+		      {%if dropped%}
+		    	<tr>
+		      	<th style="vertical-align:top">{{"Dropped by" | translate}}</th>
+		      	<td>
+		      		{%for i in dropped%}
+		      			<p class="mb-0"> <a href="{%url 'Monsters:monster' i.monster.ids%}"> <img loading="lazy" alt="" src="/static/icons/{{i.monster.icon}}.png") class="icon-24">{{i.monster.name}}</a> ({{i.chance}} %)</p> 
+		      			
+		      		{%endfor%}
+		      	</td>
+		      </tr>
+		      {%endif%}
+		      {%if mapDrop%}
+		      <th style="vertical-align:top">{{"Dropped at" | translate}}</th>
+		      	<td>
+		      		{%for i in mapDrop%}
+		      			<p class="mb-0"> <a href="{%url 'Maps:maps' i.map.ids%}"> {{i.map.name}}</a> ({{i.chance}} %)</p> 
+		      			
+		      		{%endfor%}
+		      	</td>
+		      </tr>
+		      {%endif%}
+		    </tbody>
+		 
+		  </table>

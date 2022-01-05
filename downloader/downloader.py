@@ -15,6 +15,14 @@ region = ""
 error_ipf = [] #the somehow error patch
             
 
+def git_sync(patch_name):
+    cwd= os.getcwd()
+    os.chdir(join("..", "{}_unpack".format(region)))
+    subprocess.run(['git', 'add', '.'])
+    subprocess.run(['git', 'commit', '-m', patch_name])
+    subprocess.run(['git', 'push'])
+    os.chdir(cwd)
+
 def copyfiles(output):
     if not os.path.exists(output):
         os.mkdir(output)
@@ -33,39 +41,30 @@ def copyfiles(output):
             subprocess.run(['cp', '-r', join('extract',i), output])
             logging.warning("copying to {}".format(join(output,i)))
 
-def unpack():
+
+def unpack(f):
     IPF_PATH    = join("..", "{}_patch".format(region))
     OUTPUT_PATH = join("..", "{}_unpack".format(region))
     unpacker    = join("..", 'IPFUnpacker', 'ipf_unpack')
     cwd = os.getcwd()
-    try:
-        os.mkdir(OUTPUT_PATH)
-    except:
-        pass
-
     search_dir = IPF_PATH
-    os.chdir(search_dir)
     files = filter(os.path.isfile, os.listdir())
     files = [ f for f in files] # add path to each file
     files.sort(key=lambda x: os.path.getmtime(x))
     
-    os.chdir(cwd)
-    files.sort()
     extension_needed = ['ies', 'xml', 'lua','png', 'jpg', 'tga', 'json','tok', 'colmesh', 'tsv'   ]
-    for f in files:
-        if f.split(".")[-1]!= "ipf":
-            logging.warning("ignoring {}..".format(f))
-            continue
-        else:
-            logging.warning("patching {}".format(f))
-            cur_file = join(IPF_PATH, f)
-            copyfile(cur_file, f)
-            subprocess.run ([unpacker, f, 'decrypt'])
-            subprocess.run([unpacker, f, 'extract']+ extension_needed)
-            os.remove(f) 
-            os.remove(cur_file) 
-            copyfiles(join("..","{}_unpack").format(region))
-            rmtree('extract')
+    logging.warning("patching {}".format(f))
+    cur_file = join(IPF_PATH, f)
+    copyfile(cur_file, f)
+    subprocess.run ([unpacker, f, 'decrypt'])
+    subprocess.run([unpacker, f, 'extract']+ extension_needed)
+    os.remove(f) 
+    os.remove(cur_file) 
+    copyfiles(join("..","{}_unpack").format(region))
+    rmtree('extract'.format(region))
+    git_sync(f)
+    
+            
 
 
 
@@ -161,7 +160,7 @@ def patch_process(patch_file, patch_name, patch_unpack, patch_url, patch_destina
     if(patch_unpack):
         unpacker_pak.unpack(patch_name,patch_destination)
     else:
-        unpack()
+        unpack(patch_name)
     # Delete patch
     # os.remove(patch_file)
 
@@ -216,18 +215,19 @@ def do_patch_full(patch_output, url_patch):
 def move_language(region):
     if region not in ['itos', 'jtos']:
         return 
-    output_path = {'itos' : os.path.join('..', 'Translation', 'English'),
-                   'jtos' : os.path.join('..', 'Translation', 'Japanese'),}
+    output_path = {'itos' : os.path.join('..', 'Translation'),
+                   'jtos' : os.path.join('..', 'Translation'),}
     input_path  = {'itos' : os.path.join('..', 'itos_patch', 'languageData', 'English'),
                    'jtos' : os.path.join('..', 'jtos_patch', 'languageData', 'Japanese'),}
 
     output_path = output_path[region]
     input_path  = input_path[region]
     if os.path.exists(input_path):
-        try:
-            shutil.move(input_path, output_path)
-        except:
-            pass
+        #try:
+        #    #shutil.move(input_path, output_path)
+        subprocess.run(['cp', '-r', input_path, output_path])
+        #except:
+        #    pass
 
 
 
