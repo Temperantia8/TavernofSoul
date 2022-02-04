@@ -2,6 +2,7 @@ from django.shortcuts import render
 from os.path import join
 from django.http import HttpResponse
 from Attributes.models import Attributes
+from Items.models import Equipment_Bonus
 from Jobs.models import Jobs
 from Skills.models import Skills
 # Create your views here.
@@ -11,6 +12,8 @@ import os
 from django.http import JsonResponse
 from django.db.models import Q
 from ipfparser.utils import *
+from Items.constants import bonus_stat_translator
+from django.http import Http404
 def index(request):
 
     data = {}
@@ -43,9 +46,32 @@ def index(request):
     data['query'] = getFromGet(request, 'q','')
     return render(request, join(APP_NAME,"search.html"), data)
 
-def item_detail(request, id):
+specialvar= {
+        'CaptionRatio'  : 'captionratio1', 
+        'CaptionRatio2' : 'captionratio2', 
+        'CaptionRatio3' : 'captionratio3',
+        'SkillSR'       : 'skillsr', 
+        'SpendItemCount': 'spenditemcount' , 
+        'SkillFactor'   : 'sfr',
+        'CaptionTime'   : 'captiontime',
+        'SpendItemCount': 'spenditemcount', 
+        'SpendPoison'   : 'spendpoison',   
+        'SpendSP'       : 'spendsp'
+    }
+def parseEffect(effect):
+    
+    effect = effect.replace('{#339999}{ol}','').split('{nl}')
+    ef = []
+    for lines in effect:
+        lines = lines.replace('{','').replace('}','').replace('//','').split('#')
+        ef.append(lines)
+    return ef
 
-    item = Jobs.objects.get(ids = id)
+def item_detail(request, id):
+    try:
+        item = Jobs.objects.get(ids = id)
+    except:
+        raise Http404
     data = {}
     data['item'] = item
 
@@ -55,10 +81,29 @@ def item_detail(request, id):
     data['skills'] = []
     for i in skill:
         i.descriptions = i.descriptions.replace('{#DD5500}{ol}','').replace('{#993399}{ol}','').replace('{/}','').split('{nl}')
+        i.effect = parseEffect(i.effect)
         data['skills'].append(i)
 
 
     attributes = Attributes.objects.filter(job__ids = data['item'].ids)
+
+    # try:
+    bonus_db = list(Equipment_Bonus.objects.filter(equipment = item.vaivora))
+    bonus_all = []
+    for i in bonus_db:
+        bonus = {}
+        if i.bonus_stat in bonus_stat_translator:
+            bonus['bonus_stat'] = bonus_stat_translator[i.bonus_stat]
+        else:
+            bonus['bonus_stat'] = i.bonus_stat
+        bonus['bonus_val']  = i.bonus_val.replace('{img green_up_arrow 16 16}', '▲')\
+                                    .replace('{img green_down_arrow 16 16}', '▼')
+        bonus['bonus_val'] = bonus['bonus_val'].split('{nl}')
+        bonus_all.append(bonus)
+    data['equipment_bonus'] = bonus_all
+    # except:
+        # pass
+
     
     data['attributes'] = []
     for i in attributes:
@@ -68,5 +113,6 @@ def item_detail(request, id):
         data['desc'] = item.descriptions.split('{nl}')
     except:
         pass
+    data['specialvar'] = specialvar
 
     return render(request, join(APP_NAME,"index.html"),data)

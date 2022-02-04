@@ -12,7 +12,7 @@ from django.conf import settings
 import logging
 import json
 from os.path import join, exists
-from Monsters.models import Monsters, Item_Monster, Skill_Monster
+from Monsters.models import Monsters, Item_Monster, Skill_Monster,Buff_Skill_Monster
 import os
 import shutil
 from Items.models import Items, Equipments, Equipment_Bonus, Cards, Recipes, Books, Equipment_Set
@@ -24,7 +24,7 @@ from Items.models import Eq_Reinf, Eq_TC
 from Maps.models import Maps, Map_Item, Map_NPC,Map_Item_Spawn
 from Jobs.models import Jobs
 from Buffs.models import Buffs
-from Skills.models import Skills
+from Skills.models import Skills,Buff_Skill
 from Attributes.models import Attributes
 from Dashboard.models import Version
 from Other.models import Achievements
@@ -33,8 +33,10 @@ from Other.models import Achievements
 def bulk_op(operation, objs, batch_size, fields = False):
     count = 0
     leng = len(objs)
+    batch_size = int(batch_size)
+    
     while True:
-        logging.warning("---- bulk %s %s / %s" %('update' if fields else 'insert',  batch_size* count, leng))
+        logging.warning("---- bulk %s %s / %s | %s" %('update' if fields else 'insert',  batch_size * count, leng, count))
 
         batch = list(islice(objs,count* batch_size, (count+1) * batch_size))
         if not batch:
@@ -44,6 +46,7 @@ def bulk_op(operation, objs, batch_size, fields = False):
         else:
             operation(batch, batch_size)
         count+=1
+
 class Command(BaseCommand):
     
     base_path               = settings.JSON_ROOT
@@ -68,7 +71,11 @@ class Command(BaseCommand):
     version_path            = 'version.json'
     buff_path               = 'buff.json'
     achieve_path            = 'achievements.json'
-    def importJSON(self,file):
+    all_dic                 = {}
+    
+    
+    
+    def importJSON(self, file):
         if not exists(file):
             return {}
         try:
@@ -78,7 +85,7 @@ class Command(BaseCommand):
             logging.error("error in importing file {}".format(file))
             return {}
         return data
-    
+
 
     def add_arguments(self, parser):
         parser.add_argument('-u', '--update', type=int, help='Indicate wether ignore any \
@@ -210,8 +217,32 @@ class Command(BaseCommand):
             ver.save()
         
         item_type       = self.importJSON(join(self.base_path,self.item_type_path))
-        #get old dir loc
-        #to do compare item from old dir, delete same rows
+
+        buff = self.comparer(self.buff_path)
+        self.importBuff(buff)
+
+        jobs           = self.comparer(self.jobs_path)
+        self.importJobs(jobs)
+    
+        
+        skills         = self.comparer(self.skills_path)
+        self.importSkillsWithComparer(skills)
+        
+        attrib         = self.comparer(self.attributes_path)
+        self.importAttrib(attrib)
+
+        skills      = { i.name.lower() : i.job for i in Skills.objects.all() }
+        all_dic_k = sorted(skills, key=lambda k: len(k))
+        all_dic_sorted = {}
+        for i in all_dic_k:
+            all_dic_sorted[i] = skills[i]
+        skills = all_dic_sorted
+
+
+        classes     = { i.name.lower() : i for i in Jobs.objects.all()}
+        skills.update(classes)
+        self.all_dic = skills
+
         items           = self.comparer(self.item_path)
         self.importItem(items,item_type)
         
@@ -234,24 +265,10 @@ class Command(BaseCommand):
         map = self.comparer(self.map_item_spawn_path, ['Map', 'Item'] )
         self.importMapItemSpawn(map)
         
-        jobs           = self.comparer(self.jobs_path)
-        self.importJobs(jobs)
-        
-        #skills         = self.importJSON(join(self.base_path,self.skills_path))
-        #self.importSkills(skills)
-        
-        skills         = self.comparer(self.skills_path)
-        self.importSkillsWithComparer(skills)
-        
-        attrib         = self.comparer(self.attributes_path)
-        self.importAttrib(attrib)
-        
         skillmon = self.comparer('skill_mon.json')
         self.importSkillMon(skillmon)
-        #to do copy all item to old dir
-        #make note about old dir loc
-        buff = self.comparer(self.buff_path)
-        self.importBuff(buff)
+        
+
 
         achieve = self.comparer(self.achieve_path)
         self.importAchieve(achieve)
@@ -313,7 +330,7 @@ class Command(BaseCommand):
                 bulk_upd.append(handler)
             else:
                 bulk_insert.append(handler)
-
+        
         bulk_op(Items.objects.bulk_create, bulk_insert, 1000)
         bulk_op(Items.objects.bulk_update, bulk_upd, 1000, Items.fields)
         self.items = {i.ids : i for i in Items.objects.all()}
@@ -390,6 +407,7 @@ class Command(BaseCommand):
         handler.type_equipment  = i['TypeEquipment']
         handler.unidentified    = i['Unidentified']
         handler.unidentifiedRandom = i['UnidentifiedRandom']
+        handler.model           = i['model']
         handler.save()
 
         anvil_handler_upd = []
@@ -456,12 +474,30 @@ class Command(BaseCommand):
 
         Equipment_Bonus.objects.filter(equipment = handler).delete()
         bonus_handler = []
+        all_dic = self.all_dic
+
         if (i['Bonus']):
             for b in i['Bonus']:
                 bonus = Equipment_Bonus(equipment = handler)
                 bonus.bonus_stat = b[0]
                 bonus.bonus_val  = b[1]
                 bonus_handler.append(bonus)
+
+
+            if settings.REGION == 'jtos':
+                vv_name = 'バイボラ秘伝'
+            else:
+                vv_name = "vaivora vision"
+
+            #if vv_name in i['Name'].lower() and 'lv4' in  i['Name'].lower() and settings.REGION != 'jtos':
+            #    for bonus in i['Bonus']:                
+            #        if 'job' not in i:
+            #            continue
+            #        job = Jobs.objects.get(ids = i['job'])
+            #        job.vaivora = handler
+            #        job.save() 
+
+
         return [anvil_handler_ins, anvil_handler_upd, tc_handler_ins, tc_handler_upd, bonus_handler]
 
 
@@ -927,6 +963,25 @@ class Command(BaseCommand):
             handler.job = Jobs.objects.get(ids = i['Link_Job'])
             handler.stance = i['RequiredStance']
             handler.save()
+
+            for buff in i['TargetBuffs']:
+                buff = buff.split(';')
+                
+                try:
+                    h = Buffs.objects.get(id_name = buff[0])
+                except:
+                    continue
+                try:
+                    handler_buff = Buff_Skill.objects.get(skill= handler, buff = h )
+                except:
+                    handler_buff = Buff_Skill(skill= handler, buff = h )
+                handler_buff.duration = buff[1]
+                # print(buff)
+                handler_buff.chance = buff[2]
+
+                # quit()
+                handler_buff.save()
+                
             
         
         
@@ -964,7 +1019,8 @@ class Command(BaseCommand):
                     handler.skill.add(skill)
                     added_skill.append(skill.ids)
                 except:
-                    logging.warning("skill not found {}".format(h))
+                    #logging.warning("skill not found {}".format(h))
+                    pass
             for skill in handler.skill.all():
                 if skill.ids not in added_skill:
                     handler.skill.remove(skill)
@@ -975,8 +1031,9 @@ class Command(BaseCommand):
                     handler.job.add(job)
                     added_jobs.append(job.ids)
                 except:
-                    logging.warning("skill not found {}".format(h))
-            for job in handler.job.all():
+                    logging.warning("class not found {}".format(h))
+                    pass
+            for job in handler.job.all(): # for deletions
                 if job.ids not in added_jobs:
                     handler.job.remove(job)
             handler.save()
@@ -1018,34 +1075,50 @@ class Command(BaseCommand):
                 bulk_ins.append(handler)
         bulk_op(Skill_Monster.objects.bulk_create, bulk_ins, 1000)
         bulk_op(Skill_Monster.objects.bulk_update, bulk_upd, 1000, ['ids', 'id_name', 'name', 'sfr', 'element', 'cooldown', 'aar'])
-
+        mon          = {i['ids'] : i['id'] for i in Monsters.objects.values('id', 'ids')}
         skillmon_obj = {i.ids : i for i in Skill_Monster.objects.all()}
+
         for i in skillmon['added'] +skillmon['changed'] :
             handler = skillmon_obj[i['$ID']]
             link_mon = []
             for monster in i['Monster']:
                 try:
-                    link_mon.append(Monsters.objects.get(ids = monster))
+                    link_mon.append(mon[str(monster)])
                 except:
                     logging.warning("monster(ids) {} not found (for skill)".format(monster))
-            for mon in link_mon:
-                handler.monsters.add(mon)
+            # for monmon in link_mon:
+            handler.monsters.set(link_mon)
             # handler.save()
-            
-        
-            
+            for buff in i['TargetBuffs']:
+               
+                buff = buff.split(';')
+                #print(buff)
+                try:
+                    h = Buffs.objects.get(id_name = buff[0])
+                except:
+                    continue
+                try:
+                    handler_buff = Buff_Skill_Monster.objects.get(skill= handler, buff = h )
+                except:
+                    handler_buff = Buff_Skill_Monster(skill= handler, buff = h )
+                handler_buff.duration = buff[1]
+                handler_buff.chance = buff[2]
+                handler_buff.save()
+                
     def importBuff(self, buff):
         for i in buff['removed']:
             try:
                 Buffs.objects.get(ids= i['$ID']).delete()
             except:
                 logging.warning("failed to delete buff {} ({})".format(i['Name'], i['$ID']))
-            
+        bulk = {'upd' : [], 'create' : []}
         for i in buff['added'] +buff['changed'] :
             try:
                 handler = Buffs.objects.get(ids= i['$ID'])
+                key = 'upd'
             except:
                 handler = Buffs()
+                key = 'create'
             link_mon = []
             handler.ids             = i['$ID']
             handler.id_name         = i['$ID_NAME']            
@@ -1060,8 +1133,10 @@ class Command(BaseCommand):
             handler.overbuff        = i['OverBuff']
             handler.userremove      = i['UserRemove']
             handler.keyword         = i['Keyword']
-            handler.save()
-            
+            bulk[key].append(handler)
+            # handler.save()
+        bulk_op(Buffs.objects.bulk_create,bulk['create'],1000)
+        bulk_op(Buffs.objects.bulk_update,bulk['upd'],1000, Buffs.fields)
 
             
     def importAchieve(self, achieve):

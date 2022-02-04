@@ -15,7 +15,7 @@ from django.utils.encoding import force_bytes, force_str
 
 
 # For more information, see the OGR C API source code:
-#  https://gdal.org/api/vector_c_api.html
+#  https://www.gdal.org/ogr__api_8h.html
 #
 # The OGR_L_* routines are relevant here.
 class Layer(GDALBase):

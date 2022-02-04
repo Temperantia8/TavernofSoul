@@ -1,0 +1,36 @@
+{%load static%}
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/ColladaLoader.js"></script>
+<script type="text/javascript">
+	name 		= '{{item.equipments.model}}'
+	path  		= '/static/models/{{item.equipments.model}}'
+	name_dae 	= name + '.dae'
+	name_dds 	= name + '.dds'
+	container 	= $("#container_3d")[0]
+	
+	var scene 	= new THREE.Scene();
+    var camera 	= new THREE.PerspectiveCamera( 75, window.innerWidth /     window.innerHeight, 0.1, 1000 );
+    var renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    container.appendChild( renderer.domElement );
+
+    loader = new THREE.ColladaLoader();
+    loader.load(path+'/'+name_dae,function colladaReady( collada ){
+	    player = collada.scene;
+	    scene.add( player );
+    });
+
+    camera.position.z = 5;
+
+    function render() {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+
+        //cube.rotation.x += 0.1;
+        //cube.rotation.y += 0.1;
+    }
+    render();
+
+
+</script>

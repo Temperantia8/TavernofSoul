@@ -24,37 +24,43 @@ class ToS_DB():
     BASE_PATH_OUTPUT                = None
     STATIC_ROOT                     = None
     PATH_BUILD_ASSETS_ICONS         = None
+    PATH_BUILD_ASSETS_MODELS        = None
     PATH_BUILD_ASSETS_IMAGES_MAPS   = None
     PATH_INPUT_DATA                 = None
     PATH_INPUT_DATA_LUA             = None
     transaltion_path                = None
     region                          = None
+    CONVERTER_PATH                  = join("XAC", 'XAC2DAE.jar')
     
     EQUIPMENT_IES   = ['item_equip.ies',
                         'item_Equip_EP12.ies',
                         'item_Equip_EP13.ies',
                         'item_event_equip.ies',]
+    EQUIPMENT_REINFORCE_IES = {
+                    'item_goddess_reinforce.ies' : 460,
+                    'item_goddess_reinforce_470.ies' : 470 }
     ITEM_IES = {
-        "item.ies"                  :'01',
-        'item_colorspray.ies'       :'02',
-        'item_gem.ies'              :'03',
-        'item_Equip.ies'            :'04',
-        'item_Equip_EP12.ies'       :'05',
-        'item_premium.ies'          :'06',
-        'item_quest.ies'            :'07',
-        'recipe.ies'                :'08',
-        'item_EP12.ies'             :'09',
-        'item_gem_relic.ies'        :'10',
-        'item_gem_bernice.ies'      :'11',
-        'item_GuildHousing.ies'     :'12',
-        'item_PersonalHousing.ies'  :'13',
-        'item_HiddenAbility.ies'    :'14',
-        'item_event.ies'            :'15', 
-        'item_event_Equip.ies'      :'16', 
-        'item_EP13.ies'             :'17',
-        'item_Equip_EP13.ies'       :'17',
-        'item_Reputation.ies'       :'18',
+        "item.ies",
+        'item_colorspray.ies',
+        'item_gem.ies',
+        'item_Equip.ies',
+        'item_Equip_EP12.ies',
+        'item_premium.ies',
+        'item_quest.ies',
+        'recipe.ies',
+        'item_EP12.ies',
+        'item_gem_relic.ies',
+        'item_gem_bernice.ies',
+        'item_GuildHousing.ies',
+        'item_PersonalHousing.ies',
+        'item_HiddenAbility.ies',
+        'item_event.ies', 
+        'item_event_Equip.ies', 
+        'item_EP13.ies',
+        'item_Equip_EP13.ies',
+        'item_Reputation.ies',
         }
+
     
     file_dict = {}
     
@@ -101,12 +107,28 @@ class ToS_DB():
     
     def build(self, region):
         region = region.lower()
+        self.region                          = region
         self.BASE_PATH_INPUT                 = join("..", "TavernofSoul", "JSON_{}".format(region))
         self.BASE_PATH_OUTPUT                = join( "..", "TavernofSoul", "JSON_{}".format(region))
         #self.STATIC_ROOT                     = '/home/tavp7339/www/itos/static'
         self.STATIC_ROOT                     = join("..", "TavernofSoul", "staticfiles_itos")
         self.PATH_BUILD_ASSETS_ICONS         = join (self.STATIC_ROOT,"icons")
         self.PATH_BUILD_ASSETS_IMAGES_MAPS   = join (self.STATIC_ROOT,"maps")
+        self.PATH_BUILD_ASSETS_MODELS        = join (self.STATIC_ROOT,"models")
+        
+        try:
+            os.mkdir(self.PATH_BUILD_ASSETS_ICONS) 
+        except:
+            pass
+        try:
+            os.mkdir(self.PATH_BUILD_ASSETS_IMAGES_MAPS)
+        except:
+            pass
+        try:
+            os.mkdir(self.PATH_BUILD_ASSETS_MODELS) 
+        except:
+            pass
+        
         self.PATH_INPUT_DATA                 = join('..','{}_unpack'.format(region))
         self.PATH_INPUT_DATA_LUA             = join('..','{}_unpack'.format(region))
         if region == 'itos':
@@ -271,9 +293,12 @@ class TOSElement():
     MELEE = 'None'
     POISON = 'Poison'
     SOUL = 'Soul'
+    none = 'None'
 
     @staticmethod
     def to_string(value):
+        if value == None:
+            return 'None'
         return {
             TOSElement.DARK: 'Dark',
             TOSElement.EARTH: 'Earth',
@@ -284,10 +309,13 @@ class TOSElement():
             TOSElement.MELEE: 'None',
             TOSElement.POISON: 'Poison',
             TOSElement.SOUL: 'Soul',
+            'None':'None'
         }[value]
 
     @staticmethod
     def value_of(string):
+        if string == None:
+            return 'None'.upper()
         return {
             'DARK': TOSElement.DARK,
             'EARTH': TOSElement.EARTH,
@@ -299,7 +327,8 @@ class TOSElement():
             'MELEE': TOSElement.MELEE,
             'POISON': TOSElement.POISON,
             'SOUL': TOSElement.SOUL,
-            '': None
+            '': None,
+            'None':'None'
         }[string.upper()]
 
 

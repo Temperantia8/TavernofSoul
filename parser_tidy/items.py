@@ -13,10 +13,13 @@ import io
 import luautil
 from math import floor
 import xml.etree.ElementTree as ET
+import parse_xac
 # from shared.ipf/item_calculate.lua
 EQUIPMENT_STAT_COLUMNS = []
 
 equipment_grade_ratios = {}
+goddess_atk_list       = {}
+
 log = logging.getLogger("parse.items")
 log.setLevel("INFO")
 
@@ -38,7 +41,7 @@ def escaper(string):
 def parse(c = None, from_scratch = True):
     if c == None:
         c = constants()
-        c.build("ktest")
+        c.build("jtos")
         luautil.init(c)
     if (from_scratch):
         c.data['items'] = {}
@@ -47,7 +50,7 @@ def parse(c = None, from_scratch = True):
         c.equipment_sets = {}
         item_ies = c.ITEM_IES
         for i in item_ies:
-            parse_items(c, i , item_ies[i])
+            parse_items(c, i )
     
     luautil.init(c)
     equipment_ies = c.EQUIPMENT_IES
@@ -58,6 +61,10 @@ def parse(c = None, from_scratch = True):
     parse_equipment_grade_ratios(c)
     global equipment_grade_ratios        
     equipment_grade_ratios = c.data['equipment_grade_ratios']
+    
+    
+    parse_goddess_reinf(c)
+    
     
     for i in equipment_ies:    
         parse_equips(c, i)
@@ -84,7 +91,7 @@ def parse(c = None, from_scratch = True):
     
     
 
-def parse_items(constants, file_name, id_prefix):
+def parse_items(constants, file_name):
     
     
     log.info('Parsing %s...', file_name)
@@ -114,7 +121,7 @@ def parse_items(constants, file_name, id_prefix):
 
         obj = {}
 
-        obj['$ID'] = str(id_prefix) + str( row['ClassID'])
+        obj['$ID'] = str( row['ClassID'])
         obj['$ID_NAME'] = row['ClassName']
         obj['Description'] = constants.translate(row['Desc']) if 'Desc' in row else None
         obj['Icon'] = constants.parse_entity_icon(row['Icon'])
@@ -176,6 +183,7 @@ def parse_equips(constants, filename):
     LUA_SOURCE = luautil.LUA_SOURCE
     rows = []
     objs = []
+    types = []
     for row in ies_reader:
       
         if str(row['ClassName']) not in constants.data['items_by_name'].keys():
@@ -183,6 +191,9 @@ def parse_equips(constants, filename):
             
         item_grade = equipment_grade_ratios[int(row['ItemGrade'])]
         item_type_equipment = row['ClassType']
+        types.append(row['ClassType'])
+        rows.append(row)
+        #continue
         obj = constants.data['items_by_name'][str(row['ClassName'])]
         
         if obj['$ID_NAME'] not in constants.data['item_type']['EQUIPMENT']:
@@ -246,6 +257,28 @@ def parse_equips(constants, filename):
             obj['Stat_DEFENSE_PHYSICAL'] = int(row['DEF']) if 'DEF' in row and row['DEF'] !=None else 00
         except:
             obj['Stat_DEFENSE_PHYSICAL'] = 0
+        
+        
+        matk = ['staff', 'rod']
+       
+        if obj['Grade'] == 6:
+            if int(row['UseLv']) in goddess_atk_list:
+                
+                if tooltip_script == 'SCR_REFRESH_ACC' :
+                    atk = goddess_atk_list[int(row['UseLv'])]['BasicAccAtk']
+                    obj['Stat_ATTACK_MAGICAL']      = atk
+                    obj['Stat_ATTACK_PHYSICAL_MIN'] = atk
+                    obj['Stat_ATTACK_PHYSICAL_MAX'] = atk
+                        
+                        
+                #if tooltip_script == 'SCR_REFRESH_ARMOR':
+                #    pass
+                    
+                #if tooltip_script == 'SCR_REFRESH_WEAPON':
+                #    
+
+            
+        
         
         obj['TypeAttack'] = row['AttackType']
         obj['TypeEquipment'] = item_type_equipment
@@ -337,13 +370,38 @@ def parse_equips(constants, filename):
                 ])
 
         # Transcendence
-
+        """
+        try:
+            obj['FileName'] = row['FileName']
+            obj['row'] = row
+        except:
+            obj['FileName'] = ''
+        """
+        obj['model'] = parse_xac.eq_model_name(row,constants)
         constants.data['items'][obj['$ID']] = obj
         constants.data['items_by_name'] [obj['$ID_NAME']] = obj
         rows.append(row)
         objs.append(obj)
     return constants
 
+
+def parse_goddess_reinf(constants):
+    files = constants.EQUIPMENT_REINFORCE_IES
+    global goddess_atk_list
+    for i in files:
+        
+        if i not in constants.file_dict:
+            continue
+        ies_path = constants.file_dict[i]['path']
+        ies_file = io.open(ies_path, 'r', encoding = 'utf-8')
+        ies_reader = csv.DictReader(ies_file, delimiter=',', quotechar='"')
+        rows = []
+        for row in ies_reader:
+            rows.append(row)
+        row = rows[0]
+        goddess_atk_list[files[i]] = row
+        
+        
 
 def parse_equipment_grade_ratios(constants):
     log = logging.getLogger("parser.equips.grade")

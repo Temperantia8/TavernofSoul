@@ -1,5 +1,5 @@
 from django.db import models
-from Jobs.models import Jobs
+
 from django_mysql.models import ListCharField
 from django.urls import reverse
 # class Stance (models.Model):
@@ -8,6 +8,7 @@ from django.urls import reverse
 
 # Create your models here.
 class Skills (models.Model):
+    from Jobs.models import Jobs
     ids             = models.CharField(max_length = 30, db_index=True)
     id_name         = models.CharField(max_length = 100)
     icon            = models.CharField(max_length = 50) 
@@ -74,3 +75,18 @@ class Skills (models.Model):
         return " ".join(self.stance.split(";")) 
     def get_absolute_url(self):
         return reverse('Skills:skills', args=[str(self.ids)])
+    def buffs(self):
+        return Buff_Skill.objects.filter(skill = self)
+    def get_attr(self):
+        attr = self.attributes_set.all()
+        for atr in attr:
+            atr.descriptions = atr.descriptions.split('{nl}')
+            
+        return attr
+
+class Buff_Skill(models.Model):
+    buff            = models.ForeignKey('Buffs.Buffs', on_delete=models.CASCADE)
+    skill           = models.ForeignKey(Skills, on_delete=models.CASCADE)
+    chance          = models.FloatField()
+    duration        = models.FloatField()
+    

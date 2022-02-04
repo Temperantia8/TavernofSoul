@@ -79,7 +79,7 @@
     border-bottom-color: rgb(170, 170, 170);
     border-bottom-style: solid;
     border-bottom-width: 2px;" >
-    <h5 >{{s.job.name}}</h5>
+    <h5 ><a href="{%url 'Jobs:jobs' s.job.ids%}" class="flavor">{{s.job.name}}</a></h5>
 
     <div style="position: absolute; right: 0; top: 2px;" class="row">
       <h5 class="mr-1"><span id ='spentPoint-{{s.job.ids}}'>0</span>/<span id ='spentPointMax-{{s.job.ids}}'>{% if s.job.is_starter %}15{%else%}45{%endif%}</span></h5>
@@ -147,11 +147,12 @@
           <div class="skl form-inline">
             <a href="{%url 'Attributes:attributes' i.ids%} " target="_blank"><img data-src="/static/icons/{{i.icon}}.png" class="icon-24 skill-icon"></a>
             <div id = descriptions class="container descriptions " style="margin-left:48px">
-              <div id = 'desc-title' class="col"><b>{{i.name}}</b></div>
-              <div id = 'desc' class="col mb-1" style="border-bottom:1px solid;">
+              <div id = 'desc-title' class="col" ><b>{{i.name}}</b></div>
+              <div id = 'desc' class="col mb-1" >
                   {%for lines in i.descriptions%}
-                  <p class="mb-0">{{lines}}</p>
-                {%endfor%}
+                    <p class="mb-0">{{lines}}</p>
+                  {%endfor%}
+                  <p class="mb-0" style="border-top:1px solid;"> Max lv : {{i.max_lv}}  </p>
               </div>
             </div>
           </div>

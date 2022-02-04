@@ -18,3 +18,4 @@ cd TavernofSoul
 python manage_jtos.py importAll >> ../err.txt
 cd ..
 python closer.py jtos
+python build_cache.py jtos

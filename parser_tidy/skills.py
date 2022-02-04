@@ -99,7 +99,7 @@ def parse_skills(is_rebuild, constants):
             obj['SpendItemBaseCount'] = int(row['SpendItemBaseCount'])
             obj['RequiredStance'] = row['ReqStance']
             obj['RequiredStanceCompanion'] = row['EnableCompanion']
-
+            obj['Keyword']  = row['Keyword']
             obj['CoolDown'] = row['CoolDown']
             obj['IsEnchanter'] = False
             obj['IsPardoner'] = False
@@ -112,6 +112,12 @@ def parse_skills(is_rebuild, constants):
             obj['Link_Gem'] = None
             obj['Link_Job'] = None
             obj['other'] = []
+            obj['TargetBuffs'] = []
+            if row['ClassName'] in constants.data['xml_skills']:
+                data                    = constants.data['xml_skills'][row['ClassName']]
+                obj['TargetBuffs']      = data['TargetBuffs']
+
+
             # Parse TypeAttack
             if row['ValueType'] == 'Buff':
                 obj['TypeAttack'].append(TOSAttackType.BUFF)
@@ -288,131 +294,45 @@ def parse_skills_stances(constants):
             if stance['Icon'] is not None
         ]
 
+def run_lua(skill, key_special, key_dict):
+    LUA_RUNTIME = luautil.LUA_RUNTIME
+    LUA_SOURCE = luautil.LUA_SOURCE
+    var = []
+    if (skill[key_special]):
+        if (skill['MaxLevel']==-1):
+            skill[key_dict] = []
+            return
+        try:
+            for lv in range(0,skill['MaxLevel']+10,1):
+                skill['Level'] = lv
+                row = LUA_RUNTIME[skill[key_special]](skill) 
+                if row == -1:
+                    row = 0
+                var.append(row)
+            skill[key_dict] = var
+        except:
+            skill[key_dict] = []
+
+
 def parse_skills_script(constants):
     """
     parse skills skill factor caption ratio etc which use lua script
     """
-    
-    LUA_RUNTIME = luautil.LUA_RUNTIME
-    LUA_SOURCE = luautil.LUA_SOURCE
+    key_dict = [
+        'sfr', 'CaptionRatio', 'CaptionRatio2', 'CaptionRatio3',
+        'CaptionTime', 'SkillSR', 'SpendItemCount' ,
+        'SpendPoison', 'SpendSP' , 'CoolDown'
+    ]
+    key_special = [
+        'Effect_SkillFactor', 'Effect_CaptionRatio','Effect_CaptionRatio2', 'Effect_CaptionRatio3',
+        'Effect_CaptionTime', 'Effect_SkillSR', 'Effect_SpendItemCount', 'Effect_SpendPoison',
+        'Effect_SpendSP', 'CoolDown'
+    ]
 
     for g in constants.data['skills'].values():
-        sfrs = []
-        g['other'] = []
-        CaptionRatios = []
-        if (g['Effect_SkillFactor']):
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                sfr = LUA_RUNTIME[g['Effect_SkillFactor']](g) 
-                if sfr == -1:
-                    sfr = 0
-                sfrs.append(sfr)
-            g['sfr'] = sfrs
-            
-        if g['Effect_CaptionRatio']:
-            if ( g['Effect_CaptionRatio'] == 'SCR_GET_SwellHands_Ratio'):
-                g['other'].append("Effect_CaptionRatio ((maxpatk + minpatk)/2) * (0.02 + skill.Level * 0.002)")
-                continue
-            if ( g['Effect_CaptionRatio'] == 'SCR_GET_OverReinforce_Ratio'):
-                g['other'].append("Effect_CaptionRatio ((maxpatk + minpatk)/2) * (0.015 + skill.Level * 0.004)")
-                continue
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_CaptionRatio']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['CaptionRatio'] = CaptionRatios
-        
-        CaptionRatios = []
-        if g['Effect_CaptionRatio2']:
-            if ( g['Effect_CaptionRatio2'] == 'SCR_GET_Sanctuary_Ratio2'):
-                g['other'].append("Effect_CaptionRatio2 mdefRate = MDEF * (0.1 * skill.Level)")
-                continue
-            if ( g['Effect_CaptionRatio2'] == 'SCR_GET_Ayin_sof_Ratio2'):
-                g['other'].append("Effect_CaptionRatio2 Hp recovery")
-                continue
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_CaptionRatio2']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['CaptionRatio2'] = CaptionRatios
-            
-        CaptionRatios = []
-        if g['Effect_CaptionRatio3']:
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_CaptionRatio3']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['CaptionRatio3'] = CaptionRatios
+        for i in range(len(key_dict)):
+            run_lua(g,key_special[i], key_dict[i])
 
-        CaptionRatios = []
-        if g['Effect_CaptionTime']:
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_CaptionTime']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['CaptionTime'] = CaptionRatios
-        
-        CaptionRatios = []
-        if g['Effect_SkillSR']:
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_SkillSR']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['SkillSR'] = CaptionRatios
-        
-        CaptionRatios = []
-        if g['Effect_SpendItemCount']:
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_SpendItemCount']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['SpendItemCount'] = CaptionRatios
-        
-        CaptionRatios = []
-        if g['Effect_SpendPoison']:
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_SpendPoison']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['SpendPoison'] = CaptionRatios
-            
-        CaptionRatios = []
-        if g['Effect_SpendSP']:
-            for lv in range(0,g['MaxLevel']+10,1):
-                g['Level'] = lv
-                CaptionRatio = LUA_RUNTIME[g['Effect_SpendSP']](g) 
-                if CaptionRatio == -1:
-                    CaptionRatio = 0
-                CaptionRatios.append(CaptionRatio)
-            g['SpendSP'] = CaptionRatios
-        Cooldown = []
-        #blacklist_cd = ['SCR_GET_SKL_COOLDOWN_WIZARD', 'SCR_GET_SKL_COOLDOWN','SCR_GET_SKL_COOLDOWN_ADD_LEVEL_BYGEM' ]
-        if g['CoolDown']:
-            for lv in range(0,g['MaxLevel']+10,1):
-                #if (g['CoolDown'].upper() in blacklist_cd):
-                #    Cooldown.append(g['BasicCoolDown'])
-                #    continue
-                g['Level'] = lv
-                cd = LUA_RUNTIME[g['CoolDown']](g) 
-                if cd < 0:
-                    cd = 0
-                Cooldown.append(cd)
-            g['CoolDown'] = Cooldown
-        constants.data['skills_by_name'][g['$ID']] = g
             
 
 def parse_links(c = None):

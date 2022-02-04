@@ -1,4 +1,4 @@
-from Items.constants import bonus_stat_translator, goddess_anvil, goddess_scale, goddess_gabija, goddess_chance, getGoddess
+from Items.constants import bonus_stat_translator, goddess_anvil, goddess_scale, goddess_gabija, goddess_chance
 
 from Items.models import Items, Equipment_Bonus, Item_Recipe_Material
 from Items.models import Item_Collection_Material, Item_Collection_Bonus
@@ -32,7 +32,7 @@ def getAnvil(item):
             
 
         mat = {i : {} for i in range(1,31)}
-        for i in Goddess_Reinforce_Mat.objects.filter(lv = lv, eq_type__icontains=tipe).order_by("anvil"):
+        for i in Goddess_Reinforce_Mat.objects.filter(lv = lv, eq_type__icontains=tipe).order_by("anvil").iterator():
             mat[ i.anvil][i.mat.ids] = {
                                            'mat_icon' : i.mat.icon,
                                            'mat_name' : i.mat.name,
@@ -48,5 +48,5 @@ def getAnvil(item):
         reinf = { i.anvil :
             {'addatk' : i.addatk, 'addacc': i.addacc, 'chance': i.chance} 
             for i in 
-                Goddess_Reinforce_Chance.objects.filter(lv = lv).order_by("anvil")}
+                Goddess_Reinforce_Chance.objects.filter(lv = lv).order_by("anvil").iterator()}
         return mat,reinf , tc_cost

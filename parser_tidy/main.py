@@ -24,6 +24,8 @@ import buff
 import vaivora
 import sys
 import misc
+import skill_bytool
+import parse_xac
 from item_static import add_item_static
 def revision_txt_write(revision_txt, revision):
     revision = str(revision)
@@ -58,7 +60,7 @@ if __name__ == "__main__":
         quit()
         
     c.build(region)
-    
+    parse_xac.parse_xac(c)
     luautil.init(c)
     no_tl = ['ktos', 'ktest']
     asset.parse(c)
@@ -66,7 +68,7 @@ if __name__ == "__main__":
         translation.makeDictionary(c)
       
     jobs.parse(c)
-   
+    skill_bytool.parse(c)
     skills.parse(c)
     attributes.parse(c)
     attributes.parse_links(c)   
@@ -76,7 +78,9 @@ if __name__ == "__main__":
     items.parse(c)
     if (region not in no_tl):
         vaivora.parse(c)
+        vaivora.parse_lv4(c)
     add_item_static(c)
+    
     items.parse_goddess_EQ(c)
     
     monsters.parse(c)

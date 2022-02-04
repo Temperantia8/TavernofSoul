@@ -18,3 +18,4 @@ cd TavernofSoul
 python manage_ktos.py importAll >> ../err.txt
 cd ..
 python closer.py ktos
+python build_cache.py ktos

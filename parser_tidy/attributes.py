@@ -46,8 +46,24 @@ def parse_attributes( constants):
             obj['UnlockArgs'] = {}
             obj['UpgradePrice'] = []
             obj['Link_Jobs'] = []
-            obj['Link_Skills'] = [skill for skill in row['SkillCategory'].split(';') if len(skill)]
-
+            obj['Link_Skills'] = []
+            
+            obj['Link_Skills'] = [skill  for skill in row['SkillCategory'].split(';') if len(skill)]
+            if obj['Link_Skills']  == []:
+                if row['Job']:
+                    obj['Link_Jobs'] = [constants.data['jobs_by_name'][j]['$ID'] for j in row['Job'].split(';')]  
+                    obj['LevelMax'] = row['Level']
+            
+            popped = []
+            for count in range(len(obj['Link_Skills'])):
+                skill = obj['Link_Skills'][count]
+                if skill not in constants.data['skills_by_name']:
+                    popped.append(count)
+            popped.sort()
+            popped.reverse()
+            for i in popped:
+                obj['Link_Skills'].pop(i)
+                
             constants.data['attributes'][obj['$ID']] = obj
             constants.data['attributes_by_name'][obj['$ID_NAME']] = obj
 
@@ -139,6 +155,8 @@ def parse_clean(constants):
         if not attribute['Link_Jobs'] and not attribute['Link_Skills']:
             attributes_to_remove.append(attribute)
         elif attribute['LevelMax'] == -1:
+            attributes_to_remove.append(attribute)
+        elif attribute['Link_Skills'] == ['All'] and attribute['Link_Jobs'] == []:
             attributes_to_remove.append(attribute)
 
     # Remove all inactive attributes

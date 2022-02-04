@@ -31,14 +31,18 @@ def accuracy (eva):
     return hr
 
 
-def critrate(cdef):
+def critrate(cdef, k):
     cr = cdef
     c = 0
+    max_c = 0.5 
+    if (k>0):
+        max_c = 0.6
+    l = 1 + (0.2 * k)
     if cdef == 0:
         cdef = 1
-    while c<0.5:
+    while c<max_c:
         cr+=1
-        c = min (pow(cr/cdef,0.6)-1, 0.5)
+        c = min (pow(cr/cdef,0.6)-1, 0.5) * l 
     return cr
 
 def critdef(cr):
@@ -85,9 +89,9 @@ def index(request):
     data['Race']                   = unpack(Monsters.objects.values_list("race").distinct())
     data['Armor']                   = unpack(Monsters.objects.values_list("armor").distinct())
     data['Attribute']               = unpack(Monsters.objects.values_list("element").distinct())
-    data['race']            = getFromGet(request, 'race',False)
+    data['race']             = getFromGet(request, 'race',False)
     data['armor']            = getFromGet(request, 'armor',False)
-    data['attribute']            = getFromGet(request, 'attribute',False)
+    data['attribute']        = getFromGet(request, 'attribute',False)
 
     order                   = getFromGet(request, 'order', 'updated-dsc')
     data['order']           = getFromGet(request, 'order', 'updated-dsc')
@@ -99,11 +103,17 @@ def index(request):
         query                   = Q(id_name__icontains = query)    
     else:
         query                   = Q(name__icontains = query)
-    data['curpage']         = int(getFromGet(request, 'page',1))
+    data['curpage']             = int(getFromGet(request, 'page',1))
 
-    query.add(Q(race__icontains =getFromGet(request, 'race',"")), Q.AND)
-    query.add(Q(armor__icontains =getFromGet(request, 'armor',"")), Q.AND)
-    query.add(Q(element__icontains =getFromGet(request, 'attribute',"")), Q.AND)
+    if data['race']:
+        query.add(Q(race__icontains = data['race']), Q.AND)
+
+    if data['armor']:
+        query.add(Q(armor__icontains =getFromGet(request, 'armor',"")), Q.AND)
+
+        
+    if data['attribute']:
+        query.add(Q(element__icontains =getFromGet(request, 'attribute',"")), Q.AND)
 
 
     data['item']            = Monsters.objects.filter(query).order_by('ids').order_by('{}{}'.format(srt, orders[0]))
@@ -151,7 +161,8 @@ def item_detail(request, id):
 
     data['eva'] = eva(data['item'].accuracy)
     data['iblock'] = block(data['item'].blockpen )
-    data['critrate'] = critrate(data['item'].critdef)
+    data['critrate'] = critrate(data['item'].critdef,0)
+    data['critrate_leather'] = critrate(data['item'].critdef,2)
     data['accuracy'] = accuracy(data['item'].eva)
     data['blockpen'] = blockpen(data['item'].block)
     data['critdef'] = critdef(data['item'].critrate)

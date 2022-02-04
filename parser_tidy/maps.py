@@ -41,7 +41,7 @@ def parse(c = None):
         c = constants()
         c.build(c.iTOS)
     try:
-        os.mkdir(constants.PATH_BUILD_ASSETS_IMAGES_MAPS)
+        os.mkdir(c.PATH_BUILD_ASSETS_IMAGES_MAPS)
     except:
         pass
     parse_maps(c)
@@ -236,7 +236,7 @@ def parse_links_items(constants):
                         }
                         constants.data['map_item'].append(map_item)                    
                     except:
-                        logging.warn('Map {} or item {} not found'
+                        logging.debug('Map {} or item {} not found'
                                      .format(map['$ID_NAME'], drop['ItemClassName'],))
 
         except IOError:
@@ -318,7 +318,7 @@ def parse_links_npcs(constants):
             try:
                 ies_file = path_insensitive[ies_file.lower()]
             except:
-                logging.warning("maps not found {}".format(ies_file))
+                logging.debug("maps not found {}".format(ies_file))
                 pass
             
             ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies_mongen.ipf', ies_file)
@@ -343,7 +343,7 @@ def parse_links_npcs(constants):
             try:
                 ies_file = path_insensitive[ies_file.lower()]
             except:
-                logging.warning("gentype not found {}".format(ies_file))
+                logging.debug("gentype not found {}".format(ies_file))
                 pass
             ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies_mongen.ipf', ies_file)
 
@@ -403,13 +403,10 @@ def parse_links_npcs(constants):
                     npc, types = constants.getNPCbyName(anchor_name)
                     npc_link = npc['$ID']
                     position = []
-                    #logging.warning("loc bef {}".format(anchor['Anchors']))
-                    #logging.warning("bbox : {}".format(map['bbox']))
                     new_pos = []
                     for i in anchor['Anchors']:
                         pos = [i[0]-map['bbox'][0],i[1]-map['bbox'][1]]
                         new_pos.append(pos)
-                    #logging.warning("loc aft {}".format(new_pos))
                     npc_link = {
                         'NPC': npc_link,
                         'Map': map['$ID'],
@@ -419,3 +416,24 @@ def parse_links_npcs(constants):
                         'TimeRespawn': int(anchor['GenType']['RespawnTime']) / 1000.0,
                     }
                     constants.data['map_npc'].append(npc_link)
+
+import pandas as pd
+def parseWorldMap(c):
+    filename = 'map_area.ies'
+    try:
+        ies_path = c.file_dict[filename]['path']
+    except:
+        logging.warning('ies not found : %s'%(filename))
+    with open(ies_path, 'r', encoding='utf-8') as f:
+        ies_reader = csv.DictReader(f,  delimiter=',', quotechar='"')    
+        
+        rows = []
+        for row in ies_reader:
+            for col in row:
+                try:
+                    row[col] = int(row[col])
+                except:
+                    pass
+            rows.append(row)
+    mapdata = pd.DataFrame(rows)
+    mapdata['Pos1_X'].apply(pd.to_numeric)

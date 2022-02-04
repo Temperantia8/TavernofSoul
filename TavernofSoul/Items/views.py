@@ -14,7 +14,7 @@ import math
 import os
 from django.http import JsonResponse
 from django.db.models import Q
-from Items.constants import bonus_stat_translator, goddess_anvil, goddess_scale, goddess_gabija, goddess_chance, getGoddess
+from Items.constants import bonus_stat_translator, goddess_anvil, goddess_scale, goddess_gabija, goddess_chance
 from Items.getEnhancement import getAnvil
 from ipfparser.utils import *
 
@@ -25,17 +25,20 @@ def index(request):
     in_type                     = []
     types                       = Items.objects.values('type')
     for i in Items.objects.values('type').distinct() :
-        data['types'].append({'type':i['type'], 'id' : i['type']})
+        if i['type'] != '':
+            data['types'].append({'type':i['type'].lower(), 'id' : i['type']})
     for i in Equipments.objects.values('type_equipment').distinct() :
-        data['types'].append({'type':i['type_equipment'], 'id' : i['type_equipment']})
+        if i['type_equipment'] != '':
+                data['types'].append({'type':(i['type_equipment'].lower()), 'id' : '%s_eq'%(i['type_equipment'])})
     # data['types'] = list(set(data['types']))
-
+    data['types'].sort(key = lambda x: x['id'])
     if 'q' in request.GET:
-        query                       = getFromGet(request, 'q','')
+        q                           = getFromGet(request, 'q','')
         grade                       = getFromGet(request,'grade', '')
         clas                        = getFromGet(request,'class', '')
         class_def                   = ['.','.','.','.','.']
-        query                       = Q(name__icontains = query)
+        query                       = Q(name__icontains = q)
+        query.add(Q(id_name__icontains=q), Q.OR)
         type_n                      = getFromGet(request, 'type', '')
         minLV                       = getFromGet(request, 'lvmin', '')
         maxLV                       = getFromGet(request, 'lvmax', '')
@@ -58,6 +61,7 @@ def index(request):
 
         if (type_n != ''):
             if ('_eq' in type_n):
+                type_n = type_n.replace("_eq", '')
                 query.add(Q(equipments__type_equipment =type_n), Q.AND)
             else:
                 query.add(Q(type =type_n), Q.AND)
@@ -71,7 +75,7 @@ def index(request):
             class_def[int(clas)] = 'T'
             class_def = ''.join(class_def)
             query.add(Q(equipments__requiredClass__regex =class_def), Q.AND)
-
+        # return HttpResponse(query)
         orders = order.split("-")
         srt = '' if orders[-1] == 'asc' else '-'
         data['curpage']     = int(getFromGet(request, 'page',1))
@@ -89,6 +93,7 @@ def index(request):
         data['minLV']           = minLV
         data['maxLV']           = maxLV
         data['order']           = order
+        data['server']          = server
         #creating pages
         pages = list(range(math.ceil(data['item_len']/10) +1))
         pages.remove(0) #there's no page 0
@@ -250,6 +255,7 @@ def item_detail(request, id):
 
     except:
         pass
+
     # if item.grade==6:
     # data['item']            = []
     # return JsonResponse(data, safe=False)

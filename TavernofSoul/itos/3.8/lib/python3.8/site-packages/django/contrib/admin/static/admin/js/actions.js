@@ -36,10 +36,7 @@
 
     function clearAcross(options) {
         reset(options);
-        const acrossInputs = document.querySelectorAll(options.acrossInput);
-        acrossInputs.forEach(function(acrossInput) {
-            acrossInput.value = 0;
-        });
+        document.querySelector(options.acrossInput).value = 0;
         document.querySelector(options.actionContainer).classList.remove(options.selectedClass);
     }
 
@@ -110,10 +107,8 @@
         document.querySelectorAll(options.acrossQuestions + " a").forEach(function(el) {
             el.addEventListener('click', function(event) {
                 event.preventDefault();
-                const acrossInputs = document.querySelectorAll(options.acrossInput);
-                acrossInputs.forEach(function(acrossInput) {
-                    acrossInput.value = 1;
-                });
+                const acrossInput = document.querySelector(options.acrossInput);
+                acrossInput.value = 1;
                 showClear(options);
             });
         });

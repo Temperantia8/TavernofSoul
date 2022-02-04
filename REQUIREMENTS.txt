@@ -5,7 +5,10 @@ pymysql
 mysql-connector-python 
 django_mysql
 numpy
+tdqm
 dj_static
 django-mathfilters
 pillow
+binary-reader
 pandas
+djangorestframework

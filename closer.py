@@ -8,7 +8,7 @@ import json
 
 import subprocess 
 import sys
-
+import logging
 from unpackIPF import importJSON
 if __name__ == "__main__":
     #last_patched = importJSON('version.txt')['patched'][-1]

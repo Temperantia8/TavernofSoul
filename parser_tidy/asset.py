@@ -38,6 +38,7 @@ WHITELIST_BASESKINSET = [
     'wearing_weapon',
     'npccard',
     'goddesscard',
+    'worldmap_image',
 ]
 
 WHITELIST_RGB = [
@@ -45,6 +46,7 @@ WHITELIST_RGB = [
     'sub_card3',
     'npccard',
     'goddesscard',
+    'worldmap_image',
 ]
 
 
@@ -137,4 +139,3 @@ def parse_icons_step(file_name, work,c):
 
     # Store mapping for later use
     c.data['assets_icons'][image_name.lower()] = image_name.lower()
-

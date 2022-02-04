@@ -108,8 +108,29 @@ LUA_OVERRIDE = [
     ''',
     '''function SyncFloor(item)
         return item
-    end'''
+    end''',
+    '''
+    function SCR_Get_DEFAULT_MAXPATK(pc, value)
+        return 100
+    end
+    ''',
+    '''
+    function SCR_Get_DEFAULT_MINPATK(pc, value)
+        return 100
+    end
+    ''',
+    '''
+    function SCR_CALC_BASIC_MDEF(pc, value)
+        return 100
+    end
+    ''',
+    '''
+    function get_hp_recovery_ratio(pc, value)
+        return 100
+    end
+    ''',
     
+
 ]
 
 LUA_RUNTIME = None
@@ -404,7 +425,7 @@ def init_runtime(c):
                         
                         lua_function_load(lua_function)
                     except LuaError as error:
-                        logging.warn('Failed to load %s, error: %s...', file_path, error)
+                        logging.debug('Failed to load %s, error: %s...', file_path, error)
                         err.append(lua_function)
                         continue
 

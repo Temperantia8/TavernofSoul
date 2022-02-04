@@ -9,15 +9,14 @@ from django.utils.encoding import force_bytes, force_str
 class Driver(GDALBase):
     """
     Wrap a GDAL/OGR Data Source Driver.
-    For more information, see the C API documentation:
-    https://gdal.org/api/vector_c_api.html
-    https://gdal.org/api/raster_c_api.html
+    For more information, see the C API source code:
+    https://www.gdal.org/gdal_8h.html - https://www.gdal.org/ogr__api_8h.html
     """
 
     # Case-insensitive aliases for some GDAL/OGR Drivers.
     # For a complete list of original driver names see
-    # https://gdal.org/drivers/vector/
-    # https://gdal.org/drivers/raster/
+    # https://www.gdal.org/ogr_formats.html (vector)
+    # https://www.gdal.org/formats_list.html (raster)
     _alias = {
         # vector
         'esri': 'ESRI Shapefile',

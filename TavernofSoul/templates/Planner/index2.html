@@ -1,0 +1,220 @@
+
+{% extends 'base/index.html' %}
+{%load static%}
+{%load utils%}
+{% load cache %}
+{%block head%}
+    <title>Tavern of Soul</title>
+    
+    <meta content="Tavern of Soul" property="og:title" />
+        <meta content="Tree of Savior database" property="og:description" />
+    <meta name="description" content="Tree of Savior database">
+    <meta content="https://itos.tavernofsoul.com" property="og:url" />
+    <meta content="https://itos.tavernofsoul.com/static/images/logo.png" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+
+    <style type="text/css">
+      .skillbutton{
+        height: 30px;
+        width: 30px;
+        align-items: center;
+        text-align: center;
+        background-color: #1a1b1c ;
+        cursor: pointer;
+        border-radius : 3px;
+      }
+      .disable{
+        background-color: #2d3239 ;
+        cursor: default;
+      }
+    </style>
+
+{%endblock%}
+<!--Block content goes below-->
+{% block content %}
+  <div class="form-inline" id = 'classes'>
+  <div id='class0' class="current"></div>
+  <div id='class1' class="current"></div>
+  <div id='class2' class="current"></div>
+  <div id='class3' class="current"></div>
+  {% cache 600 jobs %}
+  {%for i in jobs%}
+    <div class =  "jobs {{i.job_tree}} {%if i.is_starter%} starter {%endif%} ml-1 mr-1" {%if not i.is_starter %} hidden {% endif%} 
+      id = '{{i.ids}}' onclick="selectClass({{i.ids}}, {% if i.is_starter%}true {%else%} false {%endif%}, '{{i.job_tree}}')" style="text-align: center;">
+    <img loading="lazy" title="{{i.name}}" src="/static/icons/{{i.icon}}.png") style="margin: 0 auto;" class="icon-job ">
+    <span class="job_name" style=" font-size: 12px">{{i.name}}</span>
+    </div>
+  {%endfor%}
+  {% endcache %}
+    <div   style="text-align: center;" class="ml-1" id = 'next' hidden>
+    <img loading="lazy" alt="" src="/static/icons/job_next.png") class="icon-job"  
+       onclick="selectClass('next', 0, 0)">
+    <span class="job_name" style=" font-size: 12px">?</span>
+    </div>
+  
+  </div>
+
+<!--   <div class="ml-2 mt-0 row" style="
+    /*border-bottom: 2px solid #aaa;*/
+    max-width: 700px;
+    vertical-align: middle
+    ">
+    <div class="form-group mt-3 mb-1">
+      
+      <label for="sklpot">Max Skill potion</label>
+      
+      <input type="text" class="form-control-sm" style="width: 40px;" id="sklpot" value="6" >
+    </div> 
+    
+    
+  </div> -->
+ 
+  <div class="mt-3 skillBar"   id = "skillbar0"></div>
+  <div class="mt-3 skillBar"   id = "skillbar1"></div>
+  <div class="mt-3 skillBar"   id = "skillbar2"></div>
+  <div class="mt-3 skillBar"   id = "skillbar3"></div>
+
+{% for s in skills%}
+  <div id = "skillsJob-{{s.job.ids}}" hidden>
+  <div class="form-inline ml-2 mr-2 mb-1" style="border-bottom: 1px solid #aaa; position: relative;
+    border-bottom-color: rgb(170, 170, 170);
+    border-bottom-style: solid;
+    border-bottom-width: 2px;" >
+    <h5 class="mr-3"><a href="{%url 'Jobs:jobs' s.job.ids%}" class="flavor">{{s.job.name}}</a></h5> 
+
+    {% if s.job.vaivora %}
+    <div class="skl form-inline ml-2 mr-2">
+      <img class="icon-32 skill-icon"  loading="lazy" data-src="/static/icons/{{s.job.vaivora.item.icon}}.png"> 
+      <div id = descriptions class="container descriptions " style="margin-left:48px">
+        <div id = 'desc-title' style="border-bottom:1px solid;" class="col"><b>{{s.job.vaivora.item.name}}</b></div>
+        {% autoescape off %}
+        {% for bonus in s.job.vaivora.equipment_bonus_set.all%}
+        <div id = 'desc' class="col" >
+            {% if bonus.bonus_stat != '-'%}
+              
+              {%if bonus.bonus_stat == 'Lv4'%}
+                <br>
+                [Lv 4]
+                <br>
+              {%else%}
+                {{bonus.bonus_stat}} :
+              {%endif%}              
+            {%endif%}
+              {{bonus.bonus_val | parseBonus }}
+        
+        </div>
+        {%endfor%}
+        {% endautoescape %}
+      </div>
+    </div>
+
+    {% endif %}
+
+
+    <div style="position: absolute; right: 0; top: 2px;" class="row">
+      <h5 class="mr-1"><span id ='spentPoint-{{s.job.ids}}'>0</span>/<span id ='spentPointMax-{{s.job.ids}}'>{% if s.job.is_starter %}15{%else%}45{%endif%}</span></h5>
+      <div class="mr-1 ml-3 skillbutton" onclick="addMaxSkill('{{s.job.ids}}')" id = "skillbtn_add_{{s.job.ids}}" data-enabled='1'><b>+</b></div> 
+      <div  class="mr-3 skillbutton disable"onclick="rmvMaxSkill('{{s.job.ids}}')" id = "skillbtn_rmv_{{s.job.ids}}" data-enabled='0'><b>-</b></div>
+    </div>
+  </div>
+  {%for k in s.skills%}
+  <div class="oneSkill container" id = 'skill-{{k.counter}}-{{s.job.ids}}'>
+    <div class="row ">
+      <div class="skl ">
+        <div class="col mr-2 skl " style="display:block;
+      margin:auto; max-width: 64px; padding: 0;">
+          <img data-src ="/static/icons/{{k.icon}}.png" class="icon-64 skill-icon " loading="lazy" style="vertical-align:middle;" 
+           onclick="addSkillPoint({{k.counter}},{{s.job.ids}}, this.dataset)"
+           id = "img-{{k.counter}}-{{s.job.ids}}" 
+           oncontextmenu =" removeSkillPoint({{k.counter}},{{s.job.ids}}, this.dataset); return false;" 
+
+           data-captionratio1 = "{{k.captionratio1}}"
+           data-captionratio2 = "{{k.captionratio2}}"
+           data-captionratio3 = "{{k.captionratio3}}"
+           data-captiontime = "{{k.captiontime}}"
+           data-skillsr = "{{k.skillsr}}"
+           data-spenditemcount = "{{k.spenditemcount}}"
+           data-spendsp = "{{k.spendsp}}"
+           data-spendpoison = "{{k.spendpoison}}"
+           data-sfr = "{{k.sfr}}"
+           data-maxsp = "{{k.max_lv}}"
+           data-cooldown_lv = "{{k.cooldown_lv}}"
+           >
+           
+        </div>
+         <div id = descriptions class="container descriptions skl-dsc" data-x = 'r' onmouseover="destroyDesc(this)">
+              <div id = 'desc-title' style="border-bottom:1px solid;" class="col"><b>{{k.name}}</b></div>
+              <div id = 'desc' class="col mb-1" >
+                {%for lines in k.descriptions%}
+                  <p class="mb-0">{{lines}}</p>
+                {%endfor%}
+              </div>
+              <div id = 'effect' class="col">
+                  {% for line in k.effect%}
+                    <p class="mb-1">
+                    {% for item in line %}
+                      {% if item in specialvar%}
+                        <b id = '{{item}}'>{{item}}</b>
+                      {%else%}
+                        {{item}}
+                      {%endif%}
+                    {%endfor%}
+                    </p>
+                  {%endfor%}
+              </div>
+              <div class="col">sp : <span id = 'sp'>{{k.sp}}</span></div>
+              <div class="col">cooldown <span id = 'cd'>{{k.cooldown}}</span></div>
+              <div class="col">overheat : <span id = 'oh'>{{k.overheat}}</span></div>
+            </div>
+      </div>
+      <div class="col">
+        <div class="skillName row" style="text-overflow: ellipsis; font-size:12px" >
+          <a href="{%url 'Skills:skills' k.ids%}" target="_blank">{{k.name}}</a>
+        </div>
+        <div class="point row"> <span id='lv-{{k.counter}}-{{s.job.ids}}' class="lv-{{s.job.ids}}" >0</span>/ <span id='maxlv-{{k.counter}}-{{s.job.ids}}'>{{k.max_lv}}</span></div>
+        <div class="row">
+          {% for i in k.attributes_set%}
+          <div class="skl form-inline">
+            <a href="{%url 'Attributes:attributes' i.ids%} " target="_blank"><img data-src="/static/icons/{{i.icon}}.png" class="icon-24 skill-icon"></a>
+            <div id = descriptions class="container descriptions" style="margin-left:48px;">
+              <div id = 'desc-title' class="col"  style="border-bottom:1px solid;" ><b>{{i.name}}</b></div>
+              <div id = 'desc' class="col mb-1">
+                  {%for lines in i.descriptions%}
+                    <p class="mb-0">{{lines}}</p>
+                  {%endfor%}
+                  <p class="mb-0"> Max lv : {{i.max_lv}}  </p>
+              </div>
+            </div>
+          </div>
+          {%endfor%}
+        </div>
+      </div>
+    </div>
+  </div>
+  {%endfor%}
+  </div>
+{%endfor%}
+
+{%endblock%}
+
+
+
+{%block script%}
+  <script type="text/javascript">
+    
+      {% if 'jtos' in request.get_host %}
+          sp_pot_max = 6
+      {% elif 'itos' in request.get_host %}
+          sp_pot_max = 6
+      {% elif 'ktos' in request.get_host %}
+          sp_pot_max = 9
+      {% else %}
+          sp_pot_max = 9
+      {%endif%}
+  </script>
+    <script src="{% static 'js/skillPlanner.js'%}">
+      
+
+    </script>
+
+{%endblock%}

@@ -8,9 +8,11 @@ Created on Sun Oct  3 20:11:07 2021
 import csv
 import logging
 import os
+import glob
 from os.path import exists
 from DB import ToS_DB as constants
 import luautil
+
 
 log = logging.getLogger("parse.monsters")
 log.setLevel("INFO")
@@ -91,8 +93,6 @@ def parse_monsters(file_name, constants):
         # HotFix: these properties need to be calculated before the remaining ones
         row['Lv'] = int(row['Level']) if int(row['Level']) > 1 else 1
 
-        # HotFix: these properties need to be calculated before the remaining ones
-        row['Lv'] = int(row['Level']) if int(row['Level']) > 1 else 1
         # injection constants
         for k, v in monster_const[1].items():
             if (k != "ClassID" and k != "Lv"):
@@ -230,8 +230,10 @@ def parse_links_items(constants):
 
         except IOError:
             continue
-        
+
+
 def parse_skill_mon(constants):
+    xml_skills = constants.data['xml_skills']
     logging.debug('Parsing Monsters <> Skills...')
     ies_file = 'skill_mon.ies'
     #ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', ies_file)
@@ -255,8 +257,10 @@ def parse_skill_mon(constants):
             skill['HitCount']   = row['SklHitCount']
             skill['AAR']        = row['SklSR']
             mon                 = row['ClassName'].split('_')
-            mon_s = ''
-            
+            mon_s               = ''
+            skill['TargetBuffs']= []
+            skill['SelfBuffs']  = []
+
             if len(mon)>=2 and (mon[-2].lower() == "skill" or mon[-2].lower() =='attack'):
                 mon = mon[:-1]
             for i in mon[1:-1]:
@@ -265,9 +269,17 @@ def parse_skill_mon(constants):
         
             skill['Monster']    = constants.getMonbySkill(mon_s)
             
+            
+            
+            if row['ClassName'] in xml_skills:
+                data                    =xml_skills[row['ClassName']]
+                skill['TargetBuffs']    = data['TargetBuffs']
+            
             if (skill['Monster']  == []):
                 logging.debug("monster {} (for skill) not found ({})".format(mon_s,row['ClassName'] ))
                 continue
             skill_mon[row['ClassID']]  = skill
+
+
         constants.data['skill_mon'] = skill_mon         
         

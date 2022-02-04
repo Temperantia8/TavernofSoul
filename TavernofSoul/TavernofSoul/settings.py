@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'Attributes.apps.AttributesConfig',
     'Buffs.apps.BuffsConfig',
     'Items.apps.ItemsConfig',
+    'Market.apps.MarketConfig',
     'ipfparser.apps.IpfparserConfig',
     'Monsters.apps.MonstersConfig',
     'Maps.apps.MapsConfig',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'Other.apps.OtherConfig',
     'django.contrib.sitemaps',
+    'rest_framework',
 
 ]
 
@@ -146,7 +148,7 @@ STATIC_URL = 'static/'
 # Static asset configurationBASE_DIR = os.path.dirname(os.path.abspath(__file__))
 #STATIC_ROOT = '/home/tavp7339/www/dev/static'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / "staticfiles_itos",
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -156,9 +158,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-#static_ROOT = BASE_DIR / "static"
+#static_ROOT = BASE_DIR / "staticfiles_itos"
 #static_URL = 'static/'
 
 JSON_ROOT = BASE_DIR / "JSON_itos"
-REGION = 'ktos'
+REGION = 'test'
 CHANGES_DIR = BASE_DIR / "changes_{}".format(REGION)

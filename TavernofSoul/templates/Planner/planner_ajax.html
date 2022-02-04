@@ -1,0 +1,15 @@
+<script type="text/javascript">
+	function createSkillElement(ids){
+		 $.ajax({
+          type: "GET",
+          url: '{% url "Planner:getJob"%}',
+          data: {"ids" : ids},
+          success: function(data){
+            console.log(data)
+            
+          }
+        })
+	}
+
+
+</script>

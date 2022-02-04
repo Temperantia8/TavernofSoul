@@ -112,19 +112,15 @@ class Skill_Monster(models.Model):
     cooldown        = models.IntegerField(blank=True, null=True,) 
     sfr             = models.IntegerField(blank=True, null=True,) 
     aar             = models.IntegerField(blank=True, null=True, default=50) 
-    hit_count             = models.IntegerField(blank=True, null=True, default=1) 
+    hit_count       = models.IntegerField(blank=True, null=True, default=1)
+    def buffs(self):
+        return Buff_Skill_Monster.objects.filter(skill = self)
 
-    def compare(self, their):
-        if (
-            self.ids == their.ids and 
-            self.id_name == their.id_name and 
-            self.name == their.name and 
-            self.element == their.element and 
-            self.cooldown == their.cooldown and 
-            self.sfr == their.sfr
-            ):
-            return True 
-        else:
-            return False
     def cd_in_sec (self):
         return str(int(self.cooldown/1000)) + "s"
+
+class Buff_Skill_Monster(models.Model):
+    chance          = models.FloatField()
+    duration        = models.FloatField()
+    buff            = models.ForeignKey('Buffs.Buffs', on_delete=models.CASCADE)
+    skill           = models.ForeignKey(Skill_Monster, on_delete=models.CASCADE)

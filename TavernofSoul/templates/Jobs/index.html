@@ -1,13 +1,14 @@
 
 {% extends 'base/index.html' %}
 {% load humanize %}
+{% load utils %}
 {%load translate%}
 <!--Block content goes below-->
 {%block head%}
     <title>{{item.name}} - Tavern of Soul</title>
     <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
     <meta content="https://itos.tavernofsoul.com" property="og:url" />
-    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}" property="og:image" />
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}.png" property="og:image" />
      <meta  property="og:description"content="
     {%if desc%}
         {% for line in desc%}
@@ -21,7 +22,21 @@
         {%endfor%}
     {%endif%}">
     <meta content="#43B581" data-react-helmet="true" name="theme-color" />
-
+    <style type="text/css">
+      .skillbutton{
+        height: 30px;
+        width: 30px;
+        align-items: center;
+        text-align: center;
+        background-color: #1a1b1c ;
+        cursor: pointer;
+        border-radius : 3px;
+      }
+      .disable{
+        background-color: #2d3239 ;
+        cursor: default;
+      }
+    </style>
 {%endblock%}
 
   {% block content %}
@@ -77,6 +92,27 @@
   
 
   </div>
+
+  {%if item.vaivora%}
+  <br>
+  <h2><a href="{%url 'Items:item' item.vaivora.item.ids%}" class="flavor">{{item.vaivora.item.name}}</a></h2>
+  
+  <table class="table-bordered border border-white border-responsive mt-1 tabe" style="max-width: 65rem;">
+    <tbody>
+        {%for bonus in equipment_bonus%}
+         <tr>
+            <th>{{bonus.bonus_stat}}</th>
+            <td>
+              {%for b in bonus.bonus_val %}
+                {{b}}<br> 
+              {%endfor%}
+            </td>
+        </tr>
+        {%endfor%}
+      </tbody>
+  </table>
+  {%endif%}
+
   {%if attributes%}
   <br>
   <h2>{{"Attributes" | translate}}</h2>
@@ -84,9 +120,13 @@
     <tbody>
       {% for i in attributes%}
         <tr>
-          <td><img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"></td>
           <td>
-            {{i.name}}
+            <a href="{% url 'Attributes:attributes' i.ids%}">
+              <img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64">
+            </a>
+          </td>
+          <td>
+            <a class="flavor" href="{% url 'Attributes:attributes' i.ids%}"> {{i.name}} </a>
           </td>
           <td>
             {% for line in i.descriptions%}
@@ -100,6 +140,8 @@
   {%endif%}
 
 
+
+
   {%if skills%}
   <br>
   <h2>{{"Skills" | translate}}</h2>
@@ -107,17 +149,105 @@
     <tbody>
       {% for i in skills%}
         <tr>
-          <td rowspan="2"><img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"></td>
-          <td style="background-color: #657182;">
-            {{i.name}}
+          <td rowspan="5" style="vertical-align: top;">
+            <a href="{%url 'Skills:skills' i.ids%}"> <img loading="lazy" style="margin-top: 0" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64"> </a>
+          </td>
+          <td style="background-color: #657182;" colspan="4">
+            <a href="{%url 'Skills:skills' i.ids%}" class="flavor"> <b>{{i.name}}</b> </a>
           </td>
           
         </tr>
         <tr>
-          <td>
+          <td colspan="4">
             {% for line in i.descriptions%}
-              <p class="mb-0">{{line}}</p>
+              <p class="mb-0">{{line | imcFormatRemover}}</p>
             {%endfor%}
+          </td>
+        </tr>
+        <tr>
+          <td>CD</td>
+          <td>{{i.cooldown | cdtosec}}</td>
+          <td>Lv</td>
+          <td class = 'd-flex flex-row justify-content-between'>
+            <div>
+              <span id= 'skilllv-{{i.ids}}'>0</span> / <span>{{i.max_lv}} </span>
+            </div>
+          <div class="d-flex flex-row " style="
+          ">
+          <div class="mr-1 ml-3 skillbutton " 
+
+                onclick='addSkill(this.dataset)' id = "skillbtn_add_{{i.ids}}" 
+                data-enabled='1' 
+                data-maxlv={{i.max_lv}} 
+                data-ids={{i.ids}}
+
+               data-captionratio1 = "{{i.captionratio1}}"
+               data-captionratio2 = "{{i.captionratio2}}"
+               data-captionratio3 = "{{i.captionratio3}}"
+               data-captiontime = "{{i.captiontime}}"
+               data-skillsr = "{{i.skillsr}}"
+               data-spenditemcount = "{{i.spenditemcount}}"
+               data-spendsp = "{{i.spendsp}}"
+               data-spendpoison = "{{i.spendpoison}}"
+               data-sfr = "{{i.sfr}}"
+               data-maxsp = "{{i.max_lv}}"
+               data-cooldown_lv = "{{i.cooldown_lv}}"
+               
+                ><b>+</b></div> 
+
+          <div  class="mr-3 skillbutton " 
+                onclick='rmvSkill(this.dataset)' id = "skillbtn_rmv_{{i.ids}}" 
+                data-enabled='0' 
+                data-maxlv={{i.max_lv}} 
+                data-ids={{i.ids}}
+
+               data-captionratio1 = "{{i.captionratio1}}"
+               data-captionratio2 = "{{i.captionratio2}}"
+               data-captionratio3 = "{{i.captionratio3}}"
+               data-captiontime = "{{i.captiontime}}"
+               data-skillsr = "{{i.skillsr}}"
+               data-spenditemcount = "{{i.spenditemcount}}"
+               data-spendsp = "{{i.spendsp}}"
+               data-spendpoison = "{{i.spendpoison}}"
+               data-sfr = "{{i.sfr}}"
+               data-maxsp = "{{i.max_lv}}"
+               data-cooldown_lv = "{{i.cooldown_lv}}"
+               onclick='rmvSkill(this.dataset)'
+                ><b>-</b></div>
+          </div>
+    </td>
+          
+        </tr>
+        <tr>
+          <td colspan="4" id='{{i.ids}}'>
+            {% for line in i.effect%}
+              <p class="mb-0">
+              {% for item in line %}
+                {% if item in specialvar%}
+                  <b id = '{{item}}'>{{item}}</b>
+                {%else%}
+                  {{item}}
+                {%endif%}
+              {%endfor%}
+              </p>
+            {%endfor%}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="4  d-flex flex-row">
+          
+          {% for h in i.attributes_set.all%}
+            <div class="skl icon-32 ">
+              <a href="{%url 'Attributes:attributes' h.ids%} " target="_blank"><img src="/static/icons/{{h.icon}}.png" class="icon-32 skill-icon"></a>
+              <div id = descriptions class="container descriptions " style="margin-left:48px">
+                <div id = 'desc-title' class="col"><b>{{h.name}}</b></div>
+                <div id = 'desc' class="col mb-1" style="border-bottom:1px solid;">
+                    {{h.descriptions | imcFormatRemover}}
+                </div>
+              </div>
+            </div>
+          {%endfor%}
+          
           </td>
         </tr>
       {%endfor%}
@@ -128,4 +258,156 @@
 
 
   {% endblock %}
-  }
+
+{% block script%}
+ <script type="text/javascript">
+   
+  function setDesc(skill, dataset, skillLV){
+
+    elementparent = $("#"+skill)
+
+
+    if (dataset.captionratio1 != "None"){
+        datasrc = JSON.parse(dataset.captionratio1)
+        element = elementparent.find('#CaptionRatio')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+        
+    }
+
+    if (dataset.captionratio2 != "None"){
+        datasrc = JSON.parse(dataset.captionratio2)
+        element = elementparent.find('#CaptionRatio2')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.captionratio3 != "None"){
+        datasrc = JSON.parse(dataset.captionratio3)
+        element = elementparent.find('#CaptionRatio3')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.captiontime != "None"){
+        datasrc = JSON.parse(dataset.captiontime)
+        element = elementparent.find('#CaptionTime')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.skillsr != "None"){
+        datasrc = JSON.parse(dataset.skillsr)
+        element = elementparent.find('#SkillSR')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.spenditemcount != "None"){
+        datasrc = JSON.parse(dataset.spenditemcount)
+        element = elementparent.find('#SpendItemCount')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.spendsp != "None"){
+        datasrc = JSON.parse(dataset.spendsp)
+        element = elementparent.find('#SpendSP')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.spendpoison != "None"){
+        datasrc = JSON.parse(dataset.spendpoison)
+        element = elementparent.find('#SpendPoison')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.sfr != "None"){
+
+        datasrc = JSON.parse(dataset.sfr)
+        element = elementparent.find('#SkillFactor')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV]
+        }
+    }
+
+    if (dataset.cooldown_lv != "None"){
+
+        datasrc = JSON.parse(dataset.cooldown_lv)
+        element = elementparent.find('#cd')
+        for (i in element){
+            element[i].innerText = datasrc[skillLV] / 1000
+        }
+    }
+
+}
+
+function getbutton(button,job){
+    if (button == '+')
+        button              = $("#skillbtn_add_"+job)
+    else
+        button              = $("#skillbtn_rmv_"+job)
+    return button
+}
+
+function togglebutton(button,job, flag){
+    button = getbutton(button,job)
+    if (flag){
+        button.removeClass("disable")
+    }
+    else{
+        button.addClass("disable")
+    }
+}
+
+function checkbutton(button, job){
+    button = getbutton(button,job)
+    return button.hasClass("disable")
+}
+
+
+
+function syncSkillLV(dataset, add){
+    skillLv = $('#skilllv-'+dataset.ids)[0]
+    maxSkillLv = parseInt(dataset.maxlv)
+    if (add==1)
+      if ( parseInt (skillLv.innerText) >= maxSkillLv)    
+        skillLv.innerText = 0
+      else
+        skillLv.innerText = parseInt (skillLv.innerText) + 1
+    else
+      if(skillLv.innerText == 0)
+        skillLv.innerText = maxSkillLv 
+      else
+        skillLv.innerText = parseInt (skillLv.innerText) - 1
+    skillLv =  parseInt (skillLv.innerText)
+    
+    setDesc(dataset.ids, dataset, skillLv)
+}
+
+function addSkill(dataset){
+    if (checkbutton("+", dataset.ids)){
+        return 
+    }    
+    syncSkillLV(dataset, 1)
+}
+
+function rmvSkill(dataset){
+    if (checkbutton("-", dataset.ids)){
+        return 
+    }
+    syncSkillLV(dataset, 0)
+}
+
+ </script>
+{%endblock%}

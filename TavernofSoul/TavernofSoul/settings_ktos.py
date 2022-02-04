@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-m+(03apos8*-mlw+ob@x&t&5r2d8%z=n23lyf62xc!^$d^%i53
 DEBUG = False
 REGION = 'ktos'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['ktos.tavernofsoul.com']
 
 
 # Application definition
@@ -47,11 +47,13 @@ INSTALLED_APPS = [
     'Items.apps.ItemsConfig',
     'ipfparser.apps.IpfparserConfig',
     'Monsters.apps.MonstersConfig',
+    'Market.apps.MarketConfig',
     'Maps.apps.MapsConfig',
     'Planner.apps.PlannerConfig',
     'django.contrib.humanize',
     'Other.apps.OtherConfig',        
     'django.contrib.sitemaps', 
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -92,7 +94,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'tavp7339_ktos',
-        'USER': '',
+        'USER': 'tavp7339_admin',
         'PASSWORD': '',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',

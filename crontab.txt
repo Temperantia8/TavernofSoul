@@ -1,0 +1,15 @@
+0 * * * * bash /home/temperantia/All_TavernofSoul/cron_itos.sh
+15 * * * * bash /home/temperantia/All_TavernofSoul/cron_jtos.sh
+30 * * * * bash /home/temperantia/All_TavernofSoul/cron_ktos.sh
+45 * * * * bash /home/temperantia/All_TavernofSoul/cron_ktest.sh
+
+*/30 * * * * curl https://itos.tavernofsoul.com/planner/
+*/30 * * * * curl https://jtos.tavernofsoul.com/planner/
+*/30 * * * * curl https://ktos.tavernofsoul.com/planner/
+*/30 * * * * curl https://ktest.tavernofsoul.com/planner/
+
+0 0 * * 0 bash /home/temperantia/All_TavernofSoul/cron_git.sh
+0 0 * * 0 rm /home/temperantia/All_TavernofSoul/TavernofSoul/itos/access.log
+0 0 * * 0 rm /home/temperantia/All_TavernofSoul/TavernofSoul/jtos/access.log
+0 0 * * 0 rm /home/temperantia/All_TavernofSoul/TavernofSoul/ktos/access.log
+0 0 * * 0 rm /home/temperantia/All_TavernofSoul/TavernofSoul/ktest/access.log

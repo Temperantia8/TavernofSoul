@@ -27,7 +27,7 @@ REGION = 'ktest'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['ktest.tavernofsoul.com']
 
 
 # Application definition
@@ -47,11 +47,13 @@ INSTALLED_APPS = [
     'Items.apps.ItemsConfig',
     'ipfparser.apps.IpfparserConfig',
     'Monsters.apps.MonstersConfig',
+    'Market.apps.MarketConfig',
     'Maps.apps.MapsConfig',
     'Planner.apps.PlannerConfig',
     'django.contrib.humanize',
     'Other.apps.OtherConfig',
     'django.contrib.sitemaps',
+    'rest_framework',
     
 ]
 
@@ -93,7 +95,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'tavp7339_ktest',
-        'USER': '',
+        'USER': 'tavp7339_admin',
         'PASSWORD': '',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',

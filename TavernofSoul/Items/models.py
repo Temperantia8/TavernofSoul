@@ -1,6 +1,6 @@
 from django.db import models
 from django_mysql.models import ListCharField
-from Skills.models import Skills
+
 from django.urls import reverse
 # Create your models here.
 
@@ -47,6 +47,27 @@ class Items (models.Model):
         else:
             return False
 
+    # def Goods (self):
+        
+        # craws =[h['crawl_info'] for h in  self.goods_set.all().values('crawl_info')]
+        # craws = list(set(craws))
+        # craws_obj = [Crawl_Info.objects.get(id = i) for i in craws]
+        # craws_obj = sorted(craws_obj, key=lambda x: x.created)
+        # craws_obj = craws_obj[-5:]
+        # goods = []
+        # for i in craws_obj :
+        #     rows    = Goods.objects.filter(crawl = i['crawl_info'], items = self).values('number', 'avg')
+        #     sum_num = 0
+        #     sum_avg = 0
+        #     for row in rows:
+        #         sum_num +=row['number']
+        #         sum_avg +=row['avg'] * row['number']
+
+        #     sum_avg = sum_avg/sum_num
+        #     goods.append({'created' : i['crawl_info'].created, 'number': sum_num, 'price': sum_avg})
+        
+        # return goods
+
    
 
 
@@ -88,7 +109,7 @@ class Equipments (models.Model):
     type_equipment  = models.CharField(max_length=20,default=None, blank=True, null=True)
     unidentified    = models.BooleanField()
     unidentifiedRandom = models.BooleanField()
-
+    model           = models.TextField(null=True, blank=True, default='')
     fields          = [ 'durability',
                         'level',
                         'potential',
@@ -147,6 +168,7 @@ class Cards (models.Model):
             return False
 
 class Gems (models.Model):
+    from Skills.models import Skills
     item            = models.OneToOneField(
                         Items,
                         on_delete=models.CASCADE,
@@ -269,26 +291,26 @@ class Equipment_Set(models.Model):
     
 
 class Goddess_Reinforce_Mat(models.Model):
-    lv          = models.IntegerField()
+    lv          = models.IntegerField(db_index=True)
     mat_count   = models.IntegerField()
     mat         = models.ForeignKey(Items,on_delete=models.CASCADE,) 
-    anvil       = models.IntegerField()
+    anvil       = models.IntegerField(db_index=True)
     eq_type     = models.CharField(max_length=20, default='armor')
 
 class Goddess_Reinforce_Chance(models.Model):
-    lv          = models.IntegerField()
-    anvil       = models.IntegerField()
+    lv          = models.IntegerField(db_index=True)
+    anvil       = models.IntegerField(db_index=True)
     chance      = models.FloatField()
     addatk      = models.IntegerField(default = 0)
     addacc      = models.IntegerField(default = 0)
 
 class Eq_Reinf(models.Model):
-    equipment   = models.ForeignKey(Equipments, on_delete=models.CASCADE)
-    anvil       = models.IntegerField()
+    equipment   = models.ForeignKey(Equipments, on_delete=models.CASCADE,db_index=True)
+    anvil       = models.IntegerField(db_index=True)
     price       = models.IntegerField()
     addatk      = models.IntegerField()
 
 class Eq_TC(models.Model):
-    equipment   = models.ForeignKey(Equipments, on_delete=models.CASCADE)
+    equipment   = models.ForeignKey(Equipments, on_delete=models.CASCADE,db_index=True)
     price        = models.IntegerField()
-    tc          = models.IntegerField()
+    tc          = models.IntegerField(db_index=True)

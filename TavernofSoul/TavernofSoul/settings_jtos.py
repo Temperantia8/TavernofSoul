@@ -27,7 +27,7 @@ REGION = 'jtos'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['jtos.tavernofsoul.com']
 
 
 # Application definition
@@ -47,11 +47,13 @@ INSTALLED_APPS = [
     'Items.apps.ItemsConfig',
     'ipfparser.apps.IpfparserConfig',
     'Monsters.apps.MonstersConfig',
+    'Market.apps.MarketConfig',
     'Maps.apps.MapsConfig',
     'Planner.apps.PlannerConfig',
     'django.contrib.humanize',
     'Other.apps.OtherConfig',
     'django.contrib.sitemaps',
+    'rest_framework',
     
 ]
 
@@ -94,7 +96,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'tavp7339_jtos',
         'USER': 'tavp7339_admin',
-        'PASSWORD': '5zWuDf87tN8nU8b',
+        'PASSWORD': '',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }

@@ -7,14 +7,15 @@ Created on Wed Dec 22 09:14:45 2021
 
 def add_item_static(c):
     
-    c.data['items']['00000000'] = c.data['items']['089028'].copy()
+    c.data['items']['00000000'] = c.data['items']['9028'].copy()
     c.data['items']['00000000'] ['$ID'] =  '00000000'
     c.data['items']['00000000']['$ID_NAME'] = 'ViboraArcane_Random_Lv1'
     c.data['items']['00000000']['Name'] = 'Random Vaivora Vision lv 1'
     c.data['items']['00000000']['Icon'] = 'icon_item_vibora_vision'
     c.data['items']['00000000']['Link_Materials'] = []
     c.data['items']['00000000']['Link_Target'] = []
-    c.data['items']['00000000']['Type'] = 'Arcane'
+    c.data['items']['00000000']['Type'] = ''
+
     c.data['items']['00000000']['Description'] = 'dummy for random vv vision drop'
     c.data['items_by_name'] ['ViboraArcane_Random_Lv1'] = c.data['items']['00000000']
     

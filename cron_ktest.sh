@@ -18,3 +18,4 @@ cd TavernofSoul
 python manage_ktest.py importAll >> ../err.txt
 cd ..
 python closer.py ktest
+python build_cache.py ktest

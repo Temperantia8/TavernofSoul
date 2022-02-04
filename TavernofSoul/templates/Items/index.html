@@ -280,13 +280,17 @@
 			{%include 'Items/equipment_set.html'%}
 	{%endif%}
   <br>
-
-  <h2>{{"Visual" | translate}}</h2>
-  {%if item.cards%}
-  	<img loading="lazy" alt="" src="/static/icons/{{item.cards.icon}}.jpg">
-  {%else%}
-  	<img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="width: 250px; height: 250px;">
-  {%endif%}
+  <div class="d-flex">
+	  
+	  <div>
+		  <h2>{{"Visual" | translate}}</h2>
+		  {%if item.cards%}
+		  	<img loading="lazy" alt="" src="/static/icons/{{item.cards.icon}}.jpg">
+		  {%else%}
+		  	<img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="width: 250px; height: 250px;">
+		  {%endif%}
+		</div>
+	</div>
 
 {%if item.grade == 6%}
 	{{ mat|json_script:"mat" }}
