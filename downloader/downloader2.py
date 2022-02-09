@@ -216,7 +216,7 @@ def do_patch_full(patch_output, url_patch):
     
 
 def move_language(region):
-    if region not in ['itos', 'jtos']:
+    if region not in ['itos', 'jtos', 'twtos']:
         return 
 
     input_path  = {'itos' : os.path.join('..', 'itos_patch', 'languageData', 'English'),

@@ -224,7 +224,7 @@ def do_patch_full(patch_output, url_patch):
     
 
 def move_language(region):
-    if region not in ['itos', 'jtos']:
+    if region not in ['itos', 'jtos', 'twtos']:
         return 
 
     input_path  = {'itos' : os.path.join('..', 'itos_patch', 'languageData', 'English'),
@@ -249,7 +249,8 @@ if __name__ == "__main__":
     url_patch = {'itos' : 'http://drygkhncipyq8.cloudfront.net/toslive/patch/',
                  'jtos' : 'http://d3bbj7hlpo9jjy.cloudfront.net/live/patch/',
                  'ktos' : 'http://tosg.dn.nexoncdn.co.kr/patch/live/',
-                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/'}
+                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/',
+                 'twtos' : 'http://tospatch.x2game.com.tw/live/patch/'}
     
     
     
