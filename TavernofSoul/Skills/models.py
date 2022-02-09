@@ -70,7 +70,7 @@ class Skills (models.Model):
     stance          = models.TextField() 
     created         = models.DateTimeField(auto_now_add=True)
     updated         = models.DateTimeField(auto_now=True)
-    is_riding       = models.BooleanField()
+    is_riding       = models.IntegerField()
     def stance_readable(self):
         return " ".join(self.stance.split(";")) 
     def get_absolute_url(self):
@@ -81,8 +81,11 @@ class Skills (models.Model):
         attr = self.attributes_set.all()
         for atr in attr:
             atr.descriptions = atr.descriptions.split('{nl}')
-            
         return attr
+        
+    def riding(self):
+        dic = ['No', 'Can', 'Must']
+        return dic[self.is_riding]
 
 class Buff_Skill(models.Model):
     buff            = models.ForeignKey('Buffs.Buffs', on_delete=models.CASCADE)

@@ -1,6 +1,7 @@
 
 {% extends 'base/index.html' %}
 {% load utils %}
+{% load tz %}
 {%load translate%}
 {%block head%}
     <title>{{"Market" | translate}} - Tavern of Soul</title>
@@ -16,7 +17,7 @@
 
 
   {% block content %}
- <h1 id="title" class='mb-0'>{{"Market" | translate}}</h1><p> last updated : {{crawl.created}} </p>
+ <h1 id="title" class='mb-0'>{{"Market" | translate}}</h1><p> last updated : {{crawl.created|localtime}} </p>
 
 <form autocomplete="off" action="" method="GET" >
   <div class="form-inline">
@@ -52,10 +53,10 @@
           <td>
 
             <div class="pl-0">
-             <select class="form-control form-control-sm" style = "width:100%"  name="armor" id = 'armor'>
+             <select class="form-control form-control-sm" style = "width:100%"  name="server" id = 'server'>
                 
                 {% for i,k in server_list.items%}
-                  <option value = '{{i}}'   {%if i.id == server%} selected {%endif%}   id = {{i}}>{{k}}</option>
+                  <option value = '{{i}}'   {%if i == server%} selected {%endif%}   id = {{i}}>{{k}}</option>
                 {%endfor%}
             
             </select>
@@ -178,6 +179,10 @@
     {% endif %}
   </table>
 
+
+{%else%}
+
+  <p> no data ... :<</p>
 {%endif%}
 {% endblock %}
 

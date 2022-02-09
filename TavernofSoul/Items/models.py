@@ -1,6 +1,6 @@
 from django.db import models
 from django_mysql.models import ListCharField
-
+from Market.models import Crawl_Summary,Goods_Summary
 from django.urls import reverse
 # Create your models here.
 
@@ -47,27 +47,19 @@ class Items (models.Model):
         else:
             return False
 
-    # def Goods (self):
+    def Goods(self):
+        sv_list = Crawl_Summary.objects.values('serverid').distinct()
+        goods_list = []
         
-        # craws =[h['crawl_info'] for h in  self.goods_set.all().values('crawl_info')]
-        # craws = list(set(craws))
-        # craws_obj = [Crawl_Info.objects.get(id = i) for i in craws]
-        # craws_obj = sorted(craws_obj, key=lambda x: x.created)
-        # craws_obj = craws_obj[-5:]
-        # goods = []
-        # for i in craws_obj :
-        #     rows    = Goods.objects.filter(crawl = i['crawl_info'], items = self).values('number', 'avg')
-        #     sum_num = 0
-        #     sum_avg = 0
-        #     for row in rows:
-        #         sum_num +=row['number']
-        #         sum_avg +=row['avg'] * row['number']
+        try:
+            for i in sv_list:
+                handler = Crawl_Summary.objects.filter(serverid=i['serverid']).latest('updated')
+                goods = Goods_Summary.objects.get(crawl_summary = handler, items = self)
+                goods_list.append(goods)
+        except:
+            return False
 
-        #     sum_avg = sum_avg/sum_num
-        #     goods.append({'created' : i['crawl_info'].created, 'number': sum_num, 'price': sum_avg})
-        
-        # return goods
-
+        return goods_list
    
 
 
@@ -77,19 +69,6 @@ class Equipments (models.Model):
                         on_delete=models.CASCADE,
                         primary_key=True,
                     )
-    # anvil_atk       = ListCharField(base_field=models.IntegerField(),
-    #                 size=41,
-    #                 max_length=(10 * 41),blank=True, null=True
-    #                 )
-    # anvil_def       = ListCharField(base_field=models.IntegerField(),
-    #                 size=41,
-    #                 max_length=(10 * 41),blank=True, null=True
-    #                 )
-    # anvil_price     = ListCharField(base_field=models.IntegerField(),
-    #                 size=41,
-    #                 max_length=(15 * 41),blank=True, null=True
-    #                 )
-
     durability      = models.IntegerField(blank=True, null=True )
     level           = models.IntegerField(blank=True, null=True )
     potential       = models.IntegerField(blank=True, null=True )

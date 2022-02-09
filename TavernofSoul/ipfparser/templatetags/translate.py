@@ -114,6 +114,9 @@ translation ={
 		'misc'			: 'その他',
 		'achievements'  : '業績',
 		'title' 		: '報酬',
+		'no'			: 'X',
+		'yes' 			: '✓',
+		'can' 			: '可能'
 	}
 }
 

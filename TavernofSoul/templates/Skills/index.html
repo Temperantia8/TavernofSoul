@@ -26,7 +26,7 @@
 
   {% block content %}
 <div class="form-inline mb-2" >
- <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="max-width: 64px; max-height: 64px;"><h1 id="title">{{item.name}}</h1>
+ <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" class='mr-1' style="max-width: 64px; max-height: 64px;"><h1 id="title">{{item.name}}</h1>
 </div>
 {%if desc%}
   {% for line in desc%}
@@ -181,11 +181,7 @@
     <tbody>
        <tr>
         <td>
-        {% if item.is_riding%}
-          Yes
-        {%else%}
-          No
-        {%endif%}
+        {{item.riding}}
         </td>
         
       </tr>

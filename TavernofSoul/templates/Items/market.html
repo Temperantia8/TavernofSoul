@@ -1,20 +1,31 @@
- 
+ {% load translate%}
+ {% load utils%}
  <br>
 <h2>{{"Market" | translate}}</h2>
 <table class="table-bordered border border-white border-responsive mt-1 tabe">
 <tbody>
 	<tr>
-		<th>{{'date' | translate}}</th>
-		<th>{{'number' | translate}}</th>
-		<th>{{'price' | translate}}</th>
+		<th rowspan="2">{{'Date' | translate}}</th>
+		<th rowspan="2">{{'Server' | translate}}</th>
+		<th rowspan="2">{{'Total Number' | translate}}</th>
+		<th rowspan="1" colspan="3">{{'Price' | translate}}</th>
+	</tr>
+	<tr>
+		<th>{{'low' | translate}}</th>
+		<th>{{'avg' | translate}}</th>
+		<th>{{'hi' | translate}}</th>
   </tr>
 	{%for goods in item.Goods%}
 	 <tr>
-		<td>{{goods.crawl_info.created}}</td>
+		<td>{{goods.crawl_summary.date}}</td>
+		<td>{{goods.crawl_summary.serverid | translateServer }}</td>
 		<td class="text-align-right">{{goods.number | intspace }}</td>
-		<td class="text-align-right">{{goods.number | intspace }}</td>
+		<td class="text-align-right">{{goods.low 	| intspace }}</td>
+		<td class="text-align-right">{{goods.price 	| intspace }}</td>
+		<td class="text-align-right">{{goods.high 	| intspace }}</td>
   </tr>
   {%endfor%}
 </tbody>
 
 </table>
+

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     try:
         region = sys.argv[1]
         region = region.lower()
-        accepted = ['itos','ktos','ktest', 'jtos']
+        accepted = ['itos','ktos','ktest', 'jtos','twtos']
         if region not in accepted:
             logging.warning("region unsupported")
             quit()

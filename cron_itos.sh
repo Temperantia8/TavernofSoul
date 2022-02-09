@@ -18,4 +18,3 @@ cd TavernofSoul
 python manage_itos.py importAll >> ../err.txt
 cd ..
 python closer.py itos
-python build_cache.py itos

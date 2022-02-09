@@ -49,27 +49,34 @@
             <div class="img" style="background-image: url({%static 'images/logo.png'%});"></div>
             <h3>Tavern of Soul</h3>
           </div>
-          <div>
+          <div >
+            {% if 'twtos' in request.get_host %}
+              <b><a href="https://twtos.tavernofsoul.com" class="flavor">twToS</a></b> | 
+            {%else%}
+              <a href="https://twtos.tavernofsoul.com" class="flavor">twToS</a> |  
+            {%endif%}
             {% if 'jtos' in request.get_host %}
               <b><a href="https://jtos.tavernofsoul.com" class="flavor">jToS</a></b> | 
             {% else %}
               <a href="https://jtos.tavernofsoul.com" class="flavor">jToS</a> | 
             {%endif%}
             {% if 'itos' in request.get_host %}
-              <b><a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a></b> | 
+              <b><a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a></b> 
             {%else%}
-              <a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a> | 
+              <a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a> 
             {%endif%}
+            <br>
             {% if 'ktos' in request.get_host %}
               <b><a href="https://ktos.tavernofsoul.com"  class="flavor">kToS</a></b> | 
             {%else%}
               <a href="https://ktos.tavernofsoul.com"  class="flavor">kToS</a> | 
             {%endif%}
             {% if 'ktest' in request.get_host %}
-              <b><a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a></b> | 
+              <b><a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a></b>
             {%else%}
-              <a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a> |  
+              <a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a>  
             {%endif%}
+            
           </div>
         </div>
         <ul class="list-unstyled components mb-5">

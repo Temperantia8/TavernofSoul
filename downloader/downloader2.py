@@ -10,6 +10,7 @@ from shutil import copyfile, move, rmtree
 import subprocess 
 import unpacker_pak
 from os.path import join
+import csv
 IPF_BLACKLIST = []
 region = ""
 error_ipf = [] #the somehow error patch
@@ -27,7 +28,13 @@ def copyfiles(output):
              'bg.ipf',
              'language.ipf',
              'ies.ipf',
-             'xml.ipf',]
+             'xml.ipf',
+             'skill_bytool.ipf', 
+             'char_hi.ipf',
+             'char_texture.ipf',
+             'item_hi.ipf',
+             'item_texture.ipf'
+             ]
     for i in files:
         if os.path.exists (join('extract',i)):
             subprocess.run(['cp', '-r', join('extract',i), output])
@@ -44,7 +51,7 @@ def unpack(f):
     files = [ f for f in files] # add path to each file
     files.sort(key=lambda x: os.path.getmtime(x))
     
-    extension_needed = ['ies', 'xml', 'lua','png', 'jpg', 'tga', 'json','tok', 'colmesh', 'tsv'   ]
+    extension_needed = ['ies', 'xml', 'lua','png', 'jpg', 'tga', 'json','tok', 'colmesh', 'tsv' ,  'dds'  ]
     logging.warning("patching {}".format(f))
     cur_file = join(IPF_PATH, f)
     copyfile(cur_file, f)
@@ -83,7 +90,7 @@ def getRegion(reg):
     try:
         region = reg[1]
         region = region.lower()
-        accepted = ['itos','ktos','ktest', 'jtos']
+        accepted = ['itos','ktos','ktest', 'jtos', 'twtos']
         if region not in accepted:
             logging.warning("region unsupported")
             quit()
@@ -157,29 +164,34 @@ def patch_process(patch_file, patch_name, patch_unpack, patch_url, patch_destina
 
 
 
-def revision_txt_read(revision_txt):
-    if os.path.isfile(revision_txt):
-        with open(revision_txt, 'r') as file:
-            return file.readline()
-    else:
-        return 0
+def print_version(filename, data):
+    out = [ [key, data[key]] for key in data]
+    with open(filename, 'w') as f:  # You will need 'wb' mode in Python 2.x
+        w = csv.writer(f)
+        w.writerows(out)
+
+def read_version(filename):
+    rev = {}
+    with open(filename, 'r') as f:
+        w = csv.reader(f)
+        for lines in w:
+            if len(lines)<2:
+                continue
+            rev[lines[0]] = lines[1]
+    return rev
 
 
-def revision_txt_write(revision_txt, revision):
-    with open(revision_txt, 'w') as file:
-        file.write(revision)
-        
 def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path, revision_url,repatch):
     logging.debug('Patching %s...', revision_url)
     revision_list = urllib.request.urlopen(revision_url).read()
     revision_list = revision_decrypt(revision_list)
-    revision_old = revision_txt_read(revision_path)
+    revision_old = read_version(revision_path)
     revision_new = revision_old
 
     for revision in revision_list:
         revision = revision.split(' ')[0]
      
-        if (int(revision) > int(revision_old) or repatch==1) and revision not in ['147674']:
+        if (int(revision) > int(revision_old[region]) or repatch==1) and revision not in ['147674']:
             # Process patch
             patch_name = revision + '_001001' + patch_ext
             patch_file = os.path.join(patch_path, patch_name)
@@ -190,8 +202,8 @@ def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path,
             patch_process(patch_file, patch_name, patch_unpack, patch_url, patch_path)
 
             # Update revision
-            revision_txt_write(revision_path, revision)
-            revision_new = revision
+            revision_new[region] = revision
+            print_version(revision_path, revision_new)
 
     return revision_old, revision_new
 
@@ -206,20 +218,19 @@ def do_patch_full(patch_output, url_patch):
 def move_language(region):
     if region not in ['itos', 'jtos']:
         return 
-    output_path = {'itos' : os.path.join('..', 'Translation', 'English'),
-                   'jtos' : os.path.join('..', 'Translation', 'Japanese'),}
-    input_path  = {'itos' : os.path.join('..', 'itos_patch', 'languageData', 'English'),
-                   'jtos' : os.path.join('..', 'jtos_patch', 'languageData', 'Japanese'),}
 
-    output_path = output_path[region]
+    input_path  = {'itos' : os.path.join('..', 'itos_patch', 'languageData', 'English'),
+                   'jtos' : os.path.join('..', 'jtos_patch', 'languageData', 'Japanese'),
+                   'twtos' : os.path.join('..', 'twtos_patch', 'languageData', 'Taiwanese'),}
+
+    output_path = os.path.join('..', 'Translation')
     input_path  = input_path[region]
     if os.path.exists(input_path):
-        try:
-            shutil.move(input_path, output_path)
-#            subprocess.run(['cp', '-r', input_path, output_path])
-        except:
-            pass
-
+        #try:
+        #    #shutil.move(input_path, output_path)
+        subprocess.run(['cp', '-r', input_path, output_path])
+        #except:
+        #    pass
 
 
 if __name__ == "__main__":
@@ -230,7 +241,8 @@ if __name__ == "__main__":
     url_patch = {'itos' : 'http://drygkhncipyq8.cloudfront.net/toslive/patch/',
                  'jtos' : 'http://d3bbj7hlpo9jjy.cloudfront.net/live/patch/',
                  'ktos' : 'http://tosg.dn.nexoncdn.co.kr/patch/live/',
-                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/'}
+                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/',
+                 'twtos' : 'http://tospatch.x2game.com.tw/live/patch/'}
     
     
     
@@ -239,18 +251,18 @@ if __name__ == "__main__":
     
     if ('full' in sys.argv ):
         do_patch_full(output, url_patch)
-    else:
-        version_data, version_data_new = patch_partial(
-            output , url_patch + 'partial/data/', '.ipf', False,
-            'revision_{}.txt'.format(region), url_patch + 'partial/data.revision.txt' ,0
-        )
-        version_release, version_release_new = patch_partial(
-            output, url_patch + 'partial/release/', '.pak', True,
-            'release_{}.txt'.format(region), url_patch + 'partial/release.revision.txt',0
-        )
 
-        move_language(region)
-    
-    
-    
-    
+    version_data, version_data_new = patch_partial(
+        output , url_patch + 'partial/data/', '.ipf', False,
+        'revision.csv'.format(region), url_patch + 'partial/data.revision.txt' ,0
+    )
+    version_release, version_release_new = patch_partial(
+        output, url_patch + 'partial/release/', '.pak', True,
+        'release.csv'.format(region), url_patch + 'partial/release.revision.txt',0
+    )
+
+    move_language(region)
+
+
+
+

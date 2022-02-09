@@ -1,4 +1,4 @@
-stderr.log
+*.log
 *.pyc
 *.ipf
-*.json
+**/prev/

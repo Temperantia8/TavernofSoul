@@ -81,6 +81,8 @@ def index(request):
         data['curpage']     = int(getFromGet(request, 'page',1))
         if ('eq' in order):
             data['item']            = Items.objects.filter(query).order_by('{}equipments__{}'.format(srt, orders[1]))
+        elif ('ids' in order):
+            data['item']            = Items.objects.filter(query).extra(select={'ids_int' :'CAST(ids as integer)'}).order_by('ids_int')
         else:
             data['item']            = Items.objects.filter(query).order_by('{}{}'.format(srt, orders[0]))
 
@@ -93,7 +95,7 @@ def index(request):
         data['minLV']           = minLV
         data['maxLV']           = maxLV
         data['order']           = order
-        data['server']          = server
+        #data['server']          = server
         #creating pages
         pages = list(range(math.ceil(data['item_len']/10) +1))
         pages.remove(0) #there's no page 0

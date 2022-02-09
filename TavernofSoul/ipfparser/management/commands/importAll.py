@@ -291,8 +291,8 @@ class Command(BaseCommand):
                 logging.warning("failed to delete item {} ({})".format(i['Name'], i['$ID']))
         logging.debug("migrating items")
         dolater = {'RECIPES': [],'COLLECTION': [], 'EQUIPMENT' : [], 'CARD' : [], 'BOOKS' :[] }
-        bulk_insert = []
-        bulk_upd    = []
+        bulk_insert = {}
+        bulk_upd    = {}
         items_all   = {i.ids : i for i in Items.objects.all()}
 
         for i in items['added'] + items['changed']:
@@ -327,12 +327,12 @@ class Command(BaseCommand):
                 dolater['BOOKS'].append([handler,i.copy(), upd])
                  #self.makeBook(handler,i,  upd)
             if upd:
-                bulk_upd.append(handler)
+                bulk_upd[handler.ids] = handler
             else:
-                bulk_insert.append(handler)
+                bulk_insert[handler.ids] = handler
         
-        bulk_op(Items.objects.bulk_create, bulk_insert, 1000)
-        bulk_op(Items.objects.bulk_update, bulk_upd, 1000, Items.fields)
+        bulk_op(Items.objects.bulk_create, bulk_insert.values(), 1000)
+        bulk_op(Items.objects.bulk_update, bulk_upd.values(), 1000, Items.fields)
         self.items = {i.ids : i for i in Items.objects.all()}
         del(bulk_insert)
         del(bulk_upd)
@@ -886,9 +886,11 @@ class Command(BaseCommand):
                 handler.cooldown        = 0
             handler.sp              = i['BasicSP']
             if (i['RequiredStanceCompanion'].lower() == 'yes'):
-                handler.is_riding       = True
+                handler.is_riding       = 2
+            elif (i['RequiredStanceCompanion'].lower() == 'both'):
+                handler.is_riding       = 1
             else:
-                handler.is_riding       = False
+                handler.is_riding       = 0
             handler.effect          = i['Effect']
             handler.element         = i['Element']
             handler.max_lv          = i['MaxLevel']

@@ -27,23 +27,32 @@ import misc
 import skill_bytool
 import parse_xac
 from item_static import add_item_static
-def revision_txt_write(revision_txt, revision):
-    revision = str(revision)
-    with open(revision_txt, 'w') as file:
-        file.write(revision)
+import csv
 
-def revision_txt_read(revision_txt):
-    if os.path.isfile(revision_txt):
-        with open(revision_txt, 'r') as file:
-            return file.readline()
-    else:
-        return 0
 
+def print_version(filename, data):
+    out = [ [key, data[key]] for key in data]
+    with open(filename, 'w') as f:  # You will need 'wb' mode in Python 2.x
+        w = csv.writer(f)
+        w.writerows(out)
+
+def read_version(filename):
+    rev = {}
+    with open(filename, 'r') as f:
+        w = csv.reader(f)
+        for lines in w:
+            if len(lines)<2:
+                continue
+            rev[lines[0]] = lines[1]
+    return rev
+
+            
+    return rev
 if __name__ == "__main__":
     try:
         region = sys.argv[1]
         region = region.lower()
-        accepted = ['itos','ktos','ktest', 'jtos']
+        accepted = ['itos','ktos','ktest', 'jtos', 'twtos']
         if region not in accepted:
             logging.warning("region unsupported")
             quit()
@@ -52,10 +61,10 @@ if __name__ == "__main__":
         quit()
     
     c= constants()
-    current_version = revision_txt_read('parser_version_{}.txt'.format(region.lower()))
+    current_version = read_version('parser_version.csv')
     #version = c.importJSON(join("..", 'unpacker_version_{}.txt'.format(region.lower())))['patched'][-1]
-    version = revision_txt_read(join("..", 'downloader', 'revision_{}.txt'.format(region)))
-    if(version == current_version) and ('-f' not in sys.argv):
+    version = read_version(join("..", 'downloader', 'revision.csv'))
+    if(version[region] == current_version[region]) and ('-f' not in sys.argv):
         logging.warning("ipf up to date")
         quit()
         
@@ -94,9 +103,10 @@ if __name__ == "__main__":
     #c.export_one("achievements")    
     
     c.export()
-
-    revision_txt_write('parser_version_{}.txt'.format(region.lower()), version)
-    v = {'version' : "{}_001001.ipf".format(version)}
+    
+    current_version[region] = version[region]
+    print_version('parser_version.csv', current_version)
+    v = {'version' : "{}_001001.ipf".format(version[region])}
     with open(join(c.BASE_PATH_OUTPUT, 'version.json'), "w") as f:
         json.dump(v,f)
        

@@ -1,6 +1,7 @@
 from django import template
 register = template.Library()
 from django.conf import settings
+from Market.const import server_list
 import re
 
 
@@ -95,3 +96,10 @@ def splitnl(string):
 @register.filter 
 def intspace(ints):
     return '{:,}'.format(ints).replace(',', ' ')
+
+@register.filter
+def translateServer(string):
+    try:
+        return server_list[settings.REGION][str(string)]
+    except:
+        return string

@@ -188,6 +188,6 @@ def index(request):
 
             data['skills'].append(a)
 
-        cache.set('planner', data, timeout=15*60)
+        cache.set('planner', data, timeout=35*60)
 
     return render(request, join(APP_NAME,"index.html"), data)

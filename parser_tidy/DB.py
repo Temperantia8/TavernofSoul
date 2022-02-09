@@ -135,6 +135,8 @@ class ToS_DB():
             self.transaltion_path                = join ("..","Translation", 'English')
         elif region == 'jtos':
             self.transaltion_path                = join ("..","Translation", 'Japanese')
+        elif region == 'twtos':
+            self.transaltion_path                = join ("..","Translation", 'Taiwanese')
         else:
             self.transaltion_path                = "."
             
