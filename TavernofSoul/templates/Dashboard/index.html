@@ -36,19 +36,7 @@
       right:0px;
       color:#babbbf;
   ">
-    {% if 'jtos' in request.get_host %}
-      <a href="https://github.com/Temperantia8/jtos_unpack/commits/master" class="flavor">
-    {% elif 'itos' in request.get_host %}
-      <a href="https://github.com/Temperantia8/itos_unpack/commits/master" class='flavor' >
-    {% elif 'ktos' in request.get_host %}
-      <a href="https://github.com/Temperantia8/ktos_unpack/commits/master"  class="flavor">
-    {% elif 'twtos' in request.get_host %}
-      <a href="https://github.com/Temperantia8/twtos_unpack/commits/master"  class="flavor">
-    {% else %}
-      <a href="https://github.com/Temperantia8/ktest_unpack/commits/master" class="flavor">
-    {%endif%}
     Version : {{version}}
-    </a>
   </div>
 </div>
   {% endblock %}

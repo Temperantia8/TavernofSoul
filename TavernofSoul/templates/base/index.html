@@ -5,10 +5,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="apple-touch-icon" href="/static/images/apple-touch-icon-iphone-60x60.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/static/images/apple-touch-icon-ipad-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/static/images/apple-touch-icon-iphone-retina-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/static/images/apple-touch-icon-ipad-retina-152x152.png">
+
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{% static 'images/logo.png' %}"/>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -49,34 +46,27 @@
             <div class="img" style="background-image: url({%static 'images/logo.png'%});"></div>
             <h3>Tavern of Soul</h3>
           </div>
-          <div >
-            {% if 'twtos' in request.get_host %}
-              <b><a href="https://twtos.tavernofsoul.com" class="flavor">twToS</a></b> | 
-            {%else%}
-              <a href="https://twtos.tavernofsoul.com" class="flavor">twToS</a> |  
-            {%endif%}
+          <div>
             {% if 'jtos' in request.get_host %}
               <b><a href="https://jtos.tavernofsoul.com" class="flavor">jToS</a></b> | 
             {% else %}
               <a href="https://jtos.tavernofsoul.com" class="flavor">jToS</a> | 
             {%endif%}
             {% if 'itos' in request.get_host %}
-              <b><a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a></b> 
+              <b><a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a></b> | 
             {%else%}
-              <a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a> 
+              <a href="https://itos.tavernofsoul.com" class='flavor' >iToS</a> | 
             {%endif%}
-            <br>
             {% if 'ktos' in request.get_host %}
               <b><a href="https://ktos.tavernofsoul.com"  class="flavor">kToS</a></b> | 
             {%else%}
               <a href="https://ktos.tavernofsoul.com"  class="flavor">kToS</a> | 
             {%endif%}
             {% if 'ktest' in request.get_host %}
-              <b><a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a></b>
+              <b><a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a></b> | 
             {%else%}
-              <a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a>  
+              <a href="https://ktest.tavernofsoul.com" class="flavor">kTest</a> |  
             {%endif%}
-            
           </div>
         </div>
         <ul class="list-unstyled components mb-5">
@@ -132,7 +122,7 @@
         </ul>
         <div class="mememe mb-2" style="text-align:center;   position: absolute;
             bottom: 0;width:100%">
-          <a href="https://github.com/Temperantia8/TavernofSoul" target="_blank"><img src="{%static 'images/GitHub-Mark-Light-64px.png' %}" class='ext-logo'></a>
+          <!-- <a href="https://github.com/Temperantia8" target="_blank"><img src="{%static 'images/GitHub-Mark-Light-64px.png' %}" class='ext-logo'></a> -->
           <a href="https://discord.gg/bD33dTbj6z" target="_blank"><img src="{%static 'images/Discord-Logo-White.png' %}" class='ext-logo'></a>
           <a href="https://twitter.com/Temperantia8" target="_blank"><img src="{%static 'images/Twitter-logo-white.png' %}" class='ext-logo'></a>
           <a href="https://ko-fi.com/temperantia" target="_blank"><img src="{%static 'images/ko-fi.png' %}" class='ext-logo' style="margin-left:3px"></a>

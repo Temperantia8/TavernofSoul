@@ -2,7 +2,7 @@ from django.shortcuts import render
 from os.path import join
 from django.http import HttpResponse
 from Items.models import Items, Equipment_Bonus, Item_Recipe_Material
-from Items.models import Equipments
+from Items.models import Item_Recipe_Target,Item_Type
 from Items.models import Item_Collection_Material, Item_Collection_Bonus
 from Monsters.models import Monsters, Item_Monster
 from Maps.models import Maps, Map_Item, Map_NPC, Map_Item_Spawn
@@ -14,31 +14,91 @@ import math
 import os
 from django.http import JsonResponse
 from django.db.models import Q
-from Items.constants import bonus_stat_translator, goddess_anvil, goddess_scale, goddess_gabija, goddess_chance
-from Items.getEnhancement import getAnvil
+
+goddess_anvil     = [219,219,219,219,219,
+                                     238,238,238,238,238,
+                                     256,256,256,256,256,
+                                     275,275,275,275,275,
+                                     294,294,294,294,294,
+                                     294,294,294,294,294,]
+goddess_scale     = [3,3,3,3,3,
+                     5,5,5,5,5,
+                     7,7,7,7,7,
+                     8,8,8,8,8,
+                     10,11,12,13,14,
+                     15,16,17,18,19                    
+                     ]
+goddess_gabija    = [263,263,263,263,450,
+                     450,450,450,450,673,
+                     673,673,673,673,927,
+                     927,1212,1523,1861,2224,
+                     2586,2948,3311,3673,4036,
+                     4398,4760,5123,5485,5848]
+
+goddess_chance      = [100,100,100,100,100,
+                                          80, 72, 64, 58, 52,
+                                          42, 33, 27, 21, 18,
+                                          12,  8,  6,  4,  3, 
+                                           2, 1,  1,  1,  1 ,
+                                           1, 1,  1,  1,  1]
+
+bonus_stat_translator={
+    'ADD_CLOTH'     : 'Attack against Cloth Armored Targets',
+    'ADD_LEATHER'   : 'Attack against Leather Armored Targets',
+    'ADD_CHAIN'     : 'Attack against Chain Armored Targets',
+    'ADD_IRON'      : 'Attack against Plate Armored Targets',
+    'ADD_GHOST'     : 'Attack against Ghost Armored Targets',
+    'ADD_SMALLSIZE' : 'Attack against Small-sized Targets',
+    'ADD_MIDDLESIZE': 'Attack against Medium-sized Targets',
+    'ADD_LARGESIZE' : 'Attack against Large-sized Targets',
+    'ADD_FORESTER'  : 'Attack against Plant-type Targets',
+    'ADD_WIDLING'   : 'Attack against Beast-type Targets',
+    'ADD_VELIAS'    : 'Attack against Devil-type Targets',
+    'ADD_PARAMUNE'  : 'Attack against Mutant-type Targets',
+    'ADD_KLAIDA'    : 'Attack against Insect-type Targets',
+    'Aries'         : 'Piercing',
+    'AriesDEF'      : 'Piercing Defense',
+    'SlashDEF'      : 'Slash Defense',
+    'StrikeDEF'     : 'Strike Defense',
+    'ADD_FIRE'      : 'Add. Fire Property Damage',
+    'ADD_ICE'       : 'Add. Ice Property Damage',
+    'ADD_POISON'    : 'Add. Poison Property Damage',
+    'ADD_LIGHTNING' : 'Add. Lightning Property Damage',
+    'ADD_SOUL'      : 'Add. Soul Property Damage',
+    'ADD_EARTH'     : 'Add. Earth Property Damage',
+    'ADD_HOLY'      : 'Add. Holy Property Damage',
+    'ADD_DARK'      : 'Add. Dark Property Damage',
+    'RES_FIRE'      : 'Fire Property Resistance',
+    'RES_ICE'       : 'Ice Property Resistance',
+    'RES_POISON'    : 'Poison Property Resistance',
+    'RES_LIGHTNING' : 'Lightning Property Resistance',
+    'RES_SOUL'      : 'Soul Property Resistance',
+    'RES_EARTH'     : 'Earth Property Resistance',
+    'RES_HOLY'      : 'Holy Property Resistance',
+    'RES_DARK'      : 'Dark Property Resistance',
+    'LootingChance' : 'Looting Chance',
+    'UNKNOWN'       : '-'
+}
+
 from ipfparser.utils import *
 
 def index(request):
 
     data = {}
-    data['types']               = []
-    in_type                     = []
-    types                       = Items.objects.values('type')
-    for i in Items.objects.values('type').distinct() :
-        if i['type'] != '':
-            data['types'].append({'type':i['type'].lower(), 'id' : i['type']})
-    for i in Equipments.objects.values('type_equipment').distinct() :
-        if i['type_equipment'] != '':
-                data['types'].append({'type':(i['type_equipment'].lower()), 'id' : '%s_eq'%(i['type_equipment'])})
-    # data['types'] = list(set(data['types']))
-    data['types'].sort(key = lambda x: x['id'])
+    data['types']       = []
+    types                       = Item_Type.objects.all()
+    for i in types:
+        if (i.is_equipment):
+            data['types'].append({'type':i.name.lower(), 'id' : str(i.id)+"_eq"})
+        else:
+            data['types'].append({'type':i.name.lower(), 'id' : str(i.id)})
+
     if 'q' in request.GET:
-        q                           = getFromGet(request, 'q','')
+        query                           = getFromGet(request, 'q','')
         grade                       = getFromGet(request,'grade', '')
-        clas                        = getFromGet(request,'class', '')
-        class_def                   = ['.','.','.','.','.']
-        query                       = Q(name__icontains = q)
-        query.add(Q(id_name__icontains=q), Q.OR)
+        clas                            = getFromGet(request,'class', '')
+        class_def             = ['.','.','.','.','.']
+        query                           = Q(name__icontains = query)
         type_n                      = getFromGet(request, 'type', '')
         minLV                       = getFromGet(request, 'lvmin', '')
         maxLV                       = getFromGet(request, 'lvmax', '')
@@ -61,10 +121,12 @@ def index(request):
 
         if (type_n != ''):
             if ('_eq' in type_n):
-                type_n = type_n.replace("_eq", '')
-                query.add(Q(equipments__type_equipment =type_n), Q.AND)
+                type_n = type_n.replace('_eq','')
+                t = Item_Type.objects.get(id = type_n)
+                query.add(Q(equipments__type_equipment =t.name), Q.AND)
             else:
-                query.add(Q(type =type_n), Q.AND)
+                t = Item_Type.objects.get(id = type_n)
+                query.add(Q(type =t.name), Q.AND)
 
         data['type'] = getFromGet(request, 'type', '')
 
@@ -75,33 +137,29 @@ def index(request):
             class_def[int(clas)] = 'T'
             class_def = ''.join(class_def)
             query.add(Q(equipments__requiredClass__regex =class_def), Q.AND)
-        # return HttpResponse(query)
+
         orders = order.split("-")
         srt = '' if orders[-1] == 'asc' else '-'
         data['curpage']     = int(getFromGet(request, 'page',1))
         if ('eq' in order):
-            data['item']            = Items.objects.filter(query).order_by('{}equipments__{}'.format(srt, orders[1]))
-        elif ('ids' in order):
-            data['item']            = Items.objects.filter(query).extra(select={'ids_int' :'CAST(ids as integer)'}).order_by('ids_int')
+            data['item']            = list(Items.objects.filter(query).order_by('{}equipments__{}'.format(srt, orders[1])))
         else:
-            data['item']            = Items.objects.filter(query).order_by('{}{}'.format(srt, orders[0]))
+            data['item']            = list(Items.objects.filter(query).order_by('{}{}'.format(srt, orders[0])))
 
-        data['item_len']        = len(data['item'])
+        data['item_len']    = len(data['item'])
         data['item']            = data['item'] [(data['curpage']-1)*10:data['curpage']*10]
-        query                   = getFromGet(request, 'q','')
-        data['query']           = query 
+        query                           = getFromGet(request, 'q','')
+        data['query']       = query 
         data['class']           = clas
         data['grade']           = grade
         data['minLV']           = minLV
         data['maxLV']           = maxLV
         data['order']           = order
-        #data['server']          = server
         #creating pages
         pages = list(range(math.ceil(data['item_len']/10) +1))
         pages.remove(0) #there's no page 0
         makePagination(request, data, pages, 11 )
-        # data['item']            = []
-        # return JsonResponse(data, safe=False)
+
         
         
     return render(request, join(APP_NAME,"search.html"), data)
@@ -109,7 +167,7 @@ def index(request):
 def item_detail(request, id):
 
     try:
-        item = Items.objects.get(ids__contains = id)
+        item = Items.objects.get(ids = id)
     except:
         raise Http404
     data = {}
@@ -248,17 +306,10 @@ def item_detail(request, id):
     except:
         pass
 
-    try:
-        if item.equipments:
-            if item.grade == 6:
-                data['mat'], data['reinf'], data['tc_cost'] = getAnvil(item)
-            else:
-                data['reinf'], data['reinf_price'], data['tc_cost'] = getAnvil(item)
+    if item.grade == 6:
+        data['scale']   = goddess_scale
+        data['anvil']   = goddess_anvil
+        data['chance']  = goddess_chance
+        data['gabija']  = goddess_gabija
 
-    except:
-        pass
-
-    # if item.grade==6:
-    # data['item']            = []
-    # return JsonResponse(data, safe=False)
     return render(request, join(APP_NAME,"index.html"),data)

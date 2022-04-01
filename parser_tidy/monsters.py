@@ -3,17 +3,14 @@
 Created on Sun Oct  3 20:11:07 2021
 
 @author: Intel
-
 """
 
 import csv
 import logging
 import os
-import glob
 from os.path import exists
 from DB import ToS_DB as constants
 import luautil
-
 
 log = logging.getLogger("parse.monsters")
 log.setLevel("INFO")
@@ -73,7 +70,7 @@ def parse(c = None):
     return c
     
 
-def parse_monsters(file_name, constants):
+def parse_monsters(file_name, globals):
     
     
     log.info('Parsing %s...', file_name)
@@ -81,8 +78,8 @@ def parse_monsters(file_name, constants):
     LUA_RUNTIME = luautil.LUA_RUNTIME
     LUA_SOURCE = luautil.LUA_SOURCE
 
-    #ies_path = os.path.join(constants.PATH_INPUT_DATA, "ies.ipf", file_name)
-    ies_path = constants.file_dict[file_name.lower()]['path']
+    #ies_path = os.path.join(globals.PATH_INPUT_DATA, "ies.ipf", file_name)
+    ies_path = globals.file_dict[file_name.lower()]['path']
     if not exists(ies_path):
         log.warning("file not found {}".format(ies_path))
         return 
@@ -94,6 +91,8 @@ def parse_monsters(file_name, constants):
         # HotFix: these properties need to be calculated before the remaining ones
         row['Lv'] = int(row['Level']) if int(row['Level']) > 1 else 1
 
+        # HotFix: these properties need to be calculated before the remaining ones
+        row['Lv'] = int(row['Level']) if int(row['Level']) > 1 else 1
         # injection constants
         for k, v in monster_const[1].items():
             if (k != "ClassID" and k != "Lv"):
@@ -121,9 +120,9 @@ def parse_monsters(file_name, constants):
         obj = {}
         obj['$ID'] = int(row['ClassID'])
         obj['$ID_NAME'] = row['ClassName']
-        obj['Description'] = constants.translate(row['Desc'])
-        obj['Icon'] = constants.parse_entity_icon(row['Icon']) if row['Icon'] != 'ui_CreateMonster' else None
-        obj['Name'] = constants.translate(row['Name'])
+        obj['Description'] = globals.translate(row['Desc'])
+        obj['Icon'] = globals.parse_entity_icon(row['Icon']) if row['Icon'] != 'ui_CreateMonster' else None
+        obj['Name'] = globals.translate(row['Name'])
         obj['Type'] = row['GroupName']
         obj['SkillType'] = row['SkillType']
         if obj['Type'] == 'Monster':
@@ -158,22 +157,22 @@ def parse_monsters(file_name, constants):
             
             obj['Link_Items'] = []
             obj['Link_Maps'] = []
-            constants.data['monsters'][obj['$ID']] = obj
-            constants.data['monsters_by_name'][obj['$ID_NAME']] = obj
+            globals.data['monsters'][obj['$ID']] = obj
+            globals.data['monsters_by_name'][obj['$ID_NAME']] = obj
         elif obj['Type'] == 'NPC':
-            obj['Icon'] = constants.parse_entity_icon(row['MinimapIcon']) if row['MinimapIcon'] else obj['Icon']
+            obj['Icon'] = globals.parse_entity_icon(row['MinimapIcon']) if row['MinimapIcon'] else obj['Icon']
 
-            constants.data['npcs'][obj['$ID']] = obj
-            constants.data['npcs_by_name'][obj['$ID_NAME']] = obj
+            globals.data['npcs'][obj['$ID']] = obj
+            globals.data['npcs_by_name'][obj['$ID_NAME']] = obj
     ies_file.close()
-    return constants
+    return globals
 
 
-def parse_monsters_statbase(file_name, destination,constants):
+def parse_monsters_statbase(file_name, destination,globals):
     logging.debug('Parsing %s...', file_name)
 
-    #ies_path = os.path.join(constants.PATH_INPUT_DATA, "ies.ipf", file_name)
-    ies_path = constants.file_dict[file_name.lower()]['path']
+    #ies_path = os.path.join(globals.PATH_INPUT_DATA, "ies.ipf", file_name)
+    ies_path = globals.file_dict[file_name.lower()]['path']
     ies_file = open(ies_path, 'r', encoding = 'utf-8')
     ies_reader = csv.DictReader(ies_file, delimiter=',', quotechar='"')
 
@@ -191,13 +190,11 @@ def parse_links(c=None):
     parse_links_items(c)
 
 
-def parse_links_items(constants):
+def parse_links_items(globals):
     logging.debug('Parsing Monsters <> Items...')
 
-    for monster in constants.data['monsters'].values():
-        #mongen_dir = os.listdir(os.path.join(constants.PATH_INPUT_DATA, 'ies_drop.ipf'))
-        ies_drop = os.path.join("..", "itos_unpack", 'ies_drop.ipf')
-        mongen_dir = os.listdir(ies_drop)
+    for monster in globals.data['monsters'].values():
+        mongen_dir = os.listdir(os.path.join(globals.PATH_INPUT_DATA, 'ies_drop.ipf'))
         path_insensitive= {}
         for item in mongen_dir:
             path_insensitive[item.lower()] = item
@@ -210,18 +207,18 @@ def parse_links_items(constants):
             #logging.warning("file not found {}".format(ies_file))
             pass
         
-        ies_path = os.path.join(ies_drop, ies_file)
+        ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies_drop.ipf', ies_file)
 
         try:
             with open(ies_path, 'r', encoding="utf-8") as ies_file:
                 for row in csv.DictReader(ies_file, delimiter=',', quotechar='"'):
-                    if not row['ItemClassName'] or row['ItemClassName'] not in constants.data['items_by_name']:
+                    if not row['ItemClassName'] or row['ItemClassName'] not in globals.data['items_by_name']:
                         continue
 
-                    item = constants.data['items_by_name'][row['ItemClassName']]
+                    item = globals.data['items_by_name'][row['ItemClassName']]
                     item_link = item['$ID']
                     monster_link = monster['$ID']
-                    constants.data['item_monster'].append({
+                    globals.data['item_monster'].append({
                         'Chance'        : int(row['DropRatio']) / 100.0,
                         'Item'          : item_link,
                         'Monster'       : monster_link,
@@ -231,14 +228,12 @@ def parse_links_items(constants):
 
         except IOError:
             continue
-
-
-def parse_skill_mon(constants):
-    xml_skills = constants.data['xml_skills']
+        
+def parse_skill_mon(globals):
     logging.debug('Parsing Monsters <> Skills...')
     ies_file = 'skill_mon.ies'
-    #ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', ies_file)
-    ies_path = constants.file_dict[ies_file.lower()]['path']
+    #ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', ies_file)
+    ies_path = globals.file_dict[ies_file.lower()]['path']
     if (not exists(ies_path)):
         log.warning("file not found {}".format(ies_path))
         return False
@@ -252,35 +247,25 @@ def parse_skill_mon(constants):
             skill['$ID']        = row['ClassID']
             skill['$ID_NAME']   = row['ClassName']
             skill['CD']         = row['BasicCoolDown'] if 'BasicCoolDown' in row else 0
-            skill['Name']       = constants.translate(row['Name'])
+            skill['Name']       = globals.translate(row['Name'])
             skill['SFR']        = row['SklFactor'] if 'SklFactor' in row else 0
             skill['Attribute']  = row['Attribute']
             skill['HitCount']   = row['SklHitCount']
             skill['AAR']        = row['SklSR']
             mon                 = row['ClassName'].split('_')
-            mon_s               = ''
-            skill['TargetBuffs']= []
-            skill['SelfBuffs']  = []
-
+            mon_s = ''
+            
             if len(mon)>=2 and (mon[-2].lower() == "skill" or mon[-2].lower() =='attack'):
                 mon = mon[:-1]
             for i in mon[1:-1]:
                 mon_s += i+"_"
             mon_s = mon_s[:-1]
         
-            skill['Monster']    = constants.getMonbySkill(mon_s)
-            
-            
-            
-            if row['ClassName'] in xml_skills:
-                data                    =xml_skills[row['ClassName']]
-                skill['TargetBuffs']    = data['TargetBuffs']
+            skill['Monster']    = globals.getMonbySkill(mon_s)
             
             if (skill['Monster']  == []):
                 logging.debug("monster {} (for skill) not found ({})".format(mon_s,row['ClassName'] ))
                 continue
             skill_mon[row['ClassID']]  = skill
-
-
-        constants.data['skill_mon'] = skill_mon         
+        globals.data['skill_mon'] = skill_mon         
         

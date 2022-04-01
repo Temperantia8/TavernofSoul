@@ -6,7 +6,7 @@ from django.urls import reverse
 
 class Buffs(models.Model):
     ids             = models.CharField(max_length = 30, db_index = True)
-    id_name         = models.CharField(max_length = 100, db_index = True)
+    id_name         = models.CharField(max_length = 100)
     icon            = models.CharField(max_length = 50, blank=True, null=True,)
     name            = models.CharField(max_length = 100)
     descriptions    = models.TextField( blank=True, null=True,)
@@ -20,24 +20,7 @@ class Buffs(models.Model):
     groupindex 		= models.CharField(max_length = 30, blank=True, null=True,)
     overbuff		= models.IntegerField(default = 0)
     userremove  	= models.BooleanField(default= False)
-
-    fields          = [
-                'ids',
-                'id_name',
-                'icon',
-                'name',
-                'descriptions',
-                'keyword',
-                'created',
-                'updated',
-                'applytime',
-                'group1',
-                'group2',
-                'group3',
-                'groupindex',
-                'overbuff',
-                'userremove',]
-                
+    
     def iconExists(self):
         if self.icon == None:
             return False

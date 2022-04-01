@@ -2,8 +2,6 @@ from django.db import models
 from django.urls import reverse
 from enum import Enum
 # Create your models here.
-# from Skills.models import Equipments
-from django.apps import apps
 
 
 class Jobs(models.Model):
@@ -16,10 +14,23 @@ class Jobs(models.Model):
     descriptions    = models.TextField()
     created         = models.DateTimeField(auto_now_add=True)
     updated         = models.DateTimeField(auto_now=True)
-    vaivora         = models.ForeignKey('Items.Equipments', on_delete=models.SET_NULL, null = True, blank = True, default = None)
-    
+    def compare(self, their):
+        if (
+            self.ids == their.ids and 
+            self.id_name == their.id_name and 
+            self.name == their.name and 
+            self.descriptions == their.descriptions and 
+            self.is_starter == their.is_starter and 
+            self.job_tree == their.job_tree and 
+            self.icon == their.icon  
+            ):
+            return True 
+        else:
+            return False
     def get_absolute_url(self):
         return reverse('Jobs:jobs', args=[str(self.ids)])
+
+
 
 def getJobsByName():
     jobs = Jobs.objects.all()

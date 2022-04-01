@@ -73,8 +73,6 @@ def item_detail(request, id):
     except:
         pass
 
-    if data['item'].descriptions_required == None:
-        data['item'].descriptions_required = ''
     data['item'].descriptions_required = data['item'].descriptions_required.replace('{nl}','').replace('{b}','') 
 
     return render(request, join(APP_NAME,"index.html"),data)

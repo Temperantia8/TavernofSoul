@@ -7,7 +7,7 @@
     <title>{{item.name}} - Tavern of Soul</title>
     <meta content="{{item.name}} - Tavern of Soul" property="og:title" />
     <meta content="https://itos.tavernofsoul.com" property="og:url" />
-    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}.png" property="og:image" />
+    <meta content="https://itos.tavernofsoul.com/static/icons/{{item.icon}}" property="og:image" />
      <meta  property="og:description"content="
     {%if desc%}
         {% for line in desc%}
@@ -26,7 +26,7 @@
 
   {% block content %}
 <div class="form-inline mb-2" >
- <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" class='mr-1' style="max-width: 64px; max-height: 64px;"><h1 id="title">{{item.name}}</h1>
+ <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="max-width: 64px; max-height: 64px;"><h1 id="title">{{item.name}}</h1>
 </div>
 {%if desc%}
   {% for line in desc%}
@@ -181,7 +181,11 @@
     <tbody>
        <tr>
         <td>
-        {{item.riding}}
+        {% if item.is_riding%}
+          Yes
+        {%else%}
+          No
+        {%endif%}
         </td>
         
       </tr>
@@ -190,67 +194,6 @@
   
 
   </div>
-  {%if item.buffs%}
-  <h2>{{"Buffs"|translate}}</h2>
-  <table class="table-bordered border border-white border-responsive mt-1 tabe" >
-    <thead>
-      <tr>
-        <th>{{"ClassID"|translate}}</th>  
-        <th>{{"ClassName"|translate}}</th>  
-        <th>{{"Name"|translate}}</th>  
-        <th>{{"Chance"|translate}}</th>  
-        <th>{{"Duration"|translate}}</th>  
-      </tr>
-    </thead>
-    <tbody>
-      {% for buff in item.buffs%}
-       <tr>
-          <td>
-            <a href="{% url 'Buffs:buffs' buff.buff.ids%}"> {{buff.buff.ids}}</a>
-          </td>
-          <td>
-            {{buff.buff.id_name}}
-          </td>
-          <td>
-            {{buff.buff.name}}
-          </td>
-          <td>
-            {{buff.chance}}
-          </td>
-          <td>
-            {{buff.duration}}
-          </td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-  {%endif%}
-  {%if item.get_attr%}
-   <br>
-    <h2>{{"Attributes" | translate}}</h2>
-    <table class="table-bordered border border-white border-responsive mt-1 tabe" style="max-width: 65rem;">
-      <tbody>
-        {% for i in item.get_attr%}
-          <tr>
-            <td>
-              <a href="{% url 'Attributes:attributes' i.ids%}">
-                <img loading="lazy" alt="" src="/static/icons/{{i.icon}}.png") class="icon-64">
-              </a>
-            </td>
-            <td>
-              <a class="flavor" href="{% url 'Attributes:attributes' i.ids%}"> {{i.name}} </a>
-            </td>
-            <td>
-              {% for line in i.descriptions%}
-                <p class="mb-0">{{line}}</p>
-              {%endfor%}
-            </td>
-          </tr>
-        {%endfor%}
-      </tbody>
-    </table>
-  {%endif%}
-
   {%if item.effect%}
   <br>
   <div class="form-inline">

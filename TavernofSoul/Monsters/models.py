@@ -38,41 +38,6 @@ class Monsters (models.Model):
     created         = models.DateTimeField(auto_now_add=True)
     updated         = models.DateTimeField(auto_now=True)
 
-    fields          = [
-                        'ids',
-                        'id_name',
-                        'armor',
-                        'descriptions',
-                        'element',
-                        'exp',
-                        'exp_class',
-                        'icon',
-                        'level',
-                        'name',
-                        'race',
-                        'rank',
-                        'size',
-                        'accuracy',
-                        'matk_max',
-                        'matk_min',
-                        'patk_max',
-                        'patk_min',
-                        'blockpen',
-                        'block',
-                        'critdmg',
-                        'critdef',
-                        'critrate',
-                        'mdef',
-                        'pdef',
-                        'eva',
-                        'hp',
-                        'stat_dex',
-                        'stat_int',
-                        'stat_spr',
-                        'stat_str',
-                        'stat_con',
-                    ]
-
 
     def is_npc(self):
         return self.rank == None or self.rank=='NPCNPC'
@@ -112,15 +77,19 @@ class Skill_Monster(models.Model):
     cooldown        = models.IntegerField(blank=True, null=True,) 
     sfr             = models.IntegerField(blank=True, null=True,) 
     aar             = models.IntegerField(blank=True, null=True, default=50) 
-    hit_count       = models.IntegerField(blank=True, null=True, default=1)
-    def buffs(self):
-        return Buff_Skill_Monster.objects.filter(skill = self)
+    hit_count             = models.IntegerField(blank=True, null=True, default=1) 
 
+    def compare(self, their):
+        if (
+            self.ids == their.ids and 
+            self.id_name == their.id_name and 
+            self.name == their.name and 
+            self.element == their.element and 
+            self.cooldown == their.cooldown and 
+            self.sfr == their.sfr
+            ):
+            return True 
+        else:
+            return False
     def cd_in_sec (self):
         return str(int(self.cooldown/1000)) + "s"
-
-class Buff_Skill_Monster(models.Model):
-    chance          = models.FloatField()
-    duration        = models.FloatField()
-    buff            = models.ForeignKey('Buffs.Buffs', on_delete=models.CASCADE)
-    skill           = models.ForeignKey(Skill_Monster, on_delete=models.CASCADE)

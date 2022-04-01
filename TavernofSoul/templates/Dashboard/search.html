@@ -16,7 +16,7 @@
 
   {% block content %}
 
-<h1 id="title">{{"Results"|translate}}</h1>
+<h1 id="title">{{"Results"|translate}}"</h1>
 <form autocomplete="off" action="/" method="GET" class="form-inline">
   <input  class="form-control" type="text" required="" {{"Name" | translate}}="q" value="{{query}}">
 </form>
@@ -63,7 +63,7 @@
     <tfoot>
       <tr>
         <td class="footer-more" colspan="6">
-          <a href="/items/?q={{query}}"}>{{item_len}} {{"more" | translate}}</a>
+          <a href="/items?q={{query}}"}>{{item_len}} {{"more" | translate}}</a>
         </td>
       </tr>
     </tfoot>
@@ -109,7 +109,7 @@
     <tfoot>
       <tr>
         <td class="footer-more" colspan="7">
-          <a href="/monsters/?q={{query}}"}>{{monster_len}} {{"more" | translate}}</a>
+          <a href="/monsters?q={{query}}"}>{{monster_len}} {{"more" | translate}}</a>
         </td>
       </tr>
     </tfoot>
@@ -150,7 +150,7 @@
     <tfoot>
       <tr>
         <td class="footer-more" colspan="7">
-          <a href="/monsters/?q={{query}}"}>{{maps_len}} {{"more" | translate}}</a>
+          <a href="/monsters?q={{query}}"}>{{maps_len}} {{"more" | translate}}</a>
         </td>
       </tr>
     </tfoot>
@@ -192,7 +192,7 @@
     <tfoot>
       <tr>
         <td class="footer-more" colspan="7">
-          <a href="/Jobs/?q={{query}}"}>{{jobs_len}} {{"more" | translate}}</a>
+          <a href="/monsters?q={{query}}"}>{{jobs_len}} {{"more" | translate}}</a>
         </td>
       </tr>
     </tfoot>
@@ -233,7 +233,7 @@
     <tfoot>
       <tr>
         <td class="footer-more" colspan="7">
-          <a href="/skills/?q={{query}}"}>{{skills_len}} {{"more" | translate}}</a>
+          <a href="/monsters?q={{query}}"}>{{skills_len}} {{"more" | translate}}</a>
         </td>
       </tr>
     </tfoot>
@@ -281,7 +281,7 @@
     <tfoot>
       <tr>
         <td class="footer-more" colspan="7">
-          <a href="/attributes/?q={{query}}"}>{{attributes_len}} {{"more" | translate}}</a>
+          <a href="/monsters?q={{query}}"}>{{attributes_len}} {{"more" | translate}}</a>
         </td>
       </tr>
     </tfoot>

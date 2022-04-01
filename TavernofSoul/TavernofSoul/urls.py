@@ -27,7 +27,6 @@ from Skills.models import Skills
 from Maps.models import Maps
 from django.contrib.sitemaps import Sitemap
 from django.shortcuts import reverse
-from django.conf import settings
 class StaticViewSitemap(Sitemap):
     def items(self):
         return ['Dashboard:index', 
@@ -67,8 +66,7 @@ urlpatterns = [
     path('other/', include(('Other.urls',"Other"),namespace = "Other")), 
     #path('changes/', include(('ipfparser.urls',"Parser"),namespace = "Parser")), 
     path('admin/', admin.site.urls),
-    path('sitemap.xml', sitemap, {'sitemaps': sitemaps},name='django.contrib.sitemaps.views.sitemap'),
-    path('market/', include(('Market.urls',"Market"),namespace = "Market"))
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps},name='django.contrib.sitemaps.views.sitemap')
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

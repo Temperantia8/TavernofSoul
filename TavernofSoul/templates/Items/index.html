@@ -130,39 +130,44 @@
     </tbody>
  
   </table>
-  {%if item.equipments%}
-	  <table class="table-bordered border border-white border-responsive mt-1 tabe">
-	    <thead>
-	      <tr>
-	        	<th>{{"Level" | translate}}</th>
-	      </tr>
-	    </thead>
-	    <tbody>
-	    	 <tr>
-	        	<td>{{item.equipments.level}}</th>
-	      </tr>
-	    </tbody>
-	 
-	  </table>
-
-	  <table class="table-bordered border border-white border-responsive mt-1 tabe">
-	    <thead>
-	      <tr>
-	        	<th>{{"Class" | translate}}</th>
-	      </tr>
-	    </thead>
-	    <tbody>
-	    	 <tr>
-	        	<td>{{item.equipments.requiredClass}}</th>
-	      </tr>
-	    </tbody>
-	 
-	  </table>
-	{%endif%} 
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        {%if item.equipments%}
+        	<th>{{"Level" | translate}}</th>
+        {%endif%}
+      </tr>
+    </thead>
+    <tbody>
+    	 <tr>
+        {%if item.equipments%}
+        	<td>{{item.equipments.level}}</th>
+        {%endif%}
+      </tr>
+    </tbody>
+ 
+  </table>
+  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+    <thead>
+      <tr>
+        {%if item.equipments%}
+        	<th>{{"Class" | translate}}</th>
+        {%endif%}
+      </tr>
+    </thead>
+    <tbody>
+    	 <tr>
+        {%if item.equipments%}
+        	<td>{{item.equipments.requiredClass}}</th>
+        {%endif%}
+      </tr>
+    </tbody>
+ 
+  </table>
 </div>
 
   
-
+  
 {%if item.equipments%}
 	<br>
 	<div class="form-inline align-items-start">
@@ -213,26 +218,24 @@
 	    <tbody>
 	    	 <tr>
 	    	 	{%if item.equipments.is_goddess_armor%}
-	    	 		<td id ='patk-ench' data-value = 0>0</td>
+	    	 		<td id ='patk-ench'>0</td>
 	    	 	{%endif%}
 	    	 	{% if item.equipments.patk %}
-	    	 		<td ><span id = "patk" data-value = {{item.equipments.patk}} class="mr-1" >{{item.equipments.patk}}</span>
-	    	 				  -  
-	    	 			<span class="ml-1" id = "patk_max" data-value = {{item.equipments.patk_max}} >{{item.equipments.patk_max}}</span></td>
+	    	 		<td ><span id = "patk">{{item.equipments.patk}}</span> - <span id = "patk_max">{{item.equipments.patk_max}}</span></td>
 	    	 	{%endif%}
 	    	 	{%if item.equipments.is_goddess_armor%}
-	    	 		<td id ='matk-ench' data-value = 0>0</td>
+	    	 		<td id ='matk-ench'>0</td>
 	    	 	{%endif%}
 	    	 	{% if item.equipments.matk %}
-	      		<td id = "matk" data-value = {{item.equipments.matk}}>{{item.equipments.matk}}</td>
+	      		<td id = "matk" >{{item.equipments.matk}}</td>
 	      	{% endif %}
 
 	      	{% if item.equipments.pdef%}
-	        	<td id = "pdef" data-value = {{item.equipments.pdef}}>{{item.equipments.pdef}}</td>
+	        	<td id = "pdef">{{item.equipments.pdef}}</td>
 	        {% endif %}
 
 	        {% if item.equipments.mdef%}
-        		<td id = "mdef" data-value = {{item.equipments.mdef}}>{{item.equipments.mdef}}</td>
+        		<td id = "mdef">{{item.equipments.mdef}}</td>
         	{% endif %}
 
 	      </tr>
@@ -241,243 +244,484 @@
 	  </table>
 
   
-	  {%if equipment_bonus%}
-		 	{%include 'Items/equipment_bonus.html'%}
-		{%endif%}
+  {%if equipment_bonus%}
+	  <br>
+	  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+	    <tbody>
+	    	{%for bonus in equipment_bonus%}
+	    	 <tr>
+	    			<th>{{bonus.bonus_stat}}</th>
 
-		</div>
-	</div>
+	    			<td>
+	    		            {%for b in bonus.bonus_val %}
+                                     {{b}}<br> {%endfor%}
+	    					
+	    			</td>
+	      </tr>
+	      {%endfor%}
+	    </tbody>
+	 
+	  </table>
 	{%endif%}
-
+		</div>
+	
 	<div class="mr 4">
 			
 	{%if item.equipments.patk or item.equipments.matk or item.equipments.mdef or item.equipments.def %}
         {%if item.equipments.type_equipment != 'Arcane' %}
-        		<br>
-		        {%include 'Items/enhancement.html'%}
-		        
-        
-			  {%endif%}
-			  <br>
-	{%endif%}
+	  <h2>Enhancement</h2>
+	  <div class="form-inline">
+		  <table class="table-bordered border border-white border-responsive mt-1 mr-2 tabe">
+		  	<thead>
+		      <tr>
+		      	<th >{{"Anvil" | translate}}</th>
+		      	<th >{{"Bonus" | translate}}</th>
+		      	{%if item.grade == 6%}
+		      		<th >{{"Gabija token" | translate}}</th>
+	        		<th >{{"Scales" | translate}}</th>
+	        		<th >{{"Chance" | translate}}</th>
+		      	{%else%}
+			        <th >{{"Price" | translate}}</th>
+		        	<th >{{"Total" | translate}}</th>
+		        {%endif%}
+		      </tr>
+		    </thead>
+		    <tbody style="text-align:center">
+		    	<tr>
+		      	<td ><input class="form-control-sm " type='text'
+		      		id="anvil" style="width :40px"></td>
+		      	<td id = 'anvil_bonus' ></td>
+		      	{%if item.grade == 6%}
+			      	<td id = 'god_gabija' ></td>
+		        	<td id = 'god_scale'></td>
+		        	<td id = 'god_chance'></td>
+		      	{%else%}
+		        <td id = 'anvil_price' ></td>
+	        	<td id = 'anvil_total'></td>
+	        	{%endif%}
+		      </tr>
+		    </tbody>
+		 
+		  </table>
+
+		  <br>
+		  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+		  	<thead>
+		      <tr>
+		      	<th >{{"Transcend" | translate}}</th>
+		      	<th >{{"Bonus" | translate}}</th>
+		        <th >{{"Price" | translate}}</th>
+	        	<th >{{"Total" | translate}}</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		    	<tr>
+		      	<td ><input class="form-control-sm "  type='text'
+		      		id="tc" style="width :40px; text-align: center;"></td>
+		      	<td id = 'tc_bonus' ></td>
+		        <td id = 'tc_price' ></td>
+		        <td id = 'tc_total' ></td>
+		      </tr>
+		    </tbody>
+		 
+		  </table>
+		</div>
+	 {%endif%}
+         {%endif%}
+
+		</div>
+		
+	</div>  
+	  {%endif%}
+	  <br>
+	  
 	{%if item.recipes%}
-		{%include 'Items/recipes.html'%}
+	<br>
+	<h2>{{"Produce" | translate}}</h2>
+	<table class="table-bordered border border-white border-responsive mt-1 tabe">
+		<tbody>
+			{% for i in target%}
+			<tr>
+				<td>
+					<img loading="lazy" alt="" src="/static/icons/{{i.target.icon}}.png") class="icon-32">
+				</td>
+				<td>
+					<a href="{{i.target.ids}}">{{i.target.name}}</a>
+				</td>
+			</tr>
+			{%endfor%}
+		</tbody>
+	</table>
+	<br>
+	<h2>{{"Materials" | translate}}</h2>
+	<table class="table-bordered border border-white border-responsive mt-1 tabe">
+		<tbody>
+			{% for i in materialRecipe%}
+			<tr>
+				<td>
+					<img loading="lazy" alt="" src="/static/icons/{{i.material.icon}}.png") class="icon-32">
+				</td>
+				<td>
+					<a href="{{i.material.ids}}">{{i.material.name}}</a>
+				</td>
+				<td style="text-align:right;">
+					x{{i.qty}}
+				</td>
+			</tr>
+			{%endfor%}
+		</tbody>
+	</table>
 	{%endif%}
 
 	{%if collectionBonus%}
-		{%include 'Items/collectionBonus.html'%}
+	<br>
+	  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+	    <tbody>
+	    	{%for bonus in collectionBonus%}
+		    	 <tr>
+		    			<th>{{bonus.bonus_stat}}</th>
+		    			<td>{{bonus.bonus_val}}</td>
+		      </tr>
+	      {%endfor%}
+	    </tbody>
+	 
+	  </table>
 	{%endif%}
 
 	{%if collectionMaterial%}
-		{%include 'Items/materials.html'%}
+	<br>
+	<h2>{{"Materials" | translate}}</h2>
+	  <table class="table-bordered border border-white border-responsive mt-1 tabe">
+	    <tbody>
+	    	{%for material in collectionMaterial%}
+	    	 <tr>
+	    		<td><img loading="lazy" alt="" src="/static/icons/{{material.material.icon}}.png") class="icon-24"> 	<a href="{{material.material.ids}}">{{material.material.name}}</a></td>
+	      </tr>
+	      {%endfor%}
+	    </tbody>
+	 
+	  </table>
 	{%endif%}
 
   {%if targetRecipe or collectionMaterialFor or dropped or mapDrop%}
-  		{%include 'Items/refferences.html'%}
+  <br>
+  <h2>{{"Refferences" | translate}}</h2>
+  
+  	<table class="table-bordered border border-white border-responsive mt-1 tabe">
+		    <tbody>
+		    	{%if targetRecipe%}
+		    	<tr>
+		      	<th>{{"Crafted From" | translate}}</th>
+		      	<td>
+		      		{%for i in targetRecipe%}
+		      			<a href="{{i.recipe.item.ids}}"> <p class="mb-0"> <img loading="lazy" alt="" src="/static/icons/{{i.recipe.item.icon}}.png") class="icon-24">{{i.recipe.item.name}}</p></a>
+		      			
+		      		{%endfor%}
+		      	</td>
+		      </tr>
+		      {%endif%}
+
+		      {%if collectionMaterialFor%}
+		      <tr>
+		      	<th>{{"Collections" | translate}}</th>
+		      	<td>
+			      	{%for i in collectionMaterialFor%}
+		      			<a href="{{i.collection.item.ids}}"><p class="mb-0"><img loading="lazy" alt="" src="/static/icons/{{i.collection.item.icon}}.png") class="icon-24"> {{i.collection.item.name}}</p></a>
+			      			
+		      		{%endfor%}
+	      		</td>
+		      </tr>
+		      {% endif %}
+		      {%if dropped%}
+		    	<tr>
+		      	<th style="vertical-align:top">{{"Dropped by" | translate}}</th>
+		      	<td>
+		      		{%for i in dropped%}
+		      			<p class="mb-0"> <a href="{%url 'Monsters:monster' i.monster.ids%}"> <img loading="lazy" alt="" src="/static/icons/{{i.monster.icon}}.png") class="icon-24">{{i.monster.name}}</a> ({{i.chance}} %)</p> 
+		      			
+		      		{%endfor%}
+		      	</td>
+		      </tr>
+		      {%endif%}
+		      {%if mapDrop%}
+		      <th style="vertical-align:top">{{"Dropped at" | translate}}</th>
+		      	<td>
+		      		{%for i in mapDrop%}
+		      			<p class="mb-0"> <a href="{%url 'Maps:maps' i.map.ids%}"> {{i.map.name}}</a> ({{i.chance}} %)</p> 
+		      			
+		      		{%endfor%}
+		      	</td>
+		      </tr>
+		      {%endif%}
+		    </tbody>
+		 
+		  </table>
   {%endif%}
-	
-	{% if item.equipments.equipment_set_set.all%}
-			{%include 'Items/equipment_set.html'%}
-	{%endif%}
-
-
-	{% if item.Goods %}
-			{%include 'Items/market.html'%}
-	{%endif%}
-
-
 
   <br>
-  <div class="d-flex">
-	  
-	  <div>
-		  <h2>{{"Visual" | translate}}</h2>
-		  {%if item.cards%}
-		  	<img loading="lazy" alt="" src="/static/icons/{{item.cards.icon}}.jpg">
-		  {%else%}
-		  	<img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="width: 250px; height: 250px;">
-		  {%endif%}
-		</div>
-	</div>
-
-{%if item.grade == 6%}
-	{{ mat|json_script:"mat" }}
-	{{ reinf|json_script:"reinf" }}
-{%endif%}
-{% endblock %}
+  <h2>{{"Visual" | translate}}</h2>
+  {%if item.cards%}
+  	<img loading="lazy" alt="" src="/static/icons/{{item.cards.icon}}.jpg">
+  {%else%}
+  	<img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="width: 250px; height: 250px;">
+  {%endif%}
+  {% endblock %}
 
 {% block script %}
 	{% if item.equipments%}
-	<script type="text/javascript">
+		<script type="text/javascript">
+		  {% if item.equipments.anvil_atk %}
+				anvil_atk = {{item.equipments.anvil_atk}}
+			{%endif%}
 
-	  grade = {{item.grade}}
-		
-		bonus = 0
-		total_anv = 0
-		tc_multipier = 1
+			{% if item.equipments.anvil_def %}
+				anvil_def = {{item.equipments.anvil_def}}
+			{%endif%}
 
-		{%if reinf and item.grade != 6%}
-			anvil = {{reinf}}
-			anvil_price = {{reinf_price}}
-		{%endif%}
-		{% if tc_cost%}
-			tc_price = {{tc_cost}}
-		{%endif%}
-		addAtk	  = 0
-		anvil_max = {%if item.grade == 6 %} 30 {%else%} 40 {%endif%}
+			{% if item.equipments.anvil_price %}
+				anvil_price = {{item.equipments.anvil_price}}
+			{%endif%}
 
-		{%if item.grade == 6%}
-			mat    =  JSON.parse(document.getElementById('mat').textContent);
-			reinf  =  JSON.parse(document.getElementById('reinf').textContent);
-		{%endif%}
+			{% if item.equipments.transcend_price %}
+				transcend_price = {{item.equipments.transcend_price}}
+			{%endif%}
 
-		{% if item.equipments.patk %}
-  		target = [ $("#patk_max"), $("#patk")]
-  	{% elif item.equipments.patk %}
-  		target = [ $("#matk")]
-  	{% elif item.equipments.is_goddess_armor%}
-  		target = [ $("#patk-ench"), $("#matk-ench"),]
-  	{% elif item.equipments.pdef%}
-    	target = [ $("#pdef")]  	
-  	{% else %}
-  		target = [ $("#mdef")]  	
-  	{% endif %}
-  	
+			{% if item.equipments.patk %}
+				patk = {{item.equipments.patk}}
+				patk_max = {{item.equipments.patk_max}}
+      {%endif%}
+      {% if item.equipments.matk %}
+				matk = {{item.equipments.matk}}
+      {%endif%}
 
+      {% if item.equipments.mdef %}
+				mdef = {{item.equipments.mdef}}
+      {%endif%}
+      {% if item.equipments.pdef %}
+				pdef = {{item.equipments.pdef}}
+      {%endif%}
 
-		$(document).ready(function(){
-	    $("#anvil").on("input", function(){
-        // Print entered value in a div box
-        anv = $(this).val();
-        if (anv>anvil_max){
-        	$("#anvil")[0].value = anvil_max
-        	anv = anvil_max
-        }
-        processAnvil(anv)
-      })
+			anvils = [0,1,2,3,4,5,6,7,8,9,10,
+								10,11,12,13,14,15,16,17,18,19,20,
+								20,21,22,23,24,25,26,27,28,29,30,
+								30,31,32,33,34,35,36,37,38,39,40,41]
+			anv = 0
+			anv_def = 0
+			anv_atk = 0
+			tc = 0
+			tc_bonus = 0
+			{% if item.grade == 6%}
 
-      $("#tc").on("input", function(){
-        // Print entered value in a div box
-        tc = $(this).val();
-        if (tc>10){
-        	$("#tc")[0].value = 10
-        	tc = 10
-        }
-        
-        if (tc<0){
-        	$("#tc")[0].value = 0
-        	tc = 0
-        }
-        processTC(tc)
-      })
+				goddess_anvil     = {{anvil}}
+				goddess_scale     = {{scale}}
+				goddess_gabija    = {{gabija}}
+				goddess_chance 		= {{chance}}
 
-    })
+			{% endif%}
 
+			$(document).ready(function(){
+			    $("#anvil").on("input", function(){
+			        // Print entered value in a div box
+			        anv = $(this).val();
+			        {%if item.grade == 6%}
+				        if (anv>30){
+				        	$("#anvil")[0].value = 30
+				        	anv = 30
+				        }
+			        {% else %}
+				        if (anv>40){
+				        	$("#anvil")[0].value = 40
+				        	anv = 40
+				        }
+			        {%endif%}
+			        if (anv<0){
+			        	$("#anvil")[0].value = 0
+			        	anv = 0
+			        }
 
-    function sum(array, start, end){
-    	su = 0
-    	for (a = start; a<end; a++){
-    		su+=array[a]
-    	}
-    	return su
-    }
+							{% if item.equipments.is_goddess_armor %}
+								if (anv ==0)
+									anv_atk =0
+								else	
+									{%if item.grade == 6%}
+										anv_atk = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+										{% if item.equipments.type_equipment == 'Trinket'%} 
+											anv_atk = Math.floor(anv_atk * 0.3)
+										{%endif%}
+									{%else%}
+										anv_atk = anvil_atk[anv-1]
+									{%endif%}
 
-    function refreshEq(){
-    	for (i in target){
-    		i = target[i]
-    		value = parseInt(i[0].dataset.value)
-      	i[0].innerText = splitThousand ( Math.floor(addAtk + (tc_multipier * value)) )
-      }
-    }
+								$('#patk-ench')[0].innerHTML =  Math.floor(anv_atk *0.4)
+								$('#matk-ench')[0].innerHTML =  Math.floor(anv_atk  * 0.4)
+								
+							{% endif %}
 
-    function splitThousand(item){
-    	return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    }
-
-
-    {%if item.grade == 6%}
-	    {% if item.equipments.is_acc%}
-	    	reinf_key = 'addacc'
-	    {%else%}
-	    	reinf_key = 'addatk'
-	    {%endif%}
-
-	    function sumReinf(end){
-	    	su = 0
-	    	for (a = 1; a<=end; a++){
-	    		su+=reinf[a][reinf_key]
-	    	}
-	    	return su
-	    }
-	    ench = 0
-
-	    function processAnvil(ench){
-	    	ench = parseInt(ench)
-	    	type = '{{items.equipments.type_equipment}}'
-	    	bonus = $("#anvil_bonus")
-	    	addAtk = sumReinf(ench)
-				
-				for( i in mat[ench]){
-					$('#'+i)[0].innerText = mat[ench][i]['mat_count']
-				}
-	    	bonus[0].innerText 	= addAtk
-	    	
-	    	{% if item.equipments.is_goddess_armor%}
-	    		addAtk = Math.floor( addAtk*0.4 ) //goddess armor add 0.4 ench
-	    	{%endif%}
+							{% if item.equipments.patk %}
+								if (anv ==0)
+									anv_atk =0
+								else	
+									{%if item.grade == 6%}
+										anv_atk = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+										{% if item.equipments.type_equipment == 'Trinket'%} 
+											anv_atk = Math.floor(anv_atk * 0.3)
+										{%endif%}
+									{%else%}
+										anv_atk = anvil_atk[anv-1]
+									{%endif%}
+								
 
 
-	    	$("#chance_ench")[0].innerHTML = (reinf[ench]['chance'] * 100) + "%"
-	    	refreshEq()
-	    }
+								$('#patk')[0].innerHTML = patk + anv_atk + (patk * tc_bonus)
+								$('#patk_max')[0].innerHTML = patk_max + anv_atk  + (patk * tc_bonus)
+								$('#anvil_bonus')[0].innerHTML = anv_atk.toLocaleString('en') 
+				      {%endif%}
 
-	    function processTC(tc){
-	    	tc 						= parseInt(tc)
-	    	if (!tc) 
-	    		tc  = 0
-	    	tc_multipier 	= 1 + (tc * 0.1 * 0.3)
-	    	value 				= parseInt(target[0][0].dataset.value)
-	    	
-	    	$("#tc_bonus")[0].innerText = Math.floor(tc * 0.1 * 100) + "% "
-	    	console.log(tc)
-	    	$("#tc_price")[0].innerText = tc_price[parseInt(tc)] - (parseInt(tc)-1 <=0 ? 0: tc_price[parseInt(tc)-1])
-	    	$("#tc_total")[0].innerText = tc_price[tc]
+				      {% if item.equipments.matk %}
+								if (anv ==0)
+									anv_atk =0
+								else	
+									{%if item.grade == 6%}
+										anv_atk = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+										{% if item.equipments.type_equipment == 'Trinket'%} 
+											anv_atk = Math.floor(anv_atk * 0.3)
+										{%endif%}
+									{%else%}
+										anv_atk = anvil_atk[anv-1]
+									{%endif%}
 
-	    	refreshEq()
 
-	    }
-    {%else%}
-    
-    function processAnvil(enchs){
-    	ench = parseInt(enchs)
-    	type = '{{items.equipments.type_equipment}}'
-    	bonus = $("#anvil_bonus")
-    	total = $("#anvil_total")
-    	price = $("#anvil_price")
+								$('#matk')[0].innerHTML = matk + anv_atk + (matk * tc_bonus)
+								
+								$('#anvil_bonus')[0].innerHTML = anv_atk.toLocaleString('en') 
+				      {%endif%}
 
-    	price[0].innerText  = splitThousand (ench == 0? 0 : anvil_price[ench-1] );
-    	total_anv 					= ench == 0? 0 : sum(anvil_price,0,ench)
-      total[0].innerText 	= splitThousand (total_anv)
-    	addAtk 							= ench == 0? 0 : anvil[ench-1] ;
-    	bonus[0].innerText 	= addAtk
-    	refreshEq()
-    }
+				      {% if item.equipments.pdef %}
+								if (anv ==0)
+									anv_def =0
+								else	
+								{%if item.grade == 6%}
+										anv_def = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+									{%else%}
+										anv_def = anvil_def[anv-1]
+									{%endif%}
 
-    function processTC(tc){
-    	tc 						= parseInt(tc)
-    	if (!tc) 
-    		tc  = 0
-    	tc_multipier 	= 1 + tc * 0.1
-    	value 				= parseInt(target[0][0].dataset.value)
-    	$("#tc_bonus")[0].innerText = Math.floor(tc * 0.1 * 100) + "% "
-    	$("#tc_price")[0].innerText = tc == 0? 0: tc_price[tc-1]
-    	$("#tc_total")[0].innerText = sum(tc_price, 0, tc)
 
-    	refreshEq()
+								$('#pdef')[0].innerHTML = pdef + anv_def + (pdef * tc_bonus)
+								
+								$('#anvil_bonus')[0].innerHTML = anv_def.toLocaleString('en') 
+				      {%endif%}
 
-    }
-    {%endif%}
-	</script>
+				      {% if item.equipments.mdef %}
+								if (anv ==0)
+									anv_def =0
+								else	
+									
+									{%if item.grade == 6%}
+										anv_def = goddess_anvil.slice(0,[anv]).reduce((a, b) => a + b, 0)
+									{%else%}
+										anv_def = anvil_def[anv-1]
+									{%endif%}
+
+
+								$('#mdef')[0].innerHTML = mdef + anv_def + (mdef * tc_bonus)
+								
+								$('#anvil_bonus')[0].innerHTML = anv_def.toLocaleString('en') 
+				      {%endif%}
+
+				      {%if item.grade == 6%}
+				      	$('#god_scale')[0].innerHTML = goddess_scale[anv-1]
+				      	$('#god_gabija')[0].innerHTML = goddess_gabija[anv-1]
+				      	$('#god_chance')[0].innerHTML = goddess_chance[anv-1]+'%'
+				      	if (!(anv in anvils)){
+				      		$('#god_scale')[0].innerHTML = ''
+				      	$('#god_gabija')[0].innerHTML = ''
+				      	$('#god_chance')[0].innerHTML = ''
+				      	}
+				      {%endif%}
+
+				      {% if item.equipments.anvil_price %}
+				      	if (anv ==0)
+									pr =''
+								else	
+									pr = anvil_price[anv-1].toLocaleString('en') 
+				      	$('#anvil_price')[0].innerHTML = (pr)
+				      {%endif%}
+
+				      {% if item.equipments.anvil_price %}
+				      if (anv ==0)
+									tot =''
+								else	
+									tot = (anvil_price.slice(0,[anv]).reduce((a, b) => a + b, 0)).toLocaleString('en') 
+								$('#anvil_total')[0].innerHTML =  tot 
+				      	
+				      {%endif%}
+			    });
+
+			    $("#tc").on("input", function(){
+			        // Print entered value in a div box
+			        tc = $(this).val();
+			        if (tc>10){
+			        	$("#tc")[0].value = 10
+			        	tc = 10
+			        }
+			        
+			        if (tc<0){
+			        	$("#tc")[0].value = 0
+			        	tc = 0
+			        }
+							tc_bonus = tc *0.1 {% if item.grade == 6%} *0.3{%endif%}
+
+							{% if item.equipments.patk %}
+
+
+								$('#patk')[0].innerHTML = patk + anv_atk + Math.floor(patk * tc_bonus)
+								$('#patk_max')[0].innerHTML = patk_max + anv_atk  + Math.floor(patk * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.matk %}
+
+
+								$('#matk')[0].innerHTML = matk + anv_atk + Math.floor(matk * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.pdef %}
+
+
+								$('#pdef')[0].innerHTML = pdef + anv_def + Math.floor(pdef * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.mdef %}
+
+
+								$('#mdef')[0].innerHTML = mdef + anv_def + Math.floor(mdef * tc_bonus)
+								$('#tc_bonus')[0].innerHTML = tc_bonus * 100 + "%"
+				      {%endif%}
+
+				      {% if item.equipments.anvil_price %}
+				      	if (tc ==0)
+									pr =''
+								else	
+									pr = transcend_price[tc-1]
+				      	$('#tc_price')[0].innerHTML = (pr)
+				      {%endif%}
+
+				      {% if item.equipments.transcend_price %}
+				      if (tc ==0)
+									tot =''
+								else	
+									tot = (transcend_price.slice(0,[tc-1]).reduce((a, b) => a + b, 0)).toLocaleString('en') 
+								$('#tc_total')[0].innerHTML =  tot 
+				      	
+				      {%endif%}
+			    });
+			});
+
+
+		</script>
 	{%endif%}
 	
 	{% if pages%}
@@ -487,3 +731,4 @@
 	{%endif%}
 	
 {% endblock %}
+

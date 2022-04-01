@@ -105,32 +105,8 @@ LUA_OVERRIDE = [
         end
         return t
     end
-    ''',
-    '''function SyncFloor(item)
-        return item
-    end''',
     '''
-    function SCR_Get_DEFAULT_MAXPATK(pc, value)
-        return 100
-    end
-    ''',
-    '''
-    function SCR_Get_DEFAULT_MINPATK(pc, value)
-        return 100
-    end
-    ''',
-    '''
-    function SCR_CALC_BASIC_MDEF(pc, value)
-        return 100
-    end
-    ''',
-    '''
-    function get_hp_recovery_ratio(pc, value)
-        return 100
-    end
-    ''',
     
-
 ]
 
 LUA_RUNTIME = None
@@ -190,13 +166,8 @@ def init_global_data(c):
 
     ies_ADD('ancient', iesutil.load('Ancient_Info.ies',c))
     ies_ADD('ancient_info', iesutil.load('Ancient_Info.ies',c))
-    for i in c.EQUIPMENT_IES:
-        try:
-            ies_path = c.file_dict[i.lower()]['path']
-        except:
-            continue
-        ies_ADD('item', iesutil.load(i,c))
-    #ies_ADD('item', iesutil.load('item_Equip_EP12.ies',c))
+    ies_ADD('item', iesutil.load('item_equip.ies',c))
+    ies_ADD('item', iesutil.load('item_Equip_EP12.ies',c))
     ies_ADD('increasecost', iesutil.load('item_IncreaseCost.ies',c))
     ies_ADD('item_grade', iesutil.load('item_grade.ies',c))
     ies_ADD('item_growth', iesutil.load('item_growth.ies',c))
@@ -320,6 +291,11 @@ def init_global_functions(c):
         end
         
         
+        
+        function SyncFloor(number)
+            return math.floor(number)
+        end
+        
         -- https://stackoverflow.com/a/664557 some LUA table helper functions
         function table.set(t) -- set of list
           local u = { }
@@ -352,19 +328,6 @@ def init_global_functions(c):
                 return default
             end
         end
-        
-        function SyncFloor(item)
-            return item
-        end
-        
-        function get_TC_goddess(itemLv, classType, curCount, transcendCount)
-            mat = item_goddess_transcend.get_material_list(itemLv, classType, curCount, transcendCount)
-            if mat ==nil then
-                return 0
-            end
-            return mat
-        end
-            
         
         
     ''' + '\n'.join(LUA_OVERRIDE))
@@ -425,7 +388,7 @@ def init_runtime(c):
                         
                         lua_function_load(lua_function)
                     except LuaError as error:
-                        logging.debug('Failed to load %s, error: %s...', file_path, error)
+                        logging.warn('Failed to load %s, error: %s...', file_path, error)
                         err.append(lua_function)
                         continue
 

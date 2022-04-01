@@ -10,19 +10,10 @@ from shutil import copyfile, move, rmtree
 import subprocess 
 import unpacker_pak
 from os.path import join
-import csv
 IPF_BLACKLIST = []
 region = ""
 error_ipf = [] #the somehow error patch
-
-
-def git_sync(patch_name):
-    cwd= os.getcwd()
-    os.chdir(join("..", "{}_unpack".format(region)))
-    subprocess.run(['git', 'add', '.'])
-    subprocess.run(['git', 'commit', '-m', patch_name])
-    subprocess.run(['git', 'push'])
-    os.chdir(cwd)
+            
 
 def copyfiles(output):
     if not os.path.exists(output):
@@ -36,41 +27,55 @@ def copyfiles(output):
              'bg.ipf',
              'language.ipf',
              'ies.ipf',
-             'xml.ipf',
-             'skill_bytool.ipf', 
-             'char_hi.ipf',
-             'char_texture.ipf',
-             'item_hi.ipf',
-             'item_texture.ipf']
+             'xml.ipf',]
     for i in files:
         if os.path.exists (join('extract',i)):
+            #try:
+            #move(join('extract',i), join(output, i))
             subprocess.run(['cp', '-r', join('extract',i), output])
             logging.warning("copying to {}".format(join(output,i)))
+            # except:
+            #     logging.warning("copying {} failed".format(i))
+            #     pass
 
+    # move(join('extract','ies_ability.ipf'), output)
+    # move(join('extract','ies_client.ipf'), output)
+    # move(join('extract','ies_drop.ipf'), output)
+    # move(join('extract','ies_mongen.ipf'), output)
+    # move(join('extract','ui.ipf'), output)
+    # move(join('extract','bg.ipf'), output)
+    # move(join('extract','language.ipf'), output)
+    # move(join('extract','ies.ipf'), output)
+    # move(join('extract','xml.ipf'), output)
 
-def unpack(f):
+def unpack():
     IPF_PATH    = join("..", "{}_patch".format(region))
     OUTPUT_PATH = join("..", "{}_unpack".format(region))
     unpacker    = join("..", 'IPFUnpacker', 'ipf_unpack')
     cwd = os.getcwd()
     search_dir = IPF_PATH
+    os.chdir(search_dir)
     files = filter(os.path.isfile, os.listdir())
     files = [ f for f in files] # add path to each file
     files.sort(key=lambda x: os.path.getmtime(x))
     
-    extension_needed = ['ies', 'xml', 'lua','png', 'jpg', 'tga', 'json','tok', 'colmesh', 'tsv' ,  'dds'  ]
-    logging.warning("patching {}".format(f))
-    cur_file = join(IPF_PATH, f)
-    copyfile(cur_file, f)
-    subprocess.run ([unpacker, f, 'decrypt'])
-    subprocess.run([unpacker, f, 'extract']+ extension_needed)
-    os.remove(f) 
-    os.remove(cur_file) 
-    copyfiles(join("..","{}_unpack").format(region))
-    rmtree('extract'.format(region))
-    git_sync(f)
-    
-            
+    os.chdir(cwd)
+    files.sort()
+    extension_needed = ['ies', 'xml', 'lua','png', 'jpg', 'tga', 'json','tok', 'colmesh', 'tsv'   ]
+    for f in files:
+        if f.split(".")[-1]!= "ipf":
+            logging.warning("ignoring {}..".format(f))
+            continue
+        else:
+            logging.warning("patching {}".format(f))
+            cur_file = join(IPF_PATH, f)
+            copyfile(cur_file, f)
+            subprocess.run ([unpacker, f, 'decrypt'])
+            subprocess.run([unpacker, f, 'extract']+ extension_needed)
+            os.remove(f) 
+            os.remove(cur_file) 
+            copyfiles(join("..","{}_unpack").format(region))
+            rmtree('extract')
 
 
 
@@ -166,39 +171,35 @@ def patch_process(patch_file, patch_name, patch_unpack, patch_url, patch_destina
     if(patch_unpack):
         unpacker_pak.unpack(patch_name,patch_destination)
     else:
-        unpack(patch_name)
+        unpack()
     # Delete patch
     # os.remove(patch_file)
 
 
 
-def print_version(filename, data):
-    out = [ [key, data[key]] for key in data]
-    with open(filename, 'w') as f:  # You will need 'wb' mode in Python 2.x
-        w = csv.writer(f)
-        w.writerows(out)
+def revision_txt_read(revision_txt):
+    if os.path.isfile(revision_txt):
+        with open(revision_txt, 'r') as file:
+            return file.readline()
+    else:
+        return 0
 
-def read_version(filename):
-    rev = {}
-    with open(filename, 'r') as f:
-        w = csv.reader(f)
-        for lines in w:
-            if len(lines)<2:
-                continue
-            rev[lines[0]] = lines[1]
-    return rev
 
+def revision_txt_write(revision_txt, revision):
+    with open(revision_txt, 'w') as file:
+        file.write(revision)
+        
 def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path, revision_url,repatch):
     logging.debug('Patching %s...', revision_url)
     revision_list = urllib.request.urlopen(revision_url).read()
     revision_list = revision_decrypt(revision_list)
-    revision_old = read_version(revision_path)
+    revision_old = revision_txt_read(revision_path)
     revision_new = revision_old
 
     for revision in revision_list:
         revision = revision.split(' ')[0]
      
-        if (int(revision) > int(revision_old[region]) or repatch==1) and revision not in ['147674']:
+        if (int(revision) > int(revision_old) or repatch==1) and revision not in ['147674']:
             # Process patch
             patch_name = revision + '_001001' + patch_ext
             patch_file = os.path.join(patch_path, patch_name)
@@ -209,11 +210,10 @@ def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path,
             patch_process(patch_file, patch_name, patch_unpack, patch_url, patch_path)
 
             # Update revision
-            revision_new[region] = revision
-            print_version(revision_path, revision_new)
+            revision_txt_write(revision_path, revision)
+            revision_new = revision
 
     return revision_old, revision_new
-
 
 
 def do_patch_full(patch_output, url_patch):   
@@ -224,33 +224,32 @@ def do_patch_full(patch_output, url_patch):
     
 
 def move_language(region):
-    if region not in ['itos', 'jtos', 'twtos']:
+    if region not in ['itos', 'jtos']:
         return 
-
+    output_path = {'itos' : os.path.join('..', 'Translation', 'English'),
+                   'jtos' : os.path.join('..', 'Translation', 'Japanese'),}
     input_path  = {'itos' : os.path.join('..', 'itos_patch', 'languageData', 'English'),
-                   'jtos' : os.path.join('..', 'jtos_patch', 'languageData', 'Japanese'),
-                   'twtos' : os.path.join('..', 'twtos_patch', 'languageData', 'Taiwanese'),}
+                   'jtos' : os.path.join('..', 'jtos_patch', 'languageData', 'Japanese'),}
 
-    output_path = os.path.join('..', 'Translation')
+    output_path = output_path[region]
     input_path  = input_path[region]
     if os.path.exists(input_path):
-        #try:
-        #    #shutil.move(input_path, output_path)
-        subprocess.run(['cp', '-r', input_path, output_path])
-        #except:
-        #    pass
+        try:
+            shutil.move(input_path, output_path)
+        except:
+            pass
 
 
 
 if __name__ == "__main__":
     logging.warning('Patching...')
+    region
     region = getRegion(sys.argv)
     #region = "itos"
     url_patch = {'itos' : 'http://drygkhncipyq8.cloudfront.net/toslive/patch/',
                  'jtos' : 'http://d3bbj7hlpo9jjy.cloudfront.net/live/patch/',
                  'ktos' : 'http://tosg.dn.nexoncdn.co.kr/patch/live/',
-                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/',
-                 'twtos' : 'http://tospatch.x2game.com.tw/live/patch/'}
+                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/'}
     
     
     
@@ -262,11 +261,11 @@ if __name__ == "__main__":
     else:
         version_data, version_data_new = patch_partial(
             output , url_patch + 'partial/data/', '.ipf', False,
-            'revision.csv', url_patch + 'partial/data.revision.txt' ,0
+            'revision_{}.txt'.format(region), url_patch + 'partial/data.revision.txt' ,0
         )
         version_release, version_release_new = patch_partial(
             output, url_patch + 'partial/release/', '.pak', True,
-            'release.csv', url_patch + 'partial/release.revision.txt',0
+            'revision_{}.txt'.format(region), url_patch + 'partial/release.revision.txt',0
         )
 
         move_language(region)

@@ -5,7 +5,7 @@ Created on Mon Sep 20 09:20:20 2021
 @author: Temperantia
 
 everything goes here
-temporary database from parse and make json database to be inserted to mysql
+temporary database from parse and make csv database to be inserted to mysql
 """
 from os.path import join, exists,getmtime
 import os
@@ -24,46 +24,44 @@ class ToS_DB():
     BASE_PATH_OUTPUT                = None
     STATIC_ROOT                     = None
     PATH_BUILD_ASSETS_ICONS         = None
-    PATH_BUILD_ASSETS_MODELS        = None
     PATH_BUILD_ASSETS_IMAGES_MAPS   = None
     PATH_INPUT_DATA                 = None
     PATH_INPUT_DATA_LUA             = None
     transaltion_path                = None
     region                          = None
-    CONVERTER_PATH                  = join("XAC", 'XAC2DAE.jar')
-    
-    EQUIPMENT_IES   = ['item_equip.ies',
-                        'item_Equip_EP12.ies',
-                        'item_Equip_EP13.ies',
-                        'item_event_equip.ies',]
-    EQUIPMENT_REINFORCE_IES = {
-                    'item_goddess_reinforce.ies' : 460,
-                    'item_goddess_reinforce_470.ies' : 470 }
-    ITEM_IES = {
-        "item.ies",
-        'item_colorspray.ies',
-        'item_gem.ies',
-        'item_Equip.ies',
-        'item_Equip_EP12.ies',
-        'item_premium.ies',
-        'item_quest.ies',
-        'recipe.ies',
-        'item_EP12.ies',
-        'item_gem_relic.ies',
-        'item_gem_bernice.ies',
-        'item_GuildHousing.ies',
-        'item_PersonalHousing.ies',
-        'item_HiddenAbility.ies',
-        'item_event.ies', 
-        'item_event_Equip.ies', 
-        'item_EP13.ies',
-        'item_Equip_EP13.ies',
-        'item_Reputation.ies',
-        }
-
     
     file_dict = {}
-    
+    data_path    = {
+        'assets_icons_path'        : "asset.json",
+        'jobs_path'                : "job.json",
+        'jobs_by_name_path'        : "job_by_name.json",
+        'attributes_by_name_path'  : "attributes_by_name.json",
+        'attributes_path'          : "attributes.json",
+        'skills_path'              : "skills.json",
+        'skills_by_name_path'      : "skills_by_name.json",
+        'dictionary_path'          : "dict.json",
+        'items_path'               : 'items.json',
+        'items_by_name_path'       : 'items_by_name.json',
+        'cubes_by_stringarg_path'  : 'cubes_by_stringarg.json',
+        'equipment_sets_path'      : 'equipment_setss.json',
+        'equipment_sets_by_name_path'   : 'equipment_setss_by_name.json',
+        'item_type_path'           : 'item_type.json',
+        'monsters_path'            : 'monster.json',
+        'monsters_by_name_path'    : 'monster_by_name.json',
+        'npcs_path'                : 'npc.json',
+        'npcs_by_name_path'        : 'npc_by_name.json',
+        'item_monster_path'        : 'item_monster.json',
+        'maps_path'                : 'maps.json',
+        'maps_by_name_path'        : 'maps_by_name.json',
+        'maps_by_position_path'    : 'maps_by_position.json',
+        'map_item_path'            : 'map_item_path.json',
+        'map_npc_path'             : 'map_npc_path.json',
+        'map_item_spawn_path'      : 'map_item_spawn_path.json',
+        'skill_mon_path'           : 'skill_mon.json',
+        'equipment_grade_ratios_path' : 'equipment_grade_ratios.json',
+        'buff_path'                :  "buff.json",
+        'achievements_path'        :  "achievements.json"
+        }
     
     data_build = ['assets_icons', 'maps', 'maps_by_name', 'maps_by_position']
         
@@ -97,46 +95,23 @@ class ToS_DB():
        'equipment_grade_ratios' : {},
        'buff'                : {},
        'achievements'        : {},
-       'charxp'              : {},
-       'petxp'               : {},
-       'assisterxp'          : {},
-       'goddess_reinf_mat'   : {},
-       'goddess_reinf'       : {}
        }
     
     
     def build(self, region):
         region = region.lower()
-        self.region                          = region
         self.BASE_PATH_INPUT                 = join("..", "TavernofSoul", "JSON_{}".format(region))
         self.BASE_PATH_OUTPUT                = join( "..", "TavernofSoul", "JSON_{}".format(region))
         #self.STATIC_ROOT                     = '/home/tavp7339/www/itos/static'
         self.STATIC_ROOT                     = join("..", "TavernofSoul", "staticfiles_itos")
         self.PATH_BUILD_ASSETS_ICONS         = join (self.STATIC_ROOT,"icons")
         self.PATH_BUILD_ASSETS_IMAGES_MAPS   = join (self.STATIC_ROOT,"maps")
-        self.PATH_BUILD_ASSETS_MODELS        = join (self.STATIC_ROOT,"models")
-        
-        try:
-            os.mkdir(self.PATH_BUILD_ASSETS_ICONS) 
-        except:
-            pass
-        try:
-            os.mkdir(self.PATH_BUILD_ASSETS_IMAGES_MAPS)
-        except:
-            pass
-        try:
-            os.mkdir(self.PATH_BUILD_ASSETS_MODELS) 
-        except:
-            pass
-        
         self.PATH_INPUT_DATA                 = join('..','{}_unpack'.format(region))
         self.PATH_INPUT_DATA_LUA             = join('..','{}_unpack'.format(region))
         if region == 'itos':
             self.transaltion_path                = join ("..","Translation", 'English')
         elif region == 'jtos':
             self.transaltion_path                = join ("..","Translation", 'Japanese')
-        elif region == 'twtos':
-            self.transaltion_path                = join ("..","Translation", 'Taiwanese')
         else:
             self.transaltion_path                = "."
             
@@ -144,19 +119,19 @@ class ToS_DB():
         
         
         for i in self.data_build:
-            path = "%s.json"%(i)
+            path = self.data_path["{}_path".format(i)]
             path = join(self.BASE_PATH_INPUT, path)
             self.data[i] = self.importJSON(path)
         
     def export(self):
         for i in self.data:
-            path = "{}.json".format(i)
+            path = self.data_path["{}_path".format(i)]
             self.printJSON(self.data[i],path)
     
     
     def export_one(self, file):
         i = file
-        path = "{}.json".format(i)
+        path = self.data_path["{}_path".format(i)]
         self.printJSON(self.data[i],path)
     
     def reverseDict(self, dicts):
@@ -224,7 +199,7 @@ class ToS_DB():
             icon_found = icon + '_m'
     
         if icon_found is not None:
-            #constants.assets_icons_used.append(icon_found)
+            #globals.assets_icons_used.append(icon_found)
             return self.data['assets_icons'][icon_found]
         else:
             # Note: there's nothing we can do about this :'(
@@ -295,12 +270,9 @@ class TOSElement():
     MELEE = 'None'
     POISON = 'Poison'
     SOUL = 'Soul'
-    none = 'None'
 
     @staticmethod
     def to_string(value):
-        if value == None:
-            return 'None'
         return {
             TOSElement.DARK: 'Dark',
             TOSElement.EARTH: 'Earth',
@@ -311,13 +283,10 @@ class TOSElement():
             TOSElement.MELEE: 'None',
             TOSElement.POISON: 'Poison',
             TOSElement.SOUL: 'Soul',
-            'None':'None'
         }[value]
 
     @staticmethod
     def value_of(string):
-        if string == None:
-            return 'None'.upper()
         return {
             'DARK': TOSElement.DARK,
             'EARTH': TOSElement.EARTH,
@@ -329,8 +298,7 @@ class TOSElement():
             'MELEE': TOSElement.MELEE,
             'POISON': TOSElement.POISON,
             'SOUL': TOSElement.SOUL,
-            '': None,
-            'None':'None'
+            '': None
         }[string.upper()]
 
 

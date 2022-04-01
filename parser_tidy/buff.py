@@ -3,7 +3,6 @@
 Created on Thu Sep 23 08:55:17 2021
 
 @author: CPPG02619
-
 """
 
 import csv
@@ -15,23 +14,20 @@ from DB import ToS_DB as constants
 
 
 def parse(c = None):
-    logging.warning('Parsing buffs...')
     if c == None:
         c = constants()
         c.build()
         
     parse_buff('buff_hardskill.ies',c )
     parse_buff('buff.ies',c )
-    parse_buff('buff_monster.ies',c )
-    parse_buff('buff_contents.ies',c )
+    
+
+def parse_buff(filename, globals):
+    logging.debug('Parsing skills...')
 
 
-def parse_buff(filename, constants):
-    logging.debug('Parsing buffs...')
-
-
-    #ies_path = os.path.join(constants.PATH_INPUT_DATA, 'ies.ipf', filename)
-    ies_path = constants.file_dict[filename.lower()]['path']
+    #ies_path = os.path.join(globals.PATH_INPUT_DATA, 'ies.ipf', filename)
+    ies_path = globals.file_dict[filename.lower()]['path']
     if(not exists(ies_path)):
        return
     rows = []
@@ -45,9 +41,9 @@ def parse_buff(filename, constants):
             obj = {}
             obj['$ID'] = row['ClassID']
             obj['$ID_NAME'] = row['ClassName']
-            obj['Description'] = constants.translate(row['ToolTip'])
-            obj['Icon'] = constants.parse_entity_icon(row['Icon'])
-            obj['Name'] = constants.translate(row['Name'])
+            obj['Description'] = globals.translate(row['ToolTip'])
+            obj['Icon'] = globals.parse_entity_icon(row['Icon'])
+            obj['Name'] = globals.translate(row['Name'])
             obj['Keyword'] = row['Keyword']
             obj['ApplyTime'] = row['ApplyTime']
             obj['OverBuff'] = row['OverBuff']
@@ -58,5 +54,5 @@ def parse_buff(filename, constants):
                 else:
                     obj['Group{}'.format(i)] = None
             obj['GroupIndex'] = row['GroupIndex']
-            constants.data['buff'][row['ClassID']] = obj
+            globals.data['buff'][row['ClassID']] = obj
           

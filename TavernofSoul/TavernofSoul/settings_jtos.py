@@ -27,7 +27,7 @@ REGION = 'jtos'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['jtos.tavernofsoul.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -47,13 +47,11 @@ INSTALLED_APPS = [
     'Items.apps.ItemsConfig',
     'ipfparser.apps.IpfparserConfig',
     'Monsters.apps.MonstersConfig',
-    'Market.apps.MarketConfig',
     'Maps.apps.MapsConfig',
     'Planner.apps.PlannerConfig',
     'django.contrib.humanize',
     'Other.apps.OtherConfig',
     'django.contrib.sitemaps',
-    'rest_framework',
     
 ]
 
@@ -94,13 +92,14 @@ WSGI_APPLICATION = 'TavernofSoul.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'tavp7339_jtos',
-        'USER': 'tavp7339_admin',
+        'NAME': 'tavernofsoul',
+        'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

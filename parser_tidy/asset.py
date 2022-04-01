@@ -38,7 +38,6 @@ WHITELIST_BASESKINSET = [
     'wearing_weapon',
     'npccard',
     'goddesscard',
-    'worldmap_image',
 ]
 
 WHITELIST_RGB = [
@@ -46,7 +45,6 @@ WHITELIST_RGB = [
     'sub_card3',
     'npccard',
     'goddesscard',
-    'worldmap_image',
 ]
 
 
@@ -56,10 +54,7 @@ def parse( c = None):
         c = constants()
         c.build()
     logging.basicConfig(level=logging.DEBUG)
-    try:
-        os.mkdir(c.PATH_BUILD_ASSETS_ICONS)
-    except:
-        pass
+     
     logging.info('Parsing assets...')
     parse_icons('baseskinset.xml',c)
     parse_icons('classicon.xml',c)
@@ -74,7 +69,7 @@ def parse_icons(file_name,c):
     
     logging.info('Parsing file {}'.format(file_name))
     
-    #data_path = os.path.join(constants.PATH_INPUT_DATA, 'ui.ipf', 'baseskinset', file_name)
+    #data_path = os.path.join(globals.PATH_INPUT_DATA, 'ui.ipf', 'baseskinset', file_name)
     logging.warning(file_name)
     try:
         data_path = c.file_dict[file_name.lower()]['path']
@@ -139,3 +134,4 @@ def parse_icons_step(file_name, work,c):
 
     # Store mapping for later use
     c.data['assets_icons'][image_name.lower()] = image_name.lower()
+

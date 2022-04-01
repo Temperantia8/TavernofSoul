@@ -92,13 +92,14 @@ WSGI_APPLICATION = 'TavernofSoul.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'tavp7339_twtos',
-        'USER': 'tavp7339_admin',
+        'NAME': 'tavernofsoul',
+        'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
+
 
 
 # Password validation

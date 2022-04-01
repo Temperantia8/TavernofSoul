@@ -41,8 +41,8 @@
 
 
 
-<div class="form-inline align-items-start" style="width: 100%;">
-  <div class="align-top mr-4">
+<div class="row form-inline align-items-start" style="width: 100%;">
+  <div class="col-6 align-top">
 
     <h2> {{"Stats"|translate}} </h2>
     <div class="form-inline mb-2" >
@@ -267,7 +267,7 @@
         </thead>
         <tbody>
            <tr>
-              <td  >{{item.critrate|intcomma }}</td>
+              <td>{{item.critrate|intcomma }}</td>
           </tr>
         </tbody>
       </table>
@@ -329,14 +329,13 @@
     </div>
 
     <br>
-   
+   <h2>{{"Visual"|translate}}</h2>
+
+      <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="width: 250px; height: 250px;">
   </div>
-  <div class="align-top">
-    <div class="form-inline">
-      <h2 class="mr-2"> {{"Stat to cap"|translate}}</h2> 
-      <input type="checkbox" name="cr" id = 'check'  class="form-control mr-1" value="nomal" onchange="critrate(this.checked)"> {{"2x Leather buff" | translate}}
-    </div>
-    <div class="form-inline mb-4">
+  <div class="col-6 align-top">
+      <h2>{{"Stat to cap"|translate}}</h2>
+    <div class="form-inline mb-2">
       <table class="table-bordered border border-white border-responsive mt-1 tabe" >
         <thead>
           <tr>
@@ -370,10 +369,7 @@
         </thead>
         <tbody>
            <tr>
-              <td id = 'cr' 
-                data-cr={{critrate|intcomma }} 
-                data-crleather={{critrate_leather|intcomma }}>
-                {{critrate|intcomma }}</td>
+              <td>{{critrate|intcomma }}</td>
           </tr>
         </tbody>
       </table>
@@ -423,17 +419,16 @@
     </div>
 
     {%if skills%}
-      <h2 class="mt-1">{{"Skills"|translate}}</h2>
+      <h2>{{"Skills"|translate}}</h2>
       <table class="table-bordered border border-white border-responsive mt-1 tabe">
         <thead>
           <tr>
             <th>ClassID</th>
-            <th>{{"Name"|translate}}</th>
+            <th>{{"Name"|translate}}e</th>
             <th>{{"Attribute"|translate}}</th>
             <th>CD.</th>
             <th>SFR.</th>
             <th>AAR.</th>
-            <th>{{"Buffs"|translate}}</th>
           </tr>
         </thead>
         <tbody>
@@ -445,14 +440,6 @@
             <td>{{i.cd_in_sec}}</td>
             <td>{{i.sfr}} {%if i.hit_count != 1%} x i.hit_count {%endif%}</td>
             <td>{{i.aar}}</td>
-            <td>
-              {% for buff in i.buffs%}
-                <a href="{%url 'Buffs:buffs' buff.buff.ids%}">{{buff.buff.name}}</a>
-                <i>({{buff.chance}}%, {{buff.duration}}s)</i>
-                <br>
-
-              {%endfor%}
-            </td>
           </tr>
           {%endfor%}
         </tbody>
@@ -505,25 +492,7 @@
       {%endif%}
    
   </div>
-
 </div>
 
-  <div class="mt-3">
-  <h2>{{"Visual"|translate}}</h2>
-
-    <img loading="lazy" alt="" src="/static/icons/{{item.icon}}.png" style="width: 250px; height: 250px;">
-  </div>
+ 
   {% endblock %}
-{%block script%}
-<script type="text/javascript">
-  cr = $("#cr")[0]
-  function critrate(is_leather){
-    value = cr.dataset.cr 
-    if (is_leather){
-      value = cr.dataset.crleather 
-    }
-    cr.innerText = value
-  }
-
-</script>
-{%endblock%}
