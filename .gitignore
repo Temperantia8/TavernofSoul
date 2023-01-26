@@ -12,6 +12,8 @@ ktos_patch/
 jtos_patch/
 ktest_patch/
 twtos_patch/
-TavernofSoul/manage*
-TavernofSoul/JSON*/*
-**/settings
+TavernofSoul/JSON_itos/
+TavernofSoul/JSON_ktos/
+TavernofSoul/JSON_ktest/
+TavernofSoul/JSON_jtos/
+TavernofSoul/JSON_twtos/
