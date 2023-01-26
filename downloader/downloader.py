@@ -261,11 +261,11 @@ if __name__ == "__main__":
     else:
         version_data, version_data_new = patch_partial(
             output , url_patch + 'partial/data/', '.ipf', False,
-            'revision_{}.txt'.format(region), url_patch + 'partial/data.revision.txt' ,0
+            'revision.csv', url_patch + 'partial/data.revision.txt' ,0
         )
         version_release, version_release_new = patch_partial(
             output, url_patch + 'partial/release/', '.pak', True,
-            'revision_{}.txt'.format(region), url_patch + 'partial/release.revision.txt',0
+            'release.csv', url_patch + 'partial/release.revision.txt',0
         )
 
         move_language(region)
