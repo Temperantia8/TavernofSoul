@@ -189,11 +189,22 @@ def revision_txt_write(revision_txt, revision):
     with open(revision_txt, 'w') as file:
         file.write(revision)
         
+
+def read_version(filename):
+    rev = {}
+    with open(filename, 'r') as f:
+        w = csv.reader(f)
+        for lines in w:
+            if len(lines)<2:
+                continue
+            rev[lines[0]] = lines[1]
+    return rev
+    
 def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path, revision_url,repatch):
     logging.debug('Patching %s...', revision_url)
     revision_list = urllib.request.urlopen(revision_url).read()
     revision_list = revision_decrypt(revision_list)
-    revision_old = revision_txt_read(revision_path)
+    revision_old = read_version(revision_path)
     revision_new = revision_old
 
     for revision in revision_list:
