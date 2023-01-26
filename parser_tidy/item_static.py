@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Dec 22 09:14:45 2021
-
 @author: CPPG02619
 """
 
@@ -40,4 +39,3 @@ def add_item_static(c):
     c.data['items']['00000002']['Type'] = ''
     c.data['items']['00000002']['Description'] = 'dummy for gabija coin'
     c.data['items_by_name'] ['GabijaCertificate'] = c.data['items']['00000002']
-    

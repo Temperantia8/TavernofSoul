@@ -70,4 +70,3 @@ def parse(c):
         #if not flag:
         #    break
     c.data['xml_skills'] = xml_skills
-

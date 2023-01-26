@@ -12,3 +12,5 @@ ktos_patch/
 jtos_patch/
 ktest_patch/
 twtos_patch/
+TavernofSoul/manage*
+TavernofSoul/JSON*/*

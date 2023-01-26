@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Dec 17 08:38:06 2021
-
 @author: CPPG02619
 """
 
@@ -40,4 +39,3 @@ def parsePetAssister(c):
     
     c.data['petxp']       = pet
     c.data['assisterxp']  = assister
-    

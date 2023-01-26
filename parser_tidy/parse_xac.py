@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jan 26 09:49:44 2022
-
 @author: CPPG02619
 """
 from DB import ToS_DB as constants
@@ -117,4 +116,3 @@ def xac2dae(c, filename):
         logging.warning("error parsing xac -  {}".format(filenamexac))
         subprocess.call(['rm', '-r', dst])
         return False
-    

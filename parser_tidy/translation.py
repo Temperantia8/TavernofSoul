@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Sep 20 09:12:11 2021
-
 @author: Temperantia
 modified from rjgtav 
  https://github.com/rjgtav/tos-database/blob/master/tos-parser/src/parserr/parser_translations.py
-
 create dictionary csv for future translation of game aspects
 """
 

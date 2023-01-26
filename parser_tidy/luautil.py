@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Sep 23 08:06:31 2021
-
 @author: Temperantia
 """
 
@@ -105,8 +104,44 @@ LUA_OVERRIDE = [
         end
         return t
     end
+    ''',
+    '''function SyncFloor(item)
+        return item
+    end''',
     '''
+    function SCR_Get_DEFAULT_MAXPATK(pc, value)
+        return 100
+    end
+    ''',
+    '''
+    function SCR_Get_DEFAULT_MINPATK(pc, value)
+        return 100
+    end
+    ''',
+    '''
+    function SCR_CALC_BASIC_MDEF(pc, value)
+        return 100
+    end
+    ''',
+    '''
+    function get_hp_recovery_ratio(pc, value)
+        return 100
+    end''',
+    '''
+    function GetZoneName(item)
+        if item == nil then
+            return ""
+        end
+        if item["Boss_UseZone"]~=nil then
+            return item["Boss_UseZone"]
+        else
+            return ""
+        end
+    end
     
+    ''',
+    
+
 ]
 
 LUA_RUNTIME = None
@@ -141,6 +176,10 @@ def init_global_data(c):
         ies_by_ClassID = {}
         ies_by_ClassName = {}
         
+        item_goddess_transcend = {}
+        item_goddess_transcend.get_material_list = function(use_lv, class_type, cur_lv, goal_lv)
+                return nil
+        end
         function ies_ADD(key, data)
             _by_ClassID = {}
             _by_ClassName = {}
@@ -166,8 +205,13 @@ def init_global_data(c):
 
     ies_ADD('ancient', iesutil.load('Ancient_Info.ies',c))
     ies_ADD('ancient_info', iesutil.load('Ancient_Info.ies',c))
-    ies_ADD('item', iesutil.load('item_equip.ies',c))
-    ies_ADD('item', iesutil.load('item_Equip_EP12.ies',c))
+    for i in c.EQUIPMENT_IES:
+        try:
+            ies_path = c.file_dict[i.lower()]['path']
+        except:
+            continue
+        ies_ADD('item', iesutil.load(i,c))
+    #ies_ADD('item', iesutil.load('item_Equip_EP12.ies',c))
     ies_ADD('increasecost', iesutil.load('item_IncreaseCost.ies',c))
     ies_ADD('item_grade', iesutil.load('item_grade.ies',c))
     ies_ADD('item_growth', iesutil.load('item_growth.ies',c))
@@ -177,7 +221,10 @@ def init_global_data(c):
     ies_ADD('stat_monster', iesutil.load('statbase_monster.ies',c))
     ies_ADD('stat_monster_race', iesutil.load('statbase_monster_race.ies',c))
     ies_ADD('stat_monster_type', iesutil.load('statbase_monster_type.ies',c))
-    ies_ADD('skillrestrict', iesutil.load('skill_restrict.ies',c))
+    ies_ADD('field_monster_status_ep14_2_d_castle_1', iesutil.load('field_monster_status_ep14_2_d_castle_1.ies',c))
+    ies_ADD('field_monster_status_ep14_2_d_castle_2', iesutil.load('field_monster_status_ep14_2_d_castle_2.ies',c))
+    ies_ADD('field_monster_status_ep14_2_d_castle_3', iesutil.load('field_monster_status_ep14_2_d_castle_3.ies',c))
+    ies_ADD('field_monster_status_id_Unknownsanctuary_2', iesutil.load('field_monster_status_id_Unknownsanctuary_2.ies',c))
     #skill_restrict.ies
 
 
@@ -242,7 +289,11 @@ def init_global_functions(c):
         
         function GetClass(ies_key, name)
             local data = ies_by_ClassName[string.lower(ies_key)]
-            return data[name]
+            if data ~=nil then
+                return data[name]
+            else
+                return nil
+            end
         end
         function GetClassByType(ies_key, id)
             local data = ies_by_ClassID[string.lower(ies_key)]
@@ -291,11 +342,6 @@ def init_global_functions(c):
         end
         
         
-        
-        function SyncFloor(number)
-            return math.floor(number)
-        end
-        
         -- https://stackoverflow.com/a/664557 some LUA table helper functions
         function table.set(t) -- set of list
           local u = { }
@@ -311,6 +357,9 @@ def init_global_functions(c):
           return nil
         end
         
+        function TryGetProp(a,b)
+            return 1
+        end
         function TryGetProp(item, prop, default)
             if item == nil then
                 return default
@@ -328,6 +377,20 @@ def init_global_functions(c):
                 return default
             end
         end
+        
+        function SyncFloor(item)
+            return item
+        end
+        
+        function get_TC_goddess(itemLv, classType, curCount, transcendCount)
+            mat = item_goddess_transcend.get_material_list(itemLv, classType, curCount, transcendCount)
+            if mat ==nil then
+                return 0
+            end
+            return mat
+        end
+        
+        
         
         
     ''' + '\n'.join(LUA_OVERRIDE))
@@ -388,7 +451,7 @@ def init_runtime(c):
                         
                         lua_function_load(lua_function)
                     except LuaError as error:
-                        logging.warn('Failed to load %s, error: %s...', file_path, error)
+                        logging.debug('Failed to load %s, error: %s...', file_path, error)
                         err.append(lua_function)
                         continue
 

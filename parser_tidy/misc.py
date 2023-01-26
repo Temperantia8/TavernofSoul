@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Nov 29 07:35:39 2021
-
 @author: CPPG02619
 """
 
@@ -41,7 +40,6 @@ def achievements(c):
             obj['Icon']     = row['Icon']
             obj['Image']     = row['Image']
             c.data['achievements'][obj['$ID']] = obj
-            
             
             
             
