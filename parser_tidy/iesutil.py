@@ -16,7 +16,7 @@ def load(ies_name,c):
     #ies_path = os.path.join(constants.PATH_INPUT_DATA, "ies.ipf", ies_name)
     
 
-    if not ies_name.lower() not in c.file_dict:
+    if ies_name.lower() not in c.file_dict:
         logging.warn('Missing ies file: %s', ies_name.lower())
         return []
     ies_path = c.file_dict[ies_name.lower()]['path']
