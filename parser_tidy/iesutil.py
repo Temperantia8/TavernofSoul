@@ -17,7 +17,7 @@ def load(ies_name,c):
     
 
     if not ies_name.lower() not in c.file_dict:
-        logging.warn('Missing ies file: %s', ies_path)
+        logging.warn('Missing ies file: %s', ies_name.lower())
         return []
     ies_path = c.file_dict[ies_name.lower()]['path']
     with io.open(ies_path, 'r', encoding = "utf-8") as ies_file:
