@@ -10,6 +10,7 @@ from shutil import copyfile, move, rmtree
 import subprocess 
 import unpacker_pak
 from os.path import join
+import csv
 IPF_BLACKLIST = []
 region = ""
 error_ipf = [] #the somehow error patch
@@ -199,7 +200,7 @@ def read_version(filename):
                 continue
             rev[lines[0]] = lines[1]
     return rev
-    
+
 def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path, revision_url,repatch):
     logging.debug('Patching %s...', revision_url)
     revision_list = urllib.request.urlopen(revision_url).read()
