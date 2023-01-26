@@ -248,8 +248,8 @@ if __name__ == "__main__":
     #region = "itos"
     url_patch = {'itos' : 'http://drygkhncipyq8.cloudfront.net/toslive/patch/',
                  'jtos' : 'http://d3bbj7hlpo9jjy.cloudfront.net/live/patch/',
-                 'ktos' : 'http://tosg.dn.nexoncdn.co.kr/patch/live/',
-                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/'}
+                 'ktos' : 'http://d31k064uwo645x.cloudfront.net/patchkor/',
+                 'ktest' : 'http://tosg.dn.nexoncdn.co.kr/patch/test/'} # FIXME
     
     
     
