@@ -2,3 +2,13 @@
 *.pyc
 *.ipf
 **/prev/
+itos_unpack/
+ktos_unpack/
+jtos_unpack/
+ktest_unpack/
+twtos_unpack/
+itos_patch/
+ktos_patch/
+jtos_patch/
+ktest_patch/
+twtos_patch/
