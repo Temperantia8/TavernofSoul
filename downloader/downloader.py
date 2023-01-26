@@ -211,7 +211,7 @@ def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path,
     for revision in revision_list:
         revision = revision.split(' ')[0]
      
-        if (int(revision) > int(revision_old) or repatch==1) and revision not in ['147674']:
+        if (int(revision) > int(revision_old[region]) or repatch==1) and revision not in ['147674']:
             # Process patch
             patch_name = revision + '_001001' + patch_ext
             patch_file = os.path.join(patch_path, patch_name)
@@ -222,8 +222,8 @@ def patch_partial(patch_path, patch_url, patch_ext, patch_unpack, revision_path,
             patch_process(patch_file, patch_name, patch_unpack, patch_url, patch_path)
 
             # Update revision
-            revision_txt_write(revision_path, revision)
-            revision_new = revision
+            revision_new[region] = revision
+            print_version(revision_path, revision_new)
 
     return revision_old, revision_new
 
